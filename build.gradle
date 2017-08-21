@@ -1,0 +1,51 @@
+apply plugin: 'java'
+
+/*apply plugin: 'findbugs'
+  findbugs {
+  sourceSets = [sourceSets.main]
+  toolVersion = "3.0.1"
+}
+*/
+
+libsDirName = '../'
+version = '1.0'
+archivesBaseName = 'GDH'
+
+repositories {
+    mavenCentral()
+	maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        
+    }
+}
+sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
+dependencies {
+	compile 'io.vertx:vertx-core:3.4.2'
+	compile 'com.googlecode.json-simple:json-simple:1.1.1'
+}
+
+clean {
+	delete "/libs"
+	delete "/build"
+	delete "/bin"
+	delete "GDH-1.0.jar"
+}
+
+jar {
+	dependsOn configurations.runtime
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest {
+        attributes 'Main-Class': 'main.java.gdh.Server'
+    }
+}
+
+task copyDeps(type: Copy) {
+	into 'libs'
+  	from configurations.testRuntime
+}
+task deleteBuild(type: Delete) {
+	delete "build/"
+	delete "bin/"
+  }
+build.dependsOn(deleteBuild)
+deleteBuild.dependsOn(copyDeps)
