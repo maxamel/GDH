@@ -4,6 +4,8 @@ public class Configuration
 {
 	private String IP = "localhost";
 	private String port = "5900";
+	private String generator = "";
+	private String modulus = "";
 	
 	public Configuration(){}
 	

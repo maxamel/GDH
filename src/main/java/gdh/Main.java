@@ -7,6 +7,6 @@ public class Main
 	public static void main(String[] args)
 	{
 		Vertx vertx = Vertx.vertx(); 
-		vertx.deployVerticle("main.java.gdh.Server");
+		vertx.deployVerticle("main.java.gdh.GDHVertex");
 	}
 }

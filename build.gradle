@@ -35,7 +35,7 @@ jar {
 	dependsOn configurations.runtime
 	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
-        attributes 'Main-Class': 'main.java.gdh.Server'
+        attributes 'Main-Class': 'main.java.gdh.Main'
     }
 }
 
