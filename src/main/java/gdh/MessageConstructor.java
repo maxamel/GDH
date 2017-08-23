@@ -8,8 +8,8 @@ public class MessageConstructor
 	public static JSONObject groupInfo(Group g)
 	{
 		JSONObject msg = new JSONObject();
-		msg.put(Constants.prime, g.getN());
-		msg.put(Constants.generator, g.getG());
+		msg.put(Constants.prime, g.getPrime());
+		msg.put(Constants.generator, g.getGenerator());
 		
 		JSONArray members = new JSONArray();
 		for (Node n : g.getTreeNodes())

@@ -1,30 +1,46 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
 
 public class Group 
 {
-	private String groupId;
-	private TreeSet<Node> treeNodes;		// keep order among nodes
-	private BigInteger g;
-	private BigInteger N;
+	private final int groupId;
+	private final TreeSet<Node> treeNodes;		// keep order among nodes
+	private BigInteger generator;
+	private BigInteger prime;
+	private BigInteger secret;
+	private ExchangeState state;
 	
-	public Group(TreeSet<Node> set)
+	public Group(TreeSet<Node> set, Configuration conf)
 	{
 		treeNodes = set;
-		byte[] gen = new byte[256];
-		byte[] mod = new byte[256];
-		Random random = new Random();
-		random.nextBytes(gen);
-		random.nextBytes(mod);
-		g = new BigInteger(gen);
-		N = new BigInteger(mod);
-		groupId = String.valueOf(hashCode());
+		byte[] sec = new byte[32];
+		Random random = new Random(System.nanoTime());
+		random.nextBytes(sec);
+		generator = new BigInteger(conf.getGenerator(),16);
+		prime = new BigInteger(conf.getPrime(),16);
+		secret = new BigInteger(sec);
+		groupId = hashCode();
+		state = new ExchangeState(groupId);
 	}
 	
-	public String getGroupId() {
+	public Group(TreeSet<Node> set, String generator, String prime)
+	{
+		treeNodes = set;
+		byte[] sec = new byte[32];
+		Random random = new Random(System.nanoTime());
+		random.nextBytes(sec);
+		this.generator = new BigInteger(generator, 16);
+		this.prime = new BigInteger(prime, 16);
+		secret = new BigInteger(sec);
+		groupId = hashCode();
+		state = new ExchangeState(groupId);
+	}
+	
+	public int getGroupId() {
 		return groupId;
 	}
 	public TreeSet<Node> getTreeNodes() {
@@ -56,18 +72,46 @@ public class Group
 		return true;
 	}
 
-	public void setG(BigInteger g) {
-		this.g = g;
+	public void setGenerator(BigInteger g) {
+		this.generator = g;
 	}
 
-	public void setN(BigInteger N) {
-		this.N = N;
+	public void setPrime(BigInteger N) {
+		this.prime = N;
 	}
 
-	public BigInteger getG() {
-		return g;
+	public BigInteger getGenerator() {
+		return generator;
 	}
-	public BigInteger getN() {
-		return N;
+	public BigInteger getPrime() {
+		return prime;
+	}
+	
+	public ExchangeState getState() {
+		return state;
+	}
+	
+	public void setState(ExchangeState state) {
+		this.state = state;
+	}
+	
+	public BigInteger getSecret()
+	{
+		return secret;
+	}
+	
+	public Node getNext(Node curr)
+	{
+		Iterator<Node> iter = treeNodes.iterator();
+		while(iter.hasNext())
+		{
+			Node n = iter.next();
+			if (n.equals(curr))
+			{
+				if (n.equals(treeNodes.last())) return treeNodes.first();
+				return iter.next();
+			}
+		}
+		return null;
 	}
 }

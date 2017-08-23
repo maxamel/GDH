@@ -12,4 +12,5 @@ public class Constants
 	
 	public static final String round = "round";
 	public static final String partial_key = "partial_key";
+	public static final String groups = "groups";
 }

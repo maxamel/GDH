@@ -17,8 +17,8 @@ public class GroupTest
 		Node n3 = new Node("2.2.2.2", "3000");
 		TreeSet<Node> set = new TreeSet<>();
 		set.add(n1);set.add(n2);set.add(n3);
-		Group g1 = new Group(set);
-		Group g2 = new Group(set);
+		Group g1 = new Group(set,null ,null);
+		Group g2 = new Group(set,null ,null);
 		assert(g1.hashCode() == g2.hashCode());
 	}
 	
@@ -35,8 +35,8 @@ public class GroupTest
 		TreeSet<Node> set2 = new TreeSet<>();
 		set.add(n1);set.add(n2);
 		set2.add(n3);set2.add(n4);
-		Group g1 = new Group(set);
-		Group g2 = new Group(set2);
+		Group g1 = new Group(set,null ,null);;
+		Group g2 = new Group(set2,null ,null);;
 		assert(g1.hashCode() == g2.hashCode());
 	}
 	
@@ -53,8 +53,8 @@ public class GroupTest
 		TreeSet<Node> set2 = new TreeSet<>();
 		set.add(n1);set.add(n2);
 		set2.add(n3);set2.add(n4);
-		Group g1 = new Group(set);
-		Group g2 = new Group(set2);
+		Group g1 = new Group(set,null ,null);;
+		Group g2 = new Group(set2,null ,null);;
 		assert(g1.hashCode() != g2.hashCode());
 	}
 }
