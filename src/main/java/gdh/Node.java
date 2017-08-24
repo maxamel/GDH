@@ -55,6 +55,12 @@ public class Node implements Comparable<Node>
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Node [IP=" + IP + ", port=" + port + "]";
+	}
 	
+
 	
 }

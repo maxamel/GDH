@@ -19,19 +19,21 @@ import main.java.gdh.Node;
 public class JsonMessageParser implements MessageParser {
 
 	private Map<Integer,Group> groupMappings = new HashMap<>();
+	private Map<Integer,ExchangeState> stateMappings = new HashMap<>();
 	
-	public JsonMessageParser(Map<Integer,Group> groupMappings)
+	public JsonMessageParser(Map<Integer,Group> groupMappings, Map<Integer,ExchangeState> stateMappings)
 	{
 		this.groupMappings = groupMappings;
+		this.stateMappings = stateMappings;
 	}
 	
 	@Override
-	public Group parse(String msg) {
+	public int parse(String msg) {
 		if (msg.contains(Constants.round)) return extractRoundInfo(msg);
 		return extractGroupInfo(msg);	
 	}
 
-	private Group extractGroupInfo(String msg)
+	private int extractGroupInfo(String msg)
 	{
 		JSONParser parser = new JSONParser();
 		TreeSet<Node> set = new TreeSet<>();
@@ -54,34 +56,37 @@ public class JsonMessageParser implements MessageParser {
 			group = new Group(set, generator, prime);
 			group.setGenerator(new BigInteger(generator));
 			group.setPrime(new BigInteger(prime));
+			groupMappings.put(group.getGroupId(), group);
+			stateMappings.put(group.getGroupId(), new ExchangeState(group.getGroupId(), group.getGenerator()));
 		} 
 		catch (ParseException e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return group;
+		return group.getGroupId();
 	}
 	
-	private Group extractRoundInfo(String msg)
+	private int extractRoundInfo(String msg)
 	{
 		JSONParser parser = new JSONParser();
-		Group group = null;
+		int ret = 0;
 		try 
 		{
 			JSONObject obj = (JSONObject) parser.parse(msg);
 			String groupId = (String) obj.get(Constants.groupId);
+			ret = Integer.parseInt(groupId);
 			String round = (String) obj.get(Constants.round);
 			String partial_key = (String) obj.get(Constants.partial_key);
-			ExchangeState state = new ExchangeState(Integer.parseInt(groupId),new BigInteger(partial_key), Integer.parseInt(round));
-			group = groupMappings.get(groupId);
-			group.setState(state);
+			ExchangeState state = stateMappings.get(ret);
+			state.setPartial_key(new BigInteger(partial_key));
+			//state.incRound();
 		} 
 		catch (ParseException e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return group;
+		return ret;
 	}
 }

@@ -41,7 +41,7 @@ public class VertxTestSuite
 		Configuration conf1 = new Configuration();
 		conf1.setIP("localhost").setPort("1081");
 		Configuration conf2 = new Configuration();
-		conf1.setIP("localhost").setPort("1082");
+		conf2.setIP("localhost").setPort("1082");
 		vertx1.setConfiguration(conf1);
 		vertx2.setConfiguration(conf2);
 		
@@ -53,10 +53,12 @@ public class VertxTestSuite
 		vertx1.addGroup(g);
 	
 		vertx.deployVerticle(vertx1, context.asyncAssertSuccess(ID -> {
-			System.out.println("Vertx1 deployed!");
+			while(vertx1.getKey(g.getGroupId()) == null) {}
+			System.out.println("FINAL KEY1: " + vertx1.getKey(g.getGroupId()));
 		}));
 		vertx.deployVerticle(vertx2, context.asyncAssertSuccess(ID -> {
-			System.out.println("Vertx2 deployed!");
+			while(vertx2.getKey(g.getGroupId()) == null) {}
+			System.out.println("FINAL KEY2: " + vertx2.getKey(g.getGroupId()));
 		}));
 		//vertx.deployVerticle(new GDHVertex());
 		//vertx.deployVerticle("main.java.gdh.GDHVertex");

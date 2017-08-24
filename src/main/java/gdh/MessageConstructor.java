@@ -8,8 +8,8 @@ public class MessageConstructor
 	public static JSONObject groupInfo(Group g)
 	{
 		JSONObject msg = new JSONObject();
-		msg.put(Constants.prime, g.getPrime());
-		msg.put(Constants.generator, g.getGenerator());
+		msg.put(Constants.prime, g.getPrime().toString());
+		msg.put(Constants.generator, g.getGenerator().toString());
 		
 		JSONArray members = new JSONArray();
 		for (Node n : g.getTreeNodes())
@@ -23,12 +23,12 @@ public class MessageConstructor
 		return msg;
 	}
 	
-	public static JSONObject roundInfo(Group g)
+	public static JSONObject roundInfo(ExchangeState state)
 	{
 		JSONObject msg = new JSONObject();
-		msg.put(Constants.groupId, msg.hashCode());
-		msg.put(Constants.round, 1);
-		msg.put(Constants.partial_key, 0);
+		msg.put(Constants.groupId, String.valueOf(state.getGroupId()));
+		msg.put(Constants.round, String.valueOf(state.getRound()));
+		msg.put(Constants.partial_key, state.getPartial_key().toString());
 		return msg;
 	}
 }

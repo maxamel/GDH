@@ -4,5 +4,5 @@ import main.java.gdh.Group;
 
 public interface MessageParser 
 {
-	public Group parse(String msg);
+	public int parse(String msg);
 }

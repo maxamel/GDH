@@ -6,12 +6,13 @@ public class ExchangeState
 {
 	private int groupId;
 	
-	private BigInteger partial_key = new BigInteger("0");
+	private BigInteger partial_key;
 	
-	private int round = 1;
+	private int round = 0;
 
-	public ExchangeState(int groupId) {
+	public ExchangeState(int groupId, BigInteger gen) {
 		this.groupId = groupId;
+		this.partial_key = gen;
 	}
 	
 	public ExchangeState(int groupId, BigInteger partial_key, int round) {
@@ -36,7 +37,8 @@ public class ExchangeState
 		round++;
 	}
 	
-	public void setKey(BigInteger partial_key) {
+	public void setPartial_key(BigInteger partial_key) {
 		this.partial_key = partial_key;
 	}
+	
 }

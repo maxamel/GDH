@@ -12,7 +12,6 @@ public class Group
 	private BigInteger generator;
 	private BigInteger prime;
 	private BigInteger secret;
-	private ExchangeState state;
 	
 	public Group(TreeSet<Node> set, Configuration conf)
 	{
@@ -22,9 +21,9 @@ public class Group
 		random.nextBytes(sec);
 		generator = new BigInteger(conf.getGenerator(),16);
 		prime = new BigInteger(conf.getPrime(),16);
-		secret = new BigInteger(sec);
+		secret = (new BigInteger(sec)).abs();
+		System.out.println("SECRET " + secret);
 		groupId = hashCode();
-		state = new ExchangeState(groupId);
 	}
 	
 	public Group(TreeSet<Node> set, String generator, String prime)
@@ -35,9 +34,9 @@ public class Group
 		random.nextBytes(sec);
 		this.generator = new BigInteger(generator, 16);
 		this.prime = new BigInteger(prime, 16);
-		secret = new BigInteger(sec);
+		secret = (new BigInteger(sec)).abs();
+		System.out.println("SECRET " + secret);
 		groupId = hashCode();
-		state = new ExchangeState(groupId);
 	}
 	
 	public int getGroupId() {
@@ -87,14 +86,6 @@ public class Group
 		return prime;
 	}
 	
-	public ExchangeState getState() {
-		return state;
-	}
-	
-	public void setState(ExchangeState state) {
-		this.state = state;
-	}
-	
 	public BigInteger getSecret()
 	{
 		return secret;
@@ -114,4 +105,5 @@ public class Group
 		}
 		return null;
 	}
+	
 }

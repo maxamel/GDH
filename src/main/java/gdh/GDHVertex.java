@@ -21,12 +21,14 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import main.java.parser.JsonMessageParser;
 import main.java.parser.MessageParser;
@@ -41,6 +43,7 @@ import java.math.BigInteger;
 public class GDHVertex extends AbstractVerticle
 {
 	private Map<Integer,Group> groupMappings = new HashMap<>();
+	private Map<Integer,ExchangeState> stateMappings = new HashMap<>();
 	private MessageParser parser;
 	private NetServer server;
 	private Configuration conf;
@@ -55,23 +58,35 @@ public class GDHVertex extends AbstractVerticle
 
 	public void run() 
 	{
-		parser = new JsonMessageParser(groupMappings);
-		
-        server = vertx.createNetServer();
+		parser = new JsonMessageParser(groupMappings, stateMappings);
+		NetServerOptions options = new NetServerOptions();
+		options.setReceiveBufferSize(2500);
+        server = vertx.createNetServer(options);
         
         Handler<NetSocket> handler = (NetSocket netSocket) -> {
                 netSocket.handler(new Handler<Buffer>() {
 
                     @Override
                     public void handle(Buffer buffer) {
-                        System.out.println("incoming data: "+buffer.length());
+                        //System.out.println("incoming data: "+buffer.length());
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
-                        Group g = parser.parse(msg);
-                        groupMappings.put(g.getGroupId(), g);
-                        compute(g);
+                        System.out.println("incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
+                        int groupId = parser.parse(msg);
+                        Group group = groupMappings.get(groupId);
+                        /*if (original != null) 
+                        {
+                        	ExchangeState state = stateMappings.get(g.getGroupId());
+                        	state.setPartial_key(partial_key);
+                        }
+                        else 
+                        {
+                        	groupMappings.put(g.getGroupId(), g);
+                        	ExchangeState state = new ExchangeState(g.getGroupId(), g.getGenerator());
+                        	stateMappings.put(g.getGroupId(), state);
+                        }*/
+                        compute(group);
                     }
-
                 });
         };
         
@@ -87,6 +102,12 @@ public class GDHVertex extends AbstractVerticle
       	  Group group = (Group) message.body();
       	  broadcast(group);
       	});
+	}
+	
+
+	public boolean isDone(int groupId)
+	{
+		return (stateMappings.get(groupId).getRound()+1 == groupMappings.get(groupId).getTreeNodes().size());  
 	}
 	
 	private void broadcastGroupMappings() 
@@ -108,6 +129,7 @@ public class GDHVertex extends AbstractVerticle
 	public void addGroup(Group g)
 	{
 		groupMappings.put(g.getGroupId(), g);
+		stateMappings.put(g.getGroupId(), new ExchangeState(g.getGroupId(), g.getGenerator()));
 	}
 
 	public Node getNode()
@@ -117,22 +139,31 @@ public class GDHVertex extends AbstractVerticle
 	
 	private void compute(Group g)
 	{
-		System.out.println("HEY");
-		if (g.getTreeNodes().size() != g.getState().getRound()+1)
+		ExchangeState state = stateMappings.get(g.getGroupId());
+		if (g.getTreeNodes().size() != state.getRound()+1)
 		{
 			Node n = g.getNext(conf.getNode());
-			BigInteger partial_key = g.getState().getPartial_key().modPow(g.getSecret(),g.getPrime());
-			ExchangeState state = g.getState();
-			state.setKey(partial_key);
-			state.incRound();
-			g.setState(state);
-			sendMessage(n, MessageConstructor.groupInfo(g));
+			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
+			if (!state.getPartial_key().equals(g.getGenerator()))
+			{
+				state.incRound();
+				System.out.println("INCREMENTED " + getNode().toString() + " " + state.getRound());
+			}
+			state.setPartial_key(partial_key);
+			
+			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
-		else System.out.println("Final key: " + g.getState().getPartial_key());
+		else 
+		{
+			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
+			state.setPartial_key(partial_key);
+			System.out.println("Final key: " + state.getPartial_key());
+		}
 	}
 	
-	public Future<BigInteger> getKey(int groupId)
+	public BigInteger getKey(int groupId)
 	{
+		if (groupMappings.containsKey(groupId) && groupMappings.get(groupId).getTreeNodes().size() == stateMappings.get(groupId).getRound()+1) return stateMappings.get(groupId).getPartial_key();
 		return null;
 	}
 	
@@ -176,14 +207,25 @@ public class GDHVertex extends AbstractVerticle
 	
 	private void sendMessage(Node n, JSONObject msg)
 	{
-		NetClient client = vertx.createNetClient();
-		client.connect(Integer.parseInt(n.getPort()), n.getIP(), msg.toJSONString(), res -> {
-			if (res.succeeded()) {
-				System.out.println("Connected!" + res.result());
-			}
-			else System.out.println("Failure!");
-		});
-		client.close();
+		/*DatagramSocket socket = vertx.createDatagramSocket();
+		socket.send(msg.toJSONString(), Integer.parseInt(n.getPort()), n.getIP(), asyncResult -> {
+			  System.out.println("Send succeeded? " + asyncResult.succeeded() + " " + asyncResult.cause().getMessage());
+			});
+		socket.close();
+		*/
+		NetClientOptions options = new NetClientOptions();
+		options.setSendBufferSize(2500);
+		NetClient tcpClient = vertx.createNetClient(options);
+		
+        tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),
+            new Handler<AsyncResult<NetSocket>>(){
+
+            @Override
+            public void handle(AsyncResult<NetSocket> result) {
+                NetSocket socket = result.result();
+                socket.write(msg.toJSONString());
+            }
+        });
 	}
 	
 	@Override
