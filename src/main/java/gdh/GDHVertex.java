@@ -22,6 +22,7 @@ import org.json.simple.parser.ParseException;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
@@ -50,14 +51,6 @@ public class GDHVertex extends AbstractVerticle
 	
 	@Override
     public void start() throws Exception {
-		//conf = readConfigFile();
-		
-		//fileWatch();
-		run();   
-	}
-
-	public void run() 
-	{
 		parser = new JsonMessageParser(groupMappings, stateMappings);
 		NetServerOptions options = new NetServerOptions();
 		options.setReceiveBufferSize(2500);
@@ -74,17 +67,6 @@ public class GDHVertex extends AbstractVerticle
                         System.out.println("incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
                         int groupId = parser.parse(msg);
                         Group group = groupMappings.get(groupId);
-                        /*if (original != null) 
-                        {
-                        	ExchangeState state = stateMappings.get(g.getGroupId());
-                        	state.setPartial_key(partial_key);
-                        }
-                        else 
-                        {
-                        	groupMappings.put(g.getGroupId(), g);
-                        	ExchangeState state = new ExchangeState(g.getGroupId(), g.getGenerator());
-                        	stateMappings.put(g.getGroupId(), state);
-                        }*/
                         compute(group);
                     }
                 });
@@ -92,22 +74,25 @@ public class GDHVertex extends AbstractVerticle
         
         server.connectHandler(handler);
         server.listen(Integer.parseInt(conf.getPort()));
-        
-        EventBus bus = vertx.eventBus();
-        
+		//run();   
+	}
+
+	public void run() 
+	{  
         broadcastGroupMappings();
-        
-        bus.consumer("groups.new", message -> {
-      	  System.out.println("I have been given the task to distribute a new group: " + message.body());
-      	  Group group = (Group) message.body();
-      	  broadcast(group);
-      	});
 	}
 	
+	public void negotiate(int groupId)
+	{
+		Group g = groupMappings.get(groupId);		
+		broadcast(g);
+		compute(g);
+	}
 
 	public boolean isDone(int groupId)
 	{
-		return (stateMappings.get(groupId).getRound()+1 == groupMappings.get(groupId).getTreeNodes().size());  
+		if (stateMappings.containsKey(groupId)) return stateMappings.get(groupId).isDone();
+		return false;
 	}
 	
 	private void broadcastGroupMappings() 
@@ -117,6 +102,7 @@ public class GDHVertex extends AbstractVerticle
 		{
 			Group g = iter.next();
 			broadcast(g);
+			compute(g);
 		}
 	}
 
@@ -144,26 +130,30 @@ public class GDHVertex extends AbstractVerticle
 		{
 			Node n = g.getNext(conf.getNode());
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
-			if (!state.getPartial_key().equals(g.getGenerator()))
+			//if (state.getPartial_key().compareTo(g.getGenerator() ) != 0)
 			{
 				state.incRound();
 				System.out.println("INCREMENTED " + getNode().toString() + " " + state.getRound());
 			}
+			//else System.out.println("NOT INC " + (state.getPartial_key().compareTo(g.getGenerator() ) != 0)  + " \n REALITY " + state.getPartial_key() + " \n SINCE  " + g.getGenerator());
 			state.setPartial_key(partial_key);
-			
+			System.out.println("sending " + getNode().toString());
 			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
 		else 
 		{
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
 			state.setPartial_key(partial_key);
-			System.out.println("Final key: " + state.getPartial_key());
+			state.done();
 		}
 	}
 	
-	public BigInteger getKey(int groupId)
+	public BigInteger getFinalKey(int groupId)
 	{
-		if (groupMappings.containsKey(groupId) && groupMappings.get(groupId).getTreeNodes().size() == stateMappings.get(groupId).getRound()+1) return stateMappings.get(groupId).getPartial_key();
+		if (stateMappings.containsKey(groupId))
+		{
+			if (stateMappings.get(groupId).isDone()) return stateMappings.get(groupId).getPartial_key();
+		}
 		return null;
 	}
 	
@@ -291,7 +281,8 @@ public class GDHVertex extends AbstractVerticle
 				if (!set.isEmpty())
 				{
 					Group g = new Group(set, conf);
-					groupMappings.put(g.hashCode(),g);
+					groupMappings.put(g.getGroupId(),g);
+					stateMappings.put(g.getGroupId(), new ExchangeState(g.getGroupId(), g.getGenerator()));
 					//vertx.eventBus().publish("groups.new", g);
 					broadcast(g);
 					compute(g);

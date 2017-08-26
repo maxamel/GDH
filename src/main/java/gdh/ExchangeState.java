@@ -9,6 +9,8 @@ public class ExchangeState
 	private BigInteger partial_key;
 	
 	private int round = 0;
+	
+	private boolean isDone = false;
 
 	public ExchangeState(int groupId, BigInteger gen) {
 		this.groupId = groupId;
@@ -41,4 +43,13 @@ public class ExchangeState
 		this.partial_key = partial_key;
 	}
 	
+	public void done()
+	{
+		isDone = true;
+	}
+	
+	public boolean isDone()
+	{
+		return isDone;
+	}
 }
