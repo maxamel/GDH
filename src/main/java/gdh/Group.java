@@ -1,41 +1,46 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeSet;
 
 public class Group 
 {
-	private final int groupId;
-	private final TreeSet<Node> treeNodes;		// keep order among nodes
+	private int groupId;
+	private final TreeSet<Node> treeNodes = new TreeSet<>();		// keep order among nodes
 	private BigInteger generator;
 	private BigInteger prime;
 	private BigInteger secret;
 	
-	public Group(TreeSet<Node> set, Configuration conf)
+	public Group(Configuration conf, Node... nodes)
 	{
-		treeNodes = set;
+		initGroup(conf, Arrays.asList(nodes));
+	}
+	
+	public Group(Configuration conf, Collection<Node> nodes)
+	{
+		initGroup(conf, nodes);
+	}
+	
+	public Group(String gen, String prime, Collection<Node> nodes)
+	{
+		Configuration conf = new Configuration();
+		
+		initGroup(conf, nodes);
+	}
+
+	private void initGroup(Configuration conf, Collection<Node> nodes) {
+		for (Node n : nodes)
+			treeNodes.add(n);
 		byte[] sec = new byte[32];
 		Random random = new Random(System.nanoTime());
 		random.nextBytes(sec);
 		generator = new BigInteger(conf.getGenerator(),16);
 		prime = new BigInteger(conf.getPrime(),16);
 		secret = (new BigInteger(sec)).abs();
-		System.out.println("SECRET " + secret);
-		groupId = hashCode();
-	}
-	
-	public Group(TreeSet<Node> set, String generator, String prime)
-	{
-		treeNodes = set;
-		byte[] sec = new byte[32];
-		Random random = new Random(System.nanoTime());
-		random.nextBytes(sec);
-		this.generator = new BigInteger(generator, 16);
-		this.prime = new BigInteger(prime, 16);
-		secret = (new BigInteger(sec)).abs();
-		System.out.println("SECRET " + secret);
 		groupId = hashCode();
 	}
 	

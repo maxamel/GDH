@@ -1,20 +1,21 @@
 package main.java.gdh;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class MessageConstructor 
 {
-	public static JSONObject groupInfo(Group g)
+	
+	public static JsonObject groupInfo(Group g)
 	{
-		JSONObject msg = new JSONObject();
+		JsonObject msg = new JsonObject();
 		msg.put(Constants.prime, g.getPrime().toString());
 		msg.put(Constants.generator, g.getGenerator().toString());
 		
-		JSONArray members = new JSONArray();
+		JsonArray members = new JsonArray();
 		for (Node n : g.getTreeNodes())
 		{
-			JSONObject obj = new JSONObject();
+			JsonObject obj = new JsonObject();
 			obj.put(Constants.ip, n.getIP());
 			obj.put(Constants.port, n.getPort());
 			members.add(obj);
@@ -23,9 +24,9 @@ public class MessageConstructor
 		return msg;
 	}
 	
-	public static JSONObject roundInfo(ExchangeState state)
+	public static JsonObject roundInfo(ExchangeState state)
 	{
-		JSONObject msg = new JSONObject();
+		JsonObject msg = new JsonObject();
 		msg.put(Constants.groupId, String.valueOf(state.getGroupId()));
 		msg.put(Constants.round, String.valueOf(state.getRound()));
 		msg.put(Constants.partial_key, state.getPartial_key().toString());

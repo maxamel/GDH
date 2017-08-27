@@ -1,31 +1,14 @@
 package main.java.gdh;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
@@ -34,11 +17,6 @@ import io.vertx.core.net.NetSocket;
 import main.java.parser.JsonMessageParser;
 import main.java.parser.MessageParser;
 
-import static java.nio.file.StandardWatchEventKinds.*;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 
 public class GDHVertex extends AbstractVerticle
@@ -65,8 +43,15 @@ public class GDHVertex extends AbstractVerticle
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
                         System.out.println("incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
+                        
                         int groupId = parser.parse(msg);
+                        if (groupId == -1) {System.out.println(getNode().toString() + " UNKNOWN GROUP " + msg);return;	}	// This node is behind in its info. Come back later...
                         Group group = groupMappings.get(groupId);
+                        
+                        Buffer outBuffer = Buffer.buffer();
+                        outBuffer.appendString(Constants.ack);
+                        netSocket.write(outBuffer);
+       
                         compute(group);
                     }
                 });
@@ -130,12 +115,7 @@ public class GDHVertex extends AbstractVerticle
 		{
 			Node n = g.getNext(conf.getNode());
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
-			//if (state.getPartial_key().compareTo(g.getGenerator() ) != 0)
-			{
-				state.incRound();
-				System.out.println("INCREMENTED " + getNode().toString() + " " + state.getRound());
-			}
-			//else System.out.println("NOT INC " + (state.getPartial_key().compareTo(g.getGenerator() ) != 0)  + " \n REALITY " + state.getPartial_key() + " \n SINCE  " + g.getGenerator());
+			state.incRound();
 			state.setPartial_key(partial_key);
 			System.out.println("sending " + getNode().toString());
 			sendMessage(n, MessageConstructor.roundInfo(state));
@@ -164,7 +144,7 @@ public class GDHVertex extends AbstractVerticle
 			if (!n.equals(getNode())) sendMessage(n, MessageConstructor.groupInfo(group));
 		}
 	}
-
+	/*
 	private void fileWatch() throws IOException {
 		WatchService watcher = FileSystems.getDefault().newWatchService();
 		System.out.println("Working Directory = " +
@@ -193,18 +173,13 @@ public class GDHVertex extends AbstractVerticle
 			}
 			eventList.addAll(list);
 		});
-	}
+	}*/
 	
-	private void sendMessage(Node n, JSONObject msg)
-	{
-		/*DatagramSocket socket = vertx.createDatagramSocket();
-		socket.send(msg.toJSONString(), Integer.parseInt(n.getPort()), n.getIP(), asyncResult -> {
-			  System.out.println("Send succeeded? " + asyncResult.succeeded() + " " + asyncResult.cause().getMessage());
-			});
-		socket.close();
-		*/
+	private void sendMessage(Node n, JsonObject msg)
+	{	
 		NetClientOptions options = new NetClientOptions();
 		options.setSendBufferSize(2500);
+		
 		NetClient tcpClient = vertx.createNetClient(options);
 		
         tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),
@@ -213,7 +188,26 @@ public class GDHVertex extends AbstractVerticle
             @Override
             public void handle(AsyncResult<NetSocket> result) {
                 NetSocket socket = result.result();
-                socket.write(msg.toJSONString());
+                Long[] timing = new Long[1];
+                timing[0] = vertx.setPeriodic(3000, new Handler<Long>() {
+
+                    @Override
+                    public void handle(Long aLong) {
+                        socket.handler(new Handler<Buffer>(){
+                            @Override
+                            public void handle(Buffer buffer) {
+                                String reply = buffer.getString(0, buffer.length());
+                                if (reply.equals(Constants.ack)) 
+                                {
+                                	System.out.println(getNode().toString() + " Got an ack for " + msg);
+                                	socket.close();
+                                	vertx.cancelTimer(timing[0]);
+                                }
+                            }
+                        });
+                        socket.write(msg.toString());
+                    }
+                });
             }
         });
 	}
@@ -222,40 +216,8 @@ public class GDHVertex extends AbstractVerticle
     public void stop() throws Exception {
 		server.close();
 	}
-
-	private Configuration readConfigFile()
-	{
-		JSONParser parser = new JSONParser();
-		Configuration conf = new Configuration();
-		try
-		{
-			Object obj = parser.parse(new FileReader("configuration"));
-			JSONObject json = (JSONObject) obj;
-			
-			String IP = (String) json.get(Constants.ip);
-			String port = (String) json.get(Constants.port);
-			
-			conf.setIP(IP).setPort(port);
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		} 
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (ParseException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return conf;
-	}
 	
-	private void readGroupMapping(String path)
+	/*private void readGroupMapping(String path)
 	{
 		JSONParser parser = new JSONParser();
 		try
@@ -280,7 +242,7 @@ public class GDHVertex extends AbstractVerticle
 				}
 				if (!set.isEmpty())
 				{
-					Group g = new Group(set, conf);
+					Group g = new Group(conf, set);
 					groupMappings.put(g.getGroupId(),g);
 					stateMappings.put(g.getGroupId(), new ExchangeState(g.getGroupId(), g.getGenerator()));
 					//vertx.eventBus().publish("groups.new", g);
@@ -303,5 +265,5 @@ public class GDHVertex extends AbstractVerticle
 			System.out.println("Illegal Json structure in group mappings!");
 			e.printStackTrace();
 		}
-	}
+	}*/
 }

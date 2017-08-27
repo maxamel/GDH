@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import io.vertx.core.json.JsonObject;
 import main.java.gdh.Constants;
 import main.java.gdh.ExchangeState;
 import main.java.gdh.Group;
@@ -53,7 +54,7 @@ public class JsonMessageParser implements MessageParser {
 				Node n = new Node(ip, port);
 				set.add(n);
 			}
-			group = new Group(set, generator, prime);
+			group = new Group( generator, prime, set);
 			group.setGenerator(new BigInteger(generator));
 			group.setPrime(new BigInteger(prime));
 			groupMappings.put(group.getGroupId(), group);
@@ -69,24 +70,14 @@ public class JsonMessageParser implements MessageParser {
 	
 	private int extractRoundInfo(String msg)
 	{
-		JSONParser parser = new JSONParser();
-		int ret = 0;
-		try 
-		{
-			JSONObject obj = (JSONObject) parser.parse(msg);
-			String groupId = (String) obj.get(Constants.groupId);
-			ret = Integer.parseInt(groupId);
-			String round = (String) obj.get(Constants.round);
-			String partial_key = (String) obj.get(Constants.partial_key);
-			ExchangeState state = stateMappings.get(ret);
-			state.setPartial_key(new BigInteger(partial_key));
-			//state.incRound();
-		} 
-		catch (ParseException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		JsonObject obj = new JsonObject(msg);
+		String groupId = (String) obj.getString(Constants.groupId);
+		int ret = Integer.parseInt(groupId);
+		//String round = (String) obj.get(Constants.round);
+		String partial_key = (String) obj.getString(Constants.partial_key);
+		ExchangeState state = stateMappings.get(ret);
+		if (state==null) return -1;
+		state.setPartial_key(new BigInteger(partial_key));
 		return ret;
 	}
 }
