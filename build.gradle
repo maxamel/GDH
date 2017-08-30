@@ -1,11 +1,15 @@
 apply plugin: 'java'
-
-/*apply plugin: 'findbugs'
-  findbugs {
-  sourceSets = [sourceSets.main]
-  toolVersion = "3.0.1"
+apply plugin: 'pmd'
+  pmd {
+  		toolVersion='5.5.2'
+		ruleSets=["java-basic","java-imports","java-strings","java-clone","java-design"]  		
 }
-*/
+apply plugin: 'findbugs'
+  findbugs {
+  		sourceSets = [sourceSets.main]
+  		toolVersion = "3.0.1"
+}
+
 
 libsDirName = '../'
 version = '1.0'
@@ -15,14 +19,16 @@ repositories {
     mavenCentral()
 	maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
-        
+        url 'http://clojars.org/repo'
     }
 }
 sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
 dependencies {
 	compile 'io.vertx:vertx-core:3.4.2'
 	compile 'io.vertx:vertx-unit:3.4.2'
-	compile 'com.googlecode.json-simple:json-simple:1.1.1'
+	compile 'io.vertx:testtools:2.0.3-final'
+	compile 'io.reactivex:rxjava:1.3.0'
+	compile 'jnetpcap:jnetpcap:1.4.r1425-1f'
 }
 
 clean {

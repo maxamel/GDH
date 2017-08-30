@@ -3,8 +3,12 @@ package main.java.gdh;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-public class MessageConstructor 
+public final class MessageConstructor 
 {
+	private MessageConstructor()
+	{
+		
+	}
 	
 	public static JsonObject groupInfo(Group g)
 	{

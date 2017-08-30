@@ -52,7 +52,7 @@ public class Group
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((treeNodes == null) ? 0 : treeNodes.hashCode());

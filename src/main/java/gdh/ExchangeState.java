@@ -1,16 +1,19 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
 
-public class ExchangeState 
+public class ExchangeState
 {
-	private int groupId;
+	private final int groupId;
 	
 	private BigInteger partial_key;
 	
 	private int round = 0;
 	
 	private boolean isDone = false;
+	
+	private final CompletableFuture<BigInteger> key = new CompletableFuture<BigInteger>();
 
 	public ExchangeState(int groupId, BigInteger gen) {
 		this.groupId = groupId;
@@ -46,10 +49,16 @@ public class ExchangeState
 	public void done()
 	{
 		isDone = true;
+		key.complete(partial_key);
 	}
 	
 	public boolean isDone()
 	{
 		return isDone;
+	}
+	
+	public CompletableFuture<BigInteger> getKey()
+	{
+		return key;
 	}
 }

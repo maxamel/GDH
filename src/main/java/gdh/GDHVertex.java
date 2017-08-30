@@ -3,9 +3,11 @@ package main.java.gdh;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -21,14 +23,14 @@ import java.math.BigInteger;
 
 public class GDHVertex extends AbstractVerticle
 {
-	private Map<Integer,Group> groupMappings = new HashMap<>();
-	private Map<Integer,ExchangeState> stateMappings = new HashMap<>();
+	private final Map<Integer,Group> groupMappings = new HashMap<>();
+	private final Map<Integer,ExchangeState> stateMappings = new HashMap<>();
 	private MessageParser parser;
 	private NetServer server;
 	private Configuration conf;
 	
 	@Override
-    public void start() throws Exception {
+    public void start(Future<Void> future) throws Exception {
 		parser = new JsonMessageParser(groupMappings, stateMappings);
 		NetServerOptions options = new NetServerOptions();
 		options.setReceiveBufferSize(2500);
@@ -58,8 +60,13 @@ public class GDHVertex extends AbstractVerticle
         };
         
         server.connectHandler(handler);
-        server.listen(Integer.parseInt(conf.getPort()));
-		//run();   
+        server.listen(Integer.parseInt(conf.getPort()), res -> {
+        	if (res.succeeded()) {
+	          	future.complete();
+	        } else {
+	        	future.fail(res.cause());
+	        }
+        });  
 	}
 
 	public void run() 
@@ -67,19 +74,13 @@ public class GDHVertex extends AbstractVerticle
         broadcastGroupMappings();
 	}
 	
-	public void negotiate(int groupId)
+	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
 		Group g = groupMappings.get(groupId);		
 		broadcast(g);
-		compute(g);
+		return compute(g);
 	}
 
-	public boolean isDone(int groupId)
-	{
-		if (stateMappings.containsKey(groupId)) return stateMappings.get(groupId).isDone();
-		return false;
-	}
-	
 	private void broadcastGroupMappings() 
 	{
 		Iterator<Group> iter = groupMappings.values().iterator();
@@ -94,7 +95,6 @@ public class GDHVertex extends AbstractVerticle
 	public void setConfiguration(Configuration conf)
 	{
 		this.conf = conf;
-		
 	}
 	
 	public void addGroup(Group g)
@@ -108,10 +108,16 @@ public class GDHVertex extends AbstractVerticle
 		return new Node(conf.getIP(), conf.getPort());
 	}
 	
-	private void compute(Group g)
+	private CompletableFuture<BigInteger> compute(Group g)
 	{
 		ExchangeState state = stateMappings.get(g.getGroupId());
-		if (g.getTreeNodes().size() != state.getRound()+1)
+		if (g.getTreeNodes().size() == state.getRound()+1)
+		{
+			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
+			state.setPartial_key(partial_key);
+			state.done();
+		}
+		else 
 		{
 			Node n = g.getNext(conf.getNode());
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
@@ -120,21 +126,12 @@ public class GDHVertex extends AbstractVerticle
 			System.out.println("sending " + getNode().toString());
 			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
-		else 
-		{
-			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
-			state.setPartial_key(partial_key);
-			state.done();
-		}
+		return state.getKey();
 	}
 	
-	public BigInteger getFinalKey(int groupId)
+	public CompletableFuture<BigInteger> getKey(int groupId)
 	{
-		if (stateMappings.containsKey(groupId))
-		{
-			if (stateMappings.get(groupId).isDone()) return stateMappings.get(groupId).getPartial_key();
-		}
-		return null;
+		return stateMappings.get(groupId).getKey();
 	}
 	
 	private void broadcast(Group group) 
@@ -144,36 +141,6 @@ public class GDHVertex extends AbstractVerticle
 			if (!n.equals(getNode())) sendMessage(n, MessageConstructor.groupInfo(group));
 		}
 	}
-	/*
-	private void fileWatch() throws IOException {
-		WatchService watcher = FileSystems.getDefault().newWatchService();
-		System.out.println("Working Directory = " +
-	              System.getProperty("user.dir"));
-		
-		Path dir = Paths.get(".");
-		WatchKey key = dir.register(watcher,
-                ENTRY_CREATE,
-                ENTRY_MODIFY);
-		
-		AtomicInteger size = new AtomicInteger(0);
-		List<WatchEvent<?>> eventList = new ArrayList<>();
-		
-		long timerId = vertx.setPeriodic(1000, id -> {
-			
-			List<WatchEvent<?>> list = key.pollEvents();
-			int currSize = list.size();
-			if (currSize > 0 && size.get() != currSize) System.out.println("HEYAAA!");
-			if (currSize > 0) 
-			{
-				WatchEvent<Path> event = (WatchEvent<Path>) list.get(list.size()-1);
-				Kind<?> kind = event.kind();
-				Path fileName = event.context();
-				System.out.println(kind.name() + " " + fileName);
-				readGroupMapping(fileName.toString());
-			}
-			eventList.addAll(list);
-		});
-	}*/
 	
 	private void sendMessage(Node n, JsonObject msg)
 	{	
@@ -213,8 +180,14 @@ public class GDHVertex extends AbstractVerticle
 	}
 	
 	@Override
-    public void stop() throws Exception {
-		server.close();
+    public void stop(Future<Void> future) throws Exception {
+		server.close(res -> {
+        	if (res.succeeded()) {
+	          	future.complete();
+	        } else {
+	        	future.fail(res.cause());
+	        }
+        });
 	}
 	
 	/*private void readGroupMapping(String path)

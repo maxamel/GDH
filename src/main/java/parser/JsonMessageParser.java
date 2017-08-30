@@ -1,16 +1,11 @@
 package main.java.parser;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import main.java.gdh.Constants;
 import main.java.gdh.ExchangeState;
@@ -19,8 +14,8 @@ import main.java.gdh.Node;
 
 public class JsonMessageParser implements MessageParser {
 
-	private Map<Integer,Group> groupMappings = new HashMap<>();
-	private Map<Integer,ExchangeState> stateMappings = new HashMap<>();
+	private final Map<Integer,Group> groupMappings;
+	private final Map<Integer,ExchangeState> stateMappings;
 	
 	public JsonMessageParser(Map<Integer,Group> groupMappings, Map<Integer,ExchangeState> stateMappings)
 	{
@@ -36,35 +31,26 @@ public class JsonMessageParser implements MessageParser {
 
 	private int extractGroupInfo(String msg)
 	{
-		JSONParser parser = new JSONParser();
 		TreeSet<Node> set = new TreeSet<>();
 		Group group = null;
-		try 
+		JsonObject obj = new JsonObject(msg);
+		String prime = (String) obj.getString(Constants.prime);
+		String generator = (String) obj.getString(Constants.generator);
+		JsonArray members = (JsonArray) obj.getJsonArray(Constants.members);
+		Iterator<?> iter = members.iterator();
+		while (iter.hasNext())
 		{
-			JSONObject obj = (JSONObject) parser.parse(msg);
-			String prime = (String) obj.get(Constants.prime);
-			String generator = (String) obj.get(Constants.generator);
-			JSONArray members = (JSONArray) obj.get(Constants.members);
-			Iterator<?> iter = members.iterator();
-			while (iter.hasNext())
-			{
-				JSONObject member = (JSONObject) iter.next();
-				String ip = (String) member.get(Constants.ip);
-				String port = (String) member.get(Constants.port);
-				Node n = new Node(ip, port);
-				set.add(n);
-			}
-			group = new Group( generator, prime, set);
-			group.setGenerator(new BigInteger(generator));
-			group.setPrime(new BigInteger(prime));
-			groupMappings.put(group.getGroupId(), group);
-			stateMappings.put(group.getGroupId(), new ExchangeState(group.getGroupId(), group.getGenerator()));
-		} 
-		catch (ParseException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JsonObject member = (JsonObject) iter.next();
+			String ip = (String) member.getString(Constants.ip);
+			String port = (String) member.getString(Constants.port);
+			Node n = new Node(ip, port);
+			set.add(n);
 		}
+		group = new Group( generator, prime, set);
+		group.setGenerator(new BigInteger(generator));
+		group.setPrime(new BigInteger(prime));
+		groupMappings.put(group.getGroupId(), group);
+		stateMappings.put(group.getGroupId(), new ExchangeState(group.getGroupId(), group.getGenerator()));
 		return group.getGroupId();
 	}
 	

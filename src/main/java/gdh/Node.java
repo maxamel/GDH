@@ -2,8 +2,8 @@ package main.java.gdh;
 
 public class Node implements Comparable<Node>
 {
-	private String IP;
-	private String port;
+	private final String IP;
+	private final String port;
 	
 	public Node(String IP, String port)
 	{
@@ -60,7 +60,4 @@ public class Node implements Comparable<Node>
 	public String toString() {
 		return "Node [IP=" + IP + ", port=" + port + "]";
 	}
-	
-
-	
 }
