@@ -87,6 +87,7 @@ public class Group
 	public BigInteger getGenerator() {
 		return generator;
 	}
+	
 	public BigInteger getPrime() {
 		return prime;
 	}

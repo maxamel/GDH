@@ -1,7 +1,11 @@
-package main.java.gdh;
+package main.java.parser;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import main.java.gdh.Constants;
+import main.java.gdh.ExchangeState;
+import main.java.gdh.Group;
+import main.java.gdh.Node;
 
 public final class MessageConstructor 
 {

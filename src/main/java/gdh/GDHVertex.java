@@ -17,6 +17,7 @@ import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
 import main.java.parser.JsonMessageParser;
+import main.java.parser.MessageConstructor;
 import main.java.parser.MessageParser;
 
 import java.math.BigInteger;
