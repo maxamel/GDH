@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.jnetpcap.Pcap;
-import org.jnetpcap.packet.JPacket;
-import org.jnetpcap.packet.JPacketHandler;
-import org.jnetpcap.util.JNetPcapFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,23 +51,54 @@ public class KeyExchangeTest
 		testNegotiation(amount, context);
 	}
 	
-	@Test
+	/*@Test
 	public <T> void testNoKeyOnWire(TestContext context)
 	{
 		Pcap pcap = Pcap.openLive("lo", 256, Pcap.MODE_NON_PROMISCUOUS, 2000, new StringBuilder());
+		Vector<String> vec = new Vector<>();
+		Tcp tcp = new Tcp();
 		JPacketHandler<T> sniffer = new JPacketHandler<T>() {
 
 			@Override
 			public void nextPacket(JPacket arg0, T arg1) {
-				// TODO Auto-generated method stub
-				
+				String payload = new String(tcp.getPayload(), StandardCharsets.UTF_8);
+				System.out.println("Packet " + payload);
+				vec.add(payload);
 			}
 		};
 		pcap.loop(Pcap.LOOP_INFINITE, sniffer, null);
 		
-	}
+		Vertx vertx = Vertx.vertx();
+		GDHVertex vertx1 = new GDHVertex();
+		GDHVertex vertx2 = new GDHVertex();
+		Configuration conf1 = new Configuration();
+		conf1.setIP("localhost").setPort("1081");
+		Configuration conf2 = new Configuration();
+		conf1.setIP("localhost").setPort("1082");
+		vertx1.setConfiguration(conf1);
+		vertx2.setConfiguration(conf2);
+		Group g = new Group(conf1, vertx1.getNode(), vertx2.getNode());
+		vertx1.addGroup(g);
+		vertx.deployVerticle(vertx1);
+		vertx.deployVerticle(vertx2);
+		
+		BigInteger key = null;
+	  	try 
+	  	{
+	  		key = vertx1.negotiate(g.getGroupId()).get();
+	  		for (String s : vec)
+	  			Assert.assertTrue(!s.contains(key.toString()));
+	  	} 
+	  	catch (InterruptedException | ExecutionException e) 
+	  	{
+	  		// TODO Auto-generated catch block
+	  		e.printStackTrace();
+	  	}
+	  	pcap.close();
+	  	vertx.deploymentIDs().forEach(vertx::undeploy);
+	}*/
 
-	// real deployment and communication between verticles
+	// real deployment and communication between verticles on localhost
 	private void testNegotiation(int amount, TestContext context) {
 		Async async = context.async();
 		Vertx vertx = Vertx.vertx(); 
