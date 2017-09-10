@@ -29,7 +29,7 @@ TBD
 # Code Quality
 
 Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
-Contributions of more code analyzers are welcome.
+Contributions of more code analyzers are welcome. Each push to the repository triggers a cloud build via TravisCI which in turn pushes the code into another cloud code analyzer (SonarQube). If anything goes wrong during any of these steps the build fails.
 
 # Testing
 

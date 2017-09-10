@@ -21,12 +21,22 @@ repositories {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
 }
+
+test {
+	 exclude '**/*Suite.class'
+	 beforeTest { descriptor ->
+     logger.lifecycle("Running test: " + descriptor)
+  	}
+}
+
 sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
 sourceSets {
   test {
-    java.srcDir 'src/main/test/gdh'
+    java.srcDir 'src/main/test/gdh/'
   }
 }
+
+
 
 dependencies {
 	compile 'io.vertx:vertx-core:3.4.2'
@@ -51,6 +61,9 @@ jar {
     }
 }
 
+task testSuite(type: Test) {
+	include '**VertxTestSuite.class'
+}
 task copyDeps(type: Copy) {
 	into 'libs'
   	from configurations.testRuntime
@@ -58,6 +71,7 @@ task copyDeps(type: Copy) {
 task deleteBuild(type: Delete) {
 	delete "build/"
 	delete "bin/"
-  }
+ }
+copyDeps.dependsOn(testSuite)
 build.dependsOn(deleteBuild)
 deleteBuild.dependsOn(copyDeps)
