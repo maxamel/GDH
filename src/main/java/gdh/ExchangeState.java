@@ -3,6 +3,10 @@ package main.java.gdh;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+
 public class ExchangeState
 {
 	private final int groupId;
@@ -14,6 +18,8 @@ public class ExchangeState
 	private boolean isDone = false;
 	
 	private final CompletableFuture<BigInteger> key = new CompletableFuture<BigInteger>();
+	
+	private Handler<AsyncResult<BigInteger>> aHandler = null;
 
 	public ExchangeState(int groupId, BigInteger gen) {
 		this.groupId = groupId;
@@ -50,6 +56,7 @@ public class ExchangeState
 	{
 		isDone = true;
 		key.complete(partial_key);
+		if (aHandler != null) aHandler.handle(Future.succeededFuture(partial_key));
 	}
 	
 	public boolean isDone()
@@ -60,5 +67,10 @@ public class ExchangeState
 	public CompletableFuture<BigInteger> getKey()
 	{
 		return key;
+	}
+	
+	public void registerHandler(Handler<AsyncResult<BigInteger>> aHandler)
+	{
+		this.aHandler = aHandler;
 	}
 }

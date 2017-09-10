@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -77,9 +78,41 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
-		Group g = groupMappings.get(groupId);		
+		Group g = groupMappings.get(groupId);
 		broadcast(g);
-		return compute(g);
+		CompletableFuture<BigInteger> future = compute(g);
+		vertx.setTimer(60000, id -> {
+			future.completeExceptionally(new TimeoutException("Timeout exceeded " + 60000));
+		});
+		return future;
+	}
+	
+	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
+	{
+		Group g = groupMappings.get(groupId);	
+		ExchangeState state = stateMappings.get(groupId);
+		state.registerHandler(aHandler);
+		broadcast(g);
+		CompletableFuture<BigInteger> future = compute(g);
+		vertx.setTimer(60000, id -> {
+			aHandler.handle(Future.failedFuture("Timeout exceeded " + 60000));
+			future.completeExceptionally(new TimeoutException("Timeout exceeded " + 60000));
+		});
+		return future;
+	}
+	
+	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
+	{
+		Group g = groupMappings.get(groupId);	
+		ExchangeState state = stateMappings.get(groupId);
+		state.registerHandler(aHandler);
+		broadcast(g);
+		CompletableFuture<BigInteger> future = compute(g);
+		vertx.setTimer(timeoutMillis, id -> {
+			aHandler.handle(Future.failedFuture("Timeout exceeded " + timeoutMillis));
+			future.completeExceptionally(new TimeoutException("Timeout exceeded " + timeoutMillis));
+		});
+		return future;
 	}
 
 	private void broadcastGroupMappings() 
@@ -124,7 +157,7 @@ public class GDHVertex extends AbstractVerticle
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
 			state.incRound();
 			state.setPartial_key(partial_key);
-			System.out.println("sending " + getNode().toString());
+			System.out.println(	"sending " + getNode().toString());
 			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
 		return state.getKey();
@@ -156,8 +189,8 @@ public class GDHVertex extends AbstractVerticle
             @Override
             public void handle(AsyncResult<NetSocket> result) {
                 NetSocket socket = result.result();
-                Long[] timing = new Long[1];
-                timing[0] = vertx.setPeriodic(3000, new Handler<Long>() {
+                Long[] timingAndRetries = new Long[2];
+                timingAndRetries[0] = vertx.setPeriodic(2000, new Handler<Long>() {
 
                     @Override
                     public void handle(Long aLong) {
@@ -169,11 +202,16 @@ public class GDHVertex extends AbstractVerticle
                                 {
                                 	System.out.println(getNode().toString() + " Got an ack for " + msg);
                                 	socket.close();
-                                	vertx.cancelTimer(timing[0]);
+                                	vertx.cancelTimer(timingAndRetries[0]);
                                 }
                             }
                         });
                         socket.write(msg.toString());
+                        timingAndRetries[1]++;
+                        if (timingAndRetries[1] == conf.getRetries()) 
+                        {
+                        	
+                        }
                     }
                 });
             }

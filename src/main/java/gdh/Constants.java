@@ -7,6 +7,8 @@ public class Constants
 	public static final String generator = "generator";
 	public static final String prime = "prime";
 	
+	public static final String retries = "retries";
+	
 	public static final String ip = "ip";
 	public static final String port = "port";
 	

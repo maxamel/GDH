@@ -52,6 +52,7 @@ public class CipherAgentImpl implements CipherAgent
 		return encryptedBytes;
 	}
 
+	//@SuppressFBWarnings("UC_USELESS_OBJECT")
 	public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key) 
 	{
 		byte[] buf = new byte[1024];
