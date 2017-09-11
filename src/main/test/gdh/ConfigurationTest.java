@@ -7,7 +7,6 @@ import main.java.gdh.Configuration;
 
 public class ConfigurationTest 
 {
-
 	@Test
 	public void testConfiguration()
 	{

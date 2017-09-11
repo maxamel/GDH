@@ -13,6 +13,8 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class CipherAgentImpl implements CipherAgent
 {
 	private Cipher encryptCipher;
@@ -52,7 +54,7 @@ public class CipherAgentImpl implements CipherAgent
 		return encryptedBytes;
 	}
 
-	//@SuppressFBWarnings("UC_USELESS_OBJECT")
+	@SuppressFBWarnings("UC_USELESS_OBJECT")
 	public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key) 
 	{
 		byte[] buf = new byte[1024];
