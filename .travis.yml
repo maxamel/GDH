@@ -2,3 +2,8 @@ language: java
 jdk:
   - oraclejdk8
   - openjdk8
+
+addons:
+    sonarcloud:
+        organization: "maxamel-github"
+        token: $SONAR_CLOUD
