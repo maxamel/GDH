@@ -10,4 +10,4 @@ addons:
             secure: "d+IxIkiHrdToWRYlEO0bxhscZtbuA+ndpvJ+hpVg6xeTBFVR68MRMgZqKlBkt4tAU65lyb6G1swky2d+/9NH3rNyCx+V+TSCA5UwYEAWkLAuD0bNpKJAmW79xrE1dfcNBWxCSfJgh0Le6Pa5rPr+MNbZ5npkxS7fj6CI0CBRtjh5wlZbhDVVees799i0lvs2JWB71DnRtwi0sN/karR3p7s+AiZlKFEzvqImCeXHNUxECcbUdBZeCiUUjil885U3cAWUpQ9R1Y6wcy7/NFBxvSbTEYB1so/zE3g+fXdFgpP21CV3mF4Msf1iIQVnbQ1HhfsV4wEg4ApFbymctFpxpSZaGvEql/1eOTLylPBNH76laZMhSPKP+RVDlkhbETm0X0bPTzPB+eMbicvwGKi8maSoTaVzpQTwzmmeycFYh6pJqCCihO1YurriNVSDXStZ82KMUXqy6PKNOQ/wr6+5vdd4sm/m0MbVNjOP70g9R1CT+IVVbbETukdKQh3WseuACDFhwn/WGw3R51mBWqF0FUjaHLE5tHfV9CtwU6mfU0Wa0uS+pBWbWQ7503z73TkEj6wuoPZiKZHH+6KGcM2djSR1pC/kYB/+1+nBAltXN8kdvukhnWB4HPAOK8cOBiVZdrT7UVPRqCmqA18E9RE7m/YHZ0/4m+t3kyriGHKxpfs="
             
 script:
-  - ./gradle sonarqube
+  - sonnar-scanner
