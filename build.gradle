@@ -1,4 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin 'org.sonarqube'
+
 /*apply plugin: 'pmd'
   pmd {
   		toolVersion='5.5.2'
@@ -10,6 +13,13 @@ apply plugin: 'findbugs'
   		toolVersion = "3.0.1"
 }*/
 
+sonarqube {
+    properties {
+        property "sonar.projectName", "Best Ever"
+        property "sonar.projectKey", "maxamel-github"
+        property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+    }
+}
 
 libsDirName = '../'
 version = '1.0'

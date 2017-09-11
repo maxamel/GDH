@@ -4,6 +4,8 @@ jdk:
   - openjdk8
 
 addons:
-    sonarcloud:
-        organization: "maxamel-github"
-        token: $SONAR_CLOUD
+    sonarqube: true
+    
+after_success:
+    gradle check
+    gradle sonarqube -Dsonar.host.url=$SONAR_HOST -Dsonar.login=$SONAR_TOKEN -Dsonar.verbose=true
