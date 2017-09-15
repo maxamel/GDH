@@ -2,15 +2,15 @@ language: java
 sudo: false
 install: true
 
-jdk:
-  - oraclejdk8
-  - openjdk8
-
 addons:
     sonarcloud:
         organization: "maxamel-github"
         token:
-            secure: "d+IxIkiHrdToWRYlEO0bxhscZtbuA+ndpvJ+hpVg6xeTBFVR68MRMgZqKlBkt4tAU65lyb6G1swky2d+/9NH3rNyCx+V+TSCA5UwYEAWkLAuD0bNpKJAmW79xrE1dfcNBWxCSfJgh0Le6Pa5rPr+MNbZ5npkxS7fj6CI0CBRtjh5wlZbhDVVees799i0lvs2JWB71DnRtwi0sN/karR3p7s+AiZlKFEzvqImCeXHNUxECcbUdBZeCiUUjil885U3cAWUpQ9R1Y6wcy7/NFBxvSbTEYB1so/zE3g+fXdFgpP21CV3mF4Msf1iIQVnbQ1HhfsV4wEg4ApFbymctFpxpSZaGvEql/1eOTLylPBNH76laZMhSPKP+RVDlkhbETm0X0bPTzPB+eMbicvwGKi8maSoTaVzpQTwzmmeycFYh6pJqCCihO1YurriNVSDXStZ82KMUXqy6PKNOQ/wr6+5vdd4sm/m0MbVNjOP70g9R1CT+IVVbbETukdKQh3WseuACDFhwn/WGw3R51mBWqF0FUjaHLE5tHfV9CtwU6mfU0Wa0uS+pBWbWQ7503z73TkEj6wuoPZiKZHH+6KGcM2djSR1pC/kYB/+1+nBAltXN8kdvukhnWB4HPAOK8cOBiVZdrT7UVPRqCmqA18E9RE7m/YHZ0/4m+t3kyriGHKxpfs="
-            
+            secure: "tqkFOwk6zLp+tunh5H4I6O5ttUzr9moZ3pKFd7vLdCMwco0RPQu+DYYDqESEsPD419ZkgJLENWCb8ihnhpnK/iYl5GADKUf8yyh49A3qIABZSqEVdGwBrwUJrX40Z0FxwwRNcwocnLZoqXjZOJiI4V7+q3yBRIeKkCyOg8aRqY0y5Rg1FnH6Mz+2vCWn+FW8jwJoV2LztdjnA8Zdg57hSsoL2ILUzt9fQ0LaFkQvvbJmemnrwZd6M/F9L2SI+x102d7uC01cOfr4qZfSxqPliO/VtQJ9w1Uoq2SqQYBTisuSgZiUCHRuk5aVpberc15JVJUJywZC7ZjHQp0tE+MtftnNl/ZBp/D6gJ8+vHr6R6wEC9APcesf2fdWgba6+sfPvJH3UpUOzwSEdFT0i0AOseFWaVm3znM1zCIwV+k3aSXz3PK6sLH1iDWAnL/oc/p6S3PUaaLpXx9mz6rcS2PN6GTi5XPMMcRZdcbAw6Rlz15pYh5vEmF8PEVY9v3TpjbaexgIwDr1x1UAPrAraoqHBZLAme1vs0oYVqpT+WBcuYhbKsGcCorB4S6fV3UsV9cP/+xeLGyoWHJfStxnJfER+mm/g+1IhvIUqbJhaGLpo3pP61zaimhXXChaplvsgtPjXvX3NdImErhqng5Lib3I7GE9ur5zFzIAGoh1oHNgSck="
+
+jdk:
+  - oraclejdk8
+  - openjdk8
+  
 script:
   - ./gradlew sonarqube
