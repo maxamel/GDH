@@ -3,9 +3,8 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'jacoco'
 
-/*apply plugin: 'pmd'
+apply plugin: 'pmd'
   pmd {
   		toolVersion='5.5.2'
 		ruleSets=["java-basic","java-imports","java-strings","java-clone","java-design"]  		
@@ -14,15 +13,7 @@ apply plugin: 'findbugs'
   findbugs {
   		sourceSets = [sourceSets.main]
   		toolVersion = "3.0.1"
-}*/
-
-/*sonarqube {
-    properties {
-        property "sonar.projectName", "Best Ever"
-        property "sonar.projectKey", "maxamel-github"
-        property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
-    }
-}*/
+}
 
 libsDirName = '../'
 version = '1.0'

@@ -17,4 +17,6 @@ public class Constants
 	public static final String groups = "groups";
 	
 	public static final String ack = "ack";
+	
+	public static final String exceptionTimeoutExceeded = "Timeout exceeded ";
 }

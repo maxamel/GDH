@@ -82,7 +82,7 @@ public class GDHVertex extends AbstractVerticle
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(60000, id -> {
-			future.completeExceptionally(new TimeoutException("Timeout exceeded " + 60000));
+			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + 60000));
 		});
 		return future;
 	}
@@ -95,8 +95,8 @@ public class GDHVertex extends AbstractVerticle
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(60000, id -> {
-			aHandler.handle(Future.failedFuture("Timeout exceeded " + 60000));
-			future.completeExceptionally(new TimeoutException("Timeout exceeded " + 60000));
+			aHandler.handle(Future.failedFuture(Constants.exceptionTimeoutExceeded + 60000));
+			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + 60000));
 		});
 		return future;
 	}
@@ -109,8 +109,8 @@ public class GDHVertex extends AbstractVerticle
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(timeoutMillis, id -> {
-			aHandler.handle(Future.failedFuture("Timeout exceeded " + timeoutMillis));
-			future.completeExceptionally(new TimeoutException("Timeout exceeded " + timeoutMillis));
+			aHandler.handle(Future.failedFuture(Constants.exceptionTimeoutExceeded + timeoutMillis));
+			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + timeoutMillis));
 		});
 		return future;
 	}

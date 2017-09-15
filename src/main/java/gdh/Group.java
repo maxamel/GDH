@@ -5,12 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Group 
 {
 	private int groupId;
-	private final TreeSet<Node> treeNodes = new TreeSet<>();		// keep order among nodes
+	private TreeSet<Node> treeNodes = null;		// keep order among nodes
 	private BigInteger generator;
 	private BigInteger prime;
 	private BigInteger secret;
@@ -28,11 +29,12 @@ public class Group
 	public Group(String gen, String prime, Collection<Node> nodes)
 	{
 		Configuration conf = new Configuration();
-		
+		conf.setGenerator(gen).setPrime(prime);
 		initGroup(conf, nodes);
 	}
 
 	private void initGroup(Configuration conf, Collection<Node> nodes) {
+		treeNodes = new TreeSet<>();
 		for (Node n : nodes)
 			treeNodes.add(n);
 		byte[] sec = new byte[32];
@@ -47,15 +49,15 @@ public class Group
 	public int getGroupId() {
 		return groupId;
 	}
-	public TreeSet<Node> getTreeNodes() {
+	public SortedSet<Node> getTreeNodes() {
 		return treeNodes;
 	}
 
 	@Override
 	public final int hashCode() {
-		final int prime = 31;
+		final int primal = 31;
 		int result = 1;
-		result = prime * result + ((treeNodes == null) ? 0 : treeNodes.hashCode());
+		result = primal * result + ((treeNodes == null) ? 0 : treeNodes.hashCode());
 		return result;
 	}
 
