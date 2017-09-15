@@ -5,8 +5,7 @@ install: true
 addons:
     sonarcloud:
         organization: "maxamel-github"
-        token:
-            secure: "M+aUF9bdSSDK0SE7xuAjMwsVV33d793hFZqBNxDlSLu3sEDK5DY7I8p2XaHcXEAN9D6Um99eY7LkP6RbQ9NQexprCJL6p6VRYrGcHpzDBofC8P6n0PlsEF0m5A6Rm64rv3Z6X7v4auMdGejGg4mbvyQljwX5OhW7too8hqJRhpoilc0WgTdvvY4aTmpaZG9HOlAZv+RO31MQsFGIzTamedAIfDzbEioodj7CFVMHqO3vAA34CNi6YGzMjZpP4qaFXazWFG0yhmMn7jK7rh0TXRJeqW47r44jlRtQFmVgMYCasFdQhU7Ifx5H5ROK/ZJee4UjFj5SnBh7WC5mHRwschRrHfhCHI8tlv62n7cvmySdL/0bZt22t0bPBFdMjx+g5rf/ZSR7oayknguV2tObMN0SUDDRKUZJJQ37KXN3F5ujUiCUJXLQwHTPV89E385CXpd9biNMerJ2pFKCY4UIAN/o7cujjpSSHrP5Do3GYvzQ7gO2ZJeVZXlu8QbnFA06IrzoL/cQu67nD4Vo5KEcx8/SlUbe85+sJwq4up0uW1l9LXGs3/yB+FAdn3klcpD52bCMorsUEm3rXKoSs6JU5mAZtlPxm9p/8DRz17t7WbInNq3go6ICTMx+JB20z0SHAEw+rPAKR6+FVHcTApWdCybWXIvLDoy0BoF/VN0cR5o="
+        token: $SONAR_TOKEN
 
 jdk:
   - oraclejdk8
