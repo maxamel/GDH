@@ -12,6 +12,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Log4j2LogDelegateFactory;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
@@ -30,14 +33,15 @@ public class GDHVertex extends AbstractVerticle
 	private MessageParser parser;
 	private NetServer server;
 	private Configuration conf;
+	private final Logger log4jLogger = LoggerFactory.getLogger(Log4j2LogDelegateFactory.class);
 	
 	@Override
     public void start(Future<Void> future) throws Exception {
 		parser = new JsonMessageParser(groupMappings, stateMappings);
+		assert (conf != null);
 		NetServerOptions options = new NetServerOptions();
 		options.setReceiveBufferSize(2500);
         server = vertx.createNetServer(options);
-        
         Handler<NetSocket> handler = (NetSocket netSocket) -> {
                 netSocket.handler(new Handler<Buffer>() {
 
@@ -46,10 +50,14 @@ public class GDHVertex extends AbstractVerticle
                         //System.out.println("incoming data: "+buffer.length());
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
-                        System.out.println("incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
+                        log4jLogger.debug(getNode().toString() + " incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
                         
                         int groupId = parser.parse(msg);
-                        if (groupId == -1) {System.out.println(getNode().toString() + " UNKNOWN GROUP " + msg);return;	}	// This node is behind in its info. Come back later...
+                        if (groupId == -1) 
+                        {// This node is behind in its info. Come back later...
+                        	log4jLogger.debug(getNode().toString() + " Unkown group " + msg);
+                        	return;	
+                        }	
                         Group group = groupMappings.get(groupId);
                         
                         Buffer outBuffer = Buffer.buffer();
@@ -69,6 +77,7 @@ public class GDHVertex extends AbstractVerticle
 	        	future.fail(res.cause());
 	        }
         });  
+        log4jLogger.info(getNode().toString() + " started listening on: "+ conf.getPort());
 	}
 
 	public void run() 
@@ -78,6 +87,7 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
+		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
@@ -89,6 +99,7 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
 	{
+		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
@@ -103,6 +114,7 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
 	{
+		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
@@ -157,7 +169,7 @@ public class GDHVertex extends AbstractVerticle
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
 			state.incRound();
 			state.setPartial_key(partial_key);
-			System.out.println(	"sending " + getNode().toString());
+			log4jLogger.debug(getNode().toString() + " got key: " + partial_key);
 			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
 		return state.getKey();
@@ -190,6 +202,7 @@ public class GDHVertex extends AbstractVerticle
             public void handle(AsyncResult<NetSocket> result) {
                 NetSocket socket = result.result();
                 Long[] timingAndRetries = new Long[2];
+                for (int t=0; t<timingAndRetries.length; t++) timingAndRetries[t] = Long.valueOf("0");
                 timingAndRetries[0] = vertx.setPeriodic(2000, new Handler<Long>() {
 
                     @Override
@@ -200,17 +213,23 @@ public class GDHVertex extends AbstractVerticle
                                 String reply = buffer.getString(0, buffer.length());
                                 if (reply.equals(Constants.ack)) 
                                 {
-                                	System.out.println(getNode().toString() + " Got an ack for " + msg);
+                                	log4jLogger.debug(getNode().toString() + " Got an ack from " + n.toString());
                                 	socket.close();
                                 	vertx.cancelTimer(timingAndRetries[0]);
                                 }
                             }
                         });
+                        log4jLogger.debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
                         socket.write(msg.toString());
                         timingAndRetries[1]++;
-                        if (timingAndRetries[1] == conf.getRetries()) 
-                        {
-                        	
+                        if (timingAndRetries[1] == conf.getRetries())
+                        {	// No more retries left. Exit...
+                        	log4jLogger.error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
+                        	socket.close();
+                        	tcpClient.close();
+                        	server.close();
+                        	vertx.cancelTimer(timingAndRetries[1]);
+                        	vertx.close();
                         }
                     }
                 });
@@ -227,55 +246,6 @@ public class GDHVertex extends AbstractVerticle
 	        	future.fail(res.cause());
 	        }
         });
+		log4jLogger.info(getNode().toString() + " stopped listening on: " + conf.getPort());
 	}
-	
-	/*private void readGroupMapping(String path)
-	{
-		JSONParser parser = new JSONParser();
-		try
-		{
-			Object obj = parser.parse(new FileReader(path));
-			JSONObject json = (JSONObject) obj;
-			
-			JSONArray groups = (JSONArray) json.get(Constants.groups);
-			Iterator<?> iter1 = groups.iterator();
-			while(iter1.hasNext())
-			{
-				JSONArray group = (JSONArray) iter1.next();
-				Iterator<?> iter2 = group.iterator();
-				TreeSet<Node> set = new TreeSet<>();
-				while(iter2.hasNext())
-				{
-					JSONObject node = (JSONObject) iter2.next();
-					String IP = (String) node.get(Constants.ip);
-					String port = (String) node.get(Constants.port);
-					Node n = new Node(IP, port);
-					set.add(n);
-				}
-				if (!set.isEmpty())
-				{
-					Group g = new Group(conf, set);
-					groupMappings.put(g.getGroupId(),g);
-					stateMappings.put(g.getGroupId(), new ExchangeState(g.getGroupId(), g.getGenerator()));
-					//vertx.eventBus().publish("groups.new", g);
-					broadcast(g);
-					compute(g);
-				}
-			}
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		} 
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (ParseException e) 
-		{
-			System.out.println("Illegal Json structure in group mappings!");
-			e.printStackTrace();
-		}
-	}*/
 }

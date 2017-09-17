@@ -14,12 +14,15 @@ public class Configuration
 	
 	public Configuration setIP(String IP)
 	{
+		assert (IP.matches("(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))") ||
+				IP.contains("localhost"));
 		this.IP = IP;
 		return this;
 	}
 	
 	public Configuration setPort(String port)
 	{
+		assert port.matches("[1-9]\\d*");
 		this.port = port;
 		return this;
 	}
@@ -30,12 +33,14 @@ public class Configuration
 	}
 	public Configuration setGenerator(String generator)
 	{
+		assert generator.matches("[0-9A-F]*");
 		this.generator = generator;
 		return this;
 	}
 	
 	public Configuration setPrime(String prime)
 	{
+		assert prime.matches("[0-9A-F]*");
 		this.prime = prime;
 		return this;
 	}

@@ -143,5 +143,4 @@ public class KeyExchangeTest
 	  	}
 	  	vertx.deploymentIDs().forEach(vertx::undeploy);
 	}
-	
 }
