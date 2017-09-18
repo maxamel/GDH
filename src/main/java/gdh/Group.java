@@ -1,6 +1,7 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ import java.util.TreeSet;
 public class Group 
 {
 	private int groupId;
-	private TreeSet<Node> treeNodes = null;		// keep order among nodes
+	private TreeSet<Node> treeNodes;		// keep order among nodes
 	private BigInteger generator;
 	private BigInteger prime;
 	private BigInteger secret;
@@ -38,7 +39,7 @@ public class Group
 		for (Node n : nodes)
 			treeNodes.add(n);
 		byte[] sec = new byte[32];
-		Random random = new Random(System.nanoTime());
+		Random random = new SecureRandom();
 		random.nextBytes(sec);
 		generator = new BigInteger(conf.getGenerator(),16);
 		prime = new BigInteger(conf.getPrime(),16);
@@ -50,7 +51,7 @@ public class Group
 		return groupId;
 	}
 	public SortedSet<Node> getTreeNodes() {
-		return treeNodes;
+		return new TreeSet<>(treeNodes);
 	}
 
 	@Override
@@ -107,7 +108,9 @@ public class Group
 			Node n = iter.next();
 			if (n.equals(curr))
 			{
-				if (n.equals(treeNodes.last())) return treeNodes.first();
+				if (n.equals(treeNodes.last())) 
+					return treeNodes.first();
+				
 				return iter.next();
 			}
 		}

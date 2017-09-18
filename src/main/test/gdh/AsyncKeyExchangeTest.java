@@ -68,7 +68,20 @@ public class AsyncKeyExchangeTest
 			      if (res.succeeded()) {
 			          	keys[1] = res.result();
 			          	async.countDown();
-			          	Assert.assertEquals(keys[1].intValue(),keys[0].intValue());
+			          	try 
+			          	{
+							Assert.assertEquals(keys[1],verticles[0].getKey(g.getGroupId()).get());
+						} 
+			          	catch (InterruptedException e) 
+			          	{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} 
+			          	catch (ExecutionException e) 
+			          	{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 			      } else {
 			        	System.out.println("Negotiation failed! ");
 			      }

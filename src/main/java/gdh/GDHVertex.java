@@ -28,30 +28,19 @@ public class GDHVertex extends AbstractVerticle
 {
 	private final Map<Integer,Group> groupMappings = new HashMap<>();
 	private final Map<Integer,ExchangeState> stateMappings = new HashMap<>();
-	private MessageParser parser;
 	private NetServer server;
 	private Configuration conf;
 	
 	@Override
     public void start(Future<Void> future) throws Exception {
-		parser = new JsonMessageParser(groupMappings, stateMappings);
+		MessageParser parser = new JsonMessageParser(groupMappings, stateMappings);
 		assert (conf != null);
 		
-		/*ConsoleAppender app = new ConsoleAppender();
-		log4jLogger.removeAllAppenders();
-		log4jLogger.addAppender(app);
-		app.setLayout(new PatternLayout());
-		app.setThreshold(Level.DEBUG);
-		app.activateOptions();
-		 */
 		NetServerOptions options = new NetServerOptions();
-		options.setReceiveBufferSize(2500);
+		options.setReceiveBufferSize(Constants.BUFFER_SIZE);
         server = vertx.createNetServer(options);
         Handler<NetSocket> handler = (NetSocket netSocket) -> {
-                netSocket.handler(new Handler<Buffer>() {
-
-                    @Override
-                    public void handle(Buffer buffer) {
+                netSocket.handler((Buffer buffer) -> {
                         //System.out.println("incoming data: "+buffer.length());
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
@@ -70,7 +59,6 @@ public class GDHVertex extends AbstractVerticle
                         netSocket.write(outBuffer);
        
                         compute(group);
-                    }
                 });
         };
         
@@ -196,7 +184,7 @@ public class GDHVertex extends AbstractVerticle
 	private void sendMessage(Node n, JsonObject msg)
 	{	
 		NetClientOptions options = new NetClientOptions();
-		options.setSendBufferSize(2500);
+		options.setSendBufferSize(Constants.BUFFER_SIZE);
 		
 		NetClient tcpClient = vertx.createNetClient(options);
 		
@@ -207,14 +195,14 @@ public class GDHVertex extends AbstractVerticle
             public void handle(AsyncResult<NetSocket> result) {
                 NetSocket socket = result.result();
                 Long[] timingAndRetries = new Long[2];
-                for (int t=0; t<timingAndRetries.length; t++) timingAndRetries[t] = Long.valueOf("0");
+                for (int t=0; t<timingAndRetries.length; t++) 
+                	timingAndRetries[t] = Long.valueOf("0");
+                
                 timingAndRetries[0] = vertx.setPeriodic(2000, new Handler<Long>() {
 
                     @Override
                     public void handle(Long aLong) {
-                        socket.handler(new Handler<Buffer>(){
-                            @Override
-                            public void handle(Buffer buffer) {
+                    	socket.handler((Buffer buffer) -> {
                                 String reply = buffer.getString(0, buffer.length());
                                 if (reply.equals(Constants.ACK)) 
                                 {
@@ -222,7 +210,7 @@ public class GDHVertex extends AbstractVerticle
                                 	socket.close();
                                 	vertx.cancelTimer(timingAndRetries[0]);
                                 }
-                            }
+                            
                         });
                         conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
                         socket.write(msg.toString());

@@ -14,6 +14,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import main.java.gdh.Constants;
 
 public class CipherAgentImpl implements CipherAgent
 {
@@ -32,7 +33,7 @@ public class CipherAgentImpl implements CipherAgent
 			System.out.println("AES Encryptor initialization failure!");
 		}
 	}
-	
+	// encryption method receiving a value to encrypt, the initial vector and a key 
 	public byte[] encrypt(String value, byte[] iv, SecretKey key) 
 	{
 		byte[] encryptedBytes = null;
@@ -53,11 +54,11 @@ public class CipherAgentImpl implements CipherAgent
 		}
 		return encryptedBytes;
 	}
-
+	// decryption method receiving a value to decrypt, the initial vector and a key 
 	@SuppressFBWarnings("UC_USELESS_OBJECT")
 	public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key) 
 	{
-		byte[] buf = new byte[1024];
+		byte[] buf = new byte[Constants.CIPHER_SIZE];
 		try
 		{
 			IvParameterSpec ivspec = new IvParameterSpec(iv);

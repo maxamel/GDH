@@ -21,6 +21,10 @@ public final class Constants
 	
 	public static final String EXCEPTIONTIMEOUTEXCEEDED = "Timeout exceeded ";
 	
+	public static final int BUFFER_SIZE = 2500;
+	
+	public static final int CIPHER_SIZE = 1024;
+	
 	private Constants()
 	{
 		
