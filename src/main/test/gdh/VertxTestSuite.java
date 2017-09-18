@@ -16,7 +16,8 @@ import io.vertx.ext.unit.TestContext;
 	ConfigurationTest.class, 
 	KeyExchangeTest.class, 
 	MultipleGroupKeyExchangeTest.class,
-	AsyncKeyExchangeTest.class
+	AsyncKeyExchangeTest.class,
+	NoKeyOnWireTest.class
 })
 
 public class VertxTestSuite

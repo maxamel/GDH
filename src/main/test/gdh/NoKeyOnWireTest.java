@@ -1,5 +1,7 @@
 package main.test.gdh;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,20 +9,26 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.WriterAppender;
 import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
 import main.java.gdh.Configuration;
 import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
 
-//@RunWith(VertxUnitRunner.class)
+@RunWith(VertxUnitRunner.class)
 public class NoKeyOnWireTest 
 {
 
-	//@Test
+	@Test
 	public void testExchangeNoKeyOnWire(TestContext context)
 	{
 		int amount = 2;
@@ -33,11 +41,15 @@ public class NoKeyOnWireTest
 		Vertx vertx = Vertx.vertx(); 
 		GDHVertex[] verticles = new GDHVertex[amount];
 		Configuration[] confs = new Configuration[amount];
-
+		Writer writer = new StringWriter();
 		for (int i=0; i<amount; i++)
 		{
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
+			WriterAppender app = new WriterAppender(new PatternLayout(), writer);
+			app.setThreshold(Level.DEBUG);
+			app.activateOptions();
+			confs[i].addAppender(app);
 			int port = 1080 + i;
 			confs[i].setIP("localhost").setPort(String.valueOf(port));
 			verticles[i].setConfiguration(confs[i]);
@@ -57,7 +69,6 @@ public class NoKeyOnWireTest
 				      }
 			});
 		async.awaitSuccess();
-		StringBuilder builder = new StringBuilder();
 		
 		BigInteger[] keys = new BigInteger[2];
 	  	try 
@@ -73,8 +84,7 @@ public class NoKeyOnWireTest
 			      }
 			      
 			}).get();
-	  		
-	  		Assert.assertFalse(builder.toString().contains(keys[1].toString()));
+	  		Assert.assertFalse(writer.toString().contains(keys[1].toString()));
 	  	} 
 	  	catch (InterruptedException | ExecutionException e) 
 	  	{

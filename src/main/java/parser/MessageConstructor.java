@@ -17,27 +17,27 @@ public final class MessageConstructor
 	public static JsonObject groupInfo(Group g)
 	{
 		JsonObject msg = new JsonObject();
-		msg.put(Constants.prime, g.getPrime().toString());
-		msg.put(Constants.generator, g.getGenerator().toString());
+		msg.put(Constants.PRIME, g.getPrime().toString());
+		msg.put(Constants.GENERATOR, g.getGenerator().toString());
 		
 		JsonArray members = new JsonArray();
 		for (Node n : g.getTreeNodes())
 		{
 			JsonObject obj = new JsonObject();
-			obj.put(Constants.ip, n.getIP());
-			obj.put(Constants.port, n.getPort());
+			obj.put(Constants.IP, n.getIP());
+			obj.put(Constants.PORT, n.getPort());
 			members.add(obj);
 		}
-		msg.put(Constants.members, members);
+		msg.put(Constants.MEMBERS, members);
 		return msg;
 	}
 	
 	public static JsonObject roundInfo(ExchangeState state)
 	{
 		JsonObject msg = new JsonObject();
-		msg.put(Constants.groupId, String.valueOf(state.getGroupId()));
-		msg.put(Constants.round, String.valueOf(state.getRound()));
-		msg.put(Constants.partial_key, state.getPartial_key().toString());
+		msg.put(Constants.GROUPID, String.valueOf(state.getGroupId()));
+		msg.put(Constants.ROUND, String.valueOf(state.getRound()));
+		msg.put(Constants.PARTIAL_KEY, state.getPartial_key().toString());
 		return msg;
 	}
 }

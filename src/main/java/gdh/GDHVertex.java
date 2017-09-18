@@ -12,9 +12,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Log4j2LogDelegateFactory;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
@@ -33,12 +31,19 @@ public class GDHVertex extends AbstractVerticle
 	private MessageParser parser;
 	private NetServer server;
 	private Configuration conf;
-	private final Logger log4jLogger = LoggerFactory.getLogger(Log4j2LogDelegateFactory.class);
 	
 	@Override
     public void start(Future<Void> future) throws Exception {
 		parser = new JsonMessageParser(groupMappings, stateMappings);
 		assert (conf != null);
+		
+		/*ConsoleAppender app = new ConsoleAppender();
+		log4jLogger.removeAllAppenders();
+		log4jLogger.addAppender(app);
+		app.setLayout(new PatternLayout());
+		app.setThreshold(Level.DEBUG);
+		app.activateOptions();
+		 */
 		NetServerOptions options = new NetServerOptions();
 		options.setReceiveBufferSize(2500);
         server = vertx.createNetServer(options);
@@ -50,18 +55,18 @@ public class GDHVertex extends AbstractVerticle
                         //System.out.println("incoming data: "+buffer.length());
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
-                        log4jLogger.debug(getNode().toString() + " incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
+                        conf.getLogger().debug(getNode().toString() + " incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
                         
                         int groupId = parser.parse(msg);
                         if (groupId == -1) 
                         {// This node is behind in its info. Come back later...
-                        	log4jLogger.debug(getNode().toString() + " Unkown group " + msg);
+                        	conf.getLogger().debug(getNode().toString() + " Unkown group " + msg);
                         	return;	
                         }	
                         Group group = groupMappings.get(groupId);
                         
                         Buffer outBuffer = Buffer.buffer();
-                        outBuffer.appendString(Constants.ack);
+                        outBuffer.appendString(Constants.ACK);
                         netSocket.write(outBuffer);
        
                         compute(group);
@@ -77,7 +82,7 @@ public class GDHVertex extends AbstractVerticle
 	        	future.fail(res.cause());
 	        }
         });  
-        log4jLogger.info(getNode().toString() + " started listening on: "+ conf.getPort());
+        conf.getLogger().info(getNode().toString() + " started listening on: "+ conf.getPort());
 	}
 
 	public void run() 
@@ -87,42 +92,42 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
-		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(60000, id -> {
-			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + 60000));
+			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
 		});
 		return future;
 	}
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
 	{
-		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(60000, id -> {
-			aHandler.handle(Future.failedFuture(Constants.exceptionTimeoutExceeded + 60000));
-			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + 60000));
+			aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
+			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
 		});
 		return future;
 	}
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
 	{
-		log4jLogger.info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
 		vertx.setTimer(timeoutMillis, id -> {
-			aHandler.handle(Future.failedFuture(Constants.exceptionTimeoutExceeded + timeoutMillis));
-			future.completeExceptionally(new TimeoutException(Constants.exceptionTimeoutExceeded + timeoutMillis));
+			aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
+			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
 		});
 		return future;
 	}
@@ -169,7 +174,7 @@ public class GDHVertex extends AbstractVerticle
 			BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(),g.getPrime());
 			state.incRound();
 			state.setPartial_key(partial_key);
-			log4jLogger.debug(getNode().toString() + " got key: " + partial_key);
+			conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
 			sendMessage(n, MessageConstructor.roundInfo(state));
 		}
 		return state.getKey();
@@ -211,20 +216,20 @@ public class GDHVertex extends AbstractVerticle
                             @Override
                             public void handle(Buffer buffer) {
                                 String reply = buffer.getString(0, buffer.length());
-                                if (reply.equals(Constants.ack)) 
+                                if (reply.equals(Constants.ACK)) 
                                 {
-                                	log4jLogger.debug(getNode().toString() + " Got an ack from " + n.toString());
+                                	conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
                                 	socket.close();
                                 	vertx.cancelTimer(timingAndRetries[0]);
                                 }
                             }
                         });
-                        log4jLogger.debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                        conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
                         socket.write(msg.toString());
                         timingAndRetries[1]++;
                         if (timingAndRetries[1] == conf.getRetries())
                         {	// No more retries left. Exit...
-                        	log4jLogger.error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
+                        	conf.getLogger().error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
                         	socket.close();
                         	tcpClient.close();
                         	server.close();
@@ -246,6 +251,6 @@ public class GDHVertex extends AbstractVerticle
 	        	future.fail(res.cause());
 	        }
         });
-		log4jLogger.info(getNode().toString() + " stopped listening on: " + conf.getPort());
+		conf.getLogger().info(getNode().toString() + " stopped listening on: " + conf.getPort());
 	}
 }

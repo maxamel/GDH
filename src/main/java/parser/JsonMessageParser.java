@@ -25,7 +25,7 @@ public class JsonMessageParser implements MessageParser {
 	
 	@Override
 	public int parse(String msg) {
-		if (msg.contains(Constants.round)) return extractRoundInfo(msg);
+		if (msg.contains(Constants.ROUND)) return extractRoundInfo(msg);
 		return extractGroupInfo(msg);	
 	}
 
@@ -34,15 +34,15 @@ public class JsonMessageParser implements MessageParser {
 		TreeSet<Node> set = new TreeSet<>();
 		Group group = null;
 		JsonObject obj = new JsonObject(msg);
-		String prime = (String) obj.getString(Constants.prime);
-		String generator = (String) obj.getString(Constants.generator);
-		JsonArray members = (JsonArray) obj.getJsonArray(Constants.members);
+		String prime = (String) obj.getString(Constants.PRIME);
+		String generator = (String) obj.getString(Constants.GENERATOR);
+		JsonArray members = (JsonArray) obj.getJsonArray(Constants.MEMBERS);
 		Iterator<?> iter = members.iterator();
 		while (iter.hasNext())
 		{
 			JsonObject member = (JsonObject) iter.next();
-			String ip = (String) member.getString(Constants.ip);
-			String port = (String) member.getString(Constants.port);
+			String ip = (String) member.getString(Constants.IP);
+			String port = (String) member.getString(Constants.PORT);
 			Node n = new Node(ip, port);
 			set.add(n);
 		}
@@ -57,10 +57,10 @@ public class JsonMessageParser implements MessageParser {
 	private int extractRoundInfo(String msg)
 	{
 		JsonObject obj = new JsonObject(msg);
-		String groupId = (String) obj.getString(Constants.groupId);
+		String groupId = (String) obj.getString(Constants.GROUPID);
 		int ret = Integer.parseInt(groupId);
 		//String round = (String) obj.get(Constants.round);
-		String partial_key = (String) obj.getString(Constants.partial_key);
+		String partial_key = (String) obj.getString(Constants.PARTIAL_KEY);
 		ExchangeState state = stateMappings.get(ret);
 		if (state==null) return -1;
 		state.setPartial_key(new BigInteger(partial_key));
