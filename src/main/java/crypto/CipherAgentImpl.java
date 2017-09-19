@@ -3,6 +3,7 @@ package main.java.crypto;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -30,52 +31,41 @@ public class CipherAgentImpl implements CipherAgent
 		}
 	    catch (Exception e)
 		{
-			System.out.println("AES Encryptor initialization failure!");
+			System.out.println("Cipher initialization failure!");
 		}
 	}
 	// encryption method receiving a value to encrypt, the initial vector and a key 
-	public byte[] encrypt(String value, byte[] iv, SecretKey key) 
+	public byte[] encrypt(String value, byte[] iv, SecretKey key) throws InvalidKeyException, InvalidAlgorithmParameterException, IOException 
 	{
 		byte[] encryptedBytes = null;
-		try
-		{
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
-			encryptCipher.init(Cipher.ENCRYPT_MODE, key, ivspec);
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, encryptCipher);
-			cipherOutputStream.write(value.getBytes(StandardCharsets.UTF_8));
-			cipherOutputStream.flush();
-			cipherOutputStream.close();
-			encryptedBytes = outputStream.toByteArray();
-		}
-		catch (InvalidKeyException | InvalidAlgorithmParameterException | IOException e)
-		{
-			System.out.println("Exception Encrypting! " + e.getMessage());
-		}
+		IvParameterSpec ivspec = new IvParameterSpec(iv);
+		encryptCipher.init(Cipher.ENCRYPT_MODE, key, ivspec);
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, encryptCipher);
+		cipherOutputStream.write(value.getBytes(StandardCharsets.UTF_8));
+		cipherOutputStream.flush();
+		cipherOutputStream.close();
+		encryptedBytes = outputStream.toByteArray();
+
 		return encryptedBytes;
 	}
 	// decryption method receiving a value to decrypt, the initial vector and a key 
 	@SuppressFBWarnings("UC_USELESS_OBJECT")
-	public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key) 
+	public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key) throws InvalidKeyException, InvalidAlgorithmParameterException, UnsupportedEncodingException, IOException
 	{
 		byte[] buf = new byte[Constants.CIPHER_SIZE];
-		try
-		{
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
-			decryptCipher.init(Cipher.DECRYPT_MODE, key, ivspec);
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		    ByteArrayInputStream inStream = new ByteArrayInputStream(encryptedBytes);
-		    CipherInputStream cipherInputStream = new CipherInputStream(inStream, decryptCipher);
-		    int bytesRead;
-		    while ((bytesRead = cipherInputStream.read(buf)) >= 0) {
-		        outputStream.write(buf, 0, bytesRead);
-		    }
-		    cipherInputStream.close();
+		ByteArrayOutputStream outputStream = null;
+		IvParameterSpec ivspec = new IvParameterSpec(iv);
+		decryptCipher.init(Cipher.DECRYPT_MODE, key, ivspec);
+		outputStream = new ByteArrayOutputStream();
+		ByteArrayInputStream inStream = new ByteArrayInputStream(encryptedBytes);
+		CipherInputStream cipherInputStream = new CipherInputStream(inStream, decryptCipher);
+		int bytesRead = 0;
+		while ((bytesRead = cipherInputStream.read(buf)) >= 0) {
+			outputStream.write(buf, 0, bytesRead);
 		}
-		catch (IOException | InvalidKeyException | InvalidAlgorithmParameterException e)
-		{
-			System.out.println("Exception Encrypting! " + e.getMessage());
-		}
-	    return new String(buf,StandardCharsets.UTF_8);
+		cipherInputStream.close();
+
+	    return outputStream.toString(StandardCharsets.UTF_8.name());
 	}
 }

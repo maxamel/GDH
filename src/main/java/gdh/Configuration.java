@@ -1,6 +1,7 @@
 package main.java.gdh;
 
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import io.vertx.core.Vertx;
@@ -59,6 +60,12 @@ public class Configuration
 	{
 		assert prime.matches("[0-9A-F]*");
 		this.prime = prime;
+		return this;
+	}
+	
+	public Configuration setLogLevel(Level level)
+	{
+		this.log4jLogger.setLevel(level);
 		return this;
 	}
 

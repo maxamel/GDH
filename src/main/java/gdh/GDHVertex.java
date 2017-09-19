@@ -80,34 +80,34 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
-		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
-		vertx.setTimer(60000, id -> {
-			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
+		vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
+			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
 		});
 		return future;
 	}
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
 	{
-		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
 		broadcast(g);
 		CompletableFuture<BigInteger> future = compute(g);
-		vertx.setTimer(60000, id -> {
-			aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
-			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + 60000));
+		vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
+			aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
+			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
 		});
 		return future;
 	}
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
 	{
-		conf.getLogger().info(getNode().toString() + " called negotiation for group " + groupId);
+		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
 		state.registerHandler(aHandler);
@@ -212,7 +212,8 @@ public class GDHVertex extends AbstractVerticle
                                 }
                             
                         });
-                        conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                        conf.getLogger().debug(getNode().toString() + " Sending data to: " + 
+                        						n.toString() + " " + msg.toString());
                         socket.write(msg.toString());
                         timingAndRetries[1]++;
                         if (timingAndRetries[1] == conf.getRetries())

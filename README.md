@@ -1,4 +1,4 @@
-# GDH - Generalized Diffie-Hellman Key Exchange Platform (In development)
+# GDH - Generalized Diffie-Hellman Key Exchange Platform
 
 A Diffie-Hellman key exchange library for multiple parties built on top of the Vert.x framework.
 
@@ -24,7 +24,47 @@ This scheme can be performed for any number of participants. The number of messa
 
 # Usage
 
-TBD
+The basic usage of the library is spinning up verticles and initiating a key negotiation between them.
+Once you have the key you can start encrypting/decrypting messages safely between the verticles. 
+
+```java 
+GDHVertex vertex = new GDHVertex();
+```
+Define a Configuration for the vertex:
+```java
+Configuration config = new Configuration();
+//	add parameters to the Configuration
+config.setIP("localhost").setPort("5000").setRetries(5).setLogLevel(Level.OFF);
+// assign the configuration to the verticle
+vertex.setConfiguration(config);
+```
+
+Define the group of nodes which will participate in the negotiation of keys:
+```java
+Node a = new Node("localhost","5000");
+Node b = new Node("111.200.539.200","3356");
+Group g = new Group(conf,a,b);
+```
+
+Deploy the verticle and initiate a key negotiation:
+```java
+Vertx v = Vertex.vertx();
+v.deployVerticle(vertex,deployment -> {
+				      if (deployment.succeeded()) {
+				          	v.negotiate(g.getGroupId(), exchange -> {
+			      				if (exchange.succeeded()) {
+			      					System.out.println("Got new key: " + exchange.result());
+			      				}
+			      				else {
+			      					System.out.println("Error negotiating!");
+			      				}
+							}
+					  }
+					  else {
+					  		System.out.println("Error deploying!");
+					  }
+				}          	
+```
 
 # Code Quality
 

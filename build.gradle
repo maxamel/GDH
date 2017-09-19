@@ -27,9 +27,9 @@ repositories {
 }
 
 test {
-	 exclude '**/*Suite.class'
-	 beforeTest { descriptor ->
-     logger.lifecycle("Running test: " + descriptor)
+		exclude '**/*Suite.class'
+	  	beforeTest { descriptor ->
+      	logger.lifecycle("Running test: " + descriptor)
   	}
 }
 

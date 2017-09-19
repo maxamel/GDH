@@ -1,6 +1,8 @@
 package main.test.gdh;
 
 import java.util.TreeSet;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import main.java.gdh.Configuration;
@@ -23,7 +25,7 @@ public class GroupTest
 		
 		Group g1 = new Group(new Configuration(), n1,n2,n3);
 		Group g2 = new Group(new Configuration(), n1,n2,n3);
-		assert(g1.hashCode() == g2.hashCode());
+		Assert.assertTrue(g1.hashCode() == g2.hashCode());
 	}
 	
 	@Test
@@ -41,7 +43,7 @@ public class GroupTest
 		set2.add(n3);set2.add(n4);
 		Group g1 = new Group(new Configuration(), n1,n2,n3,n4);
 		Group g2 = new Group(new Configuration(), n1,n2,n3,n4);
-		assert(g1.hashCode() == g2.hashCode());
+		Assert.assertTrue(g1.hashCode() == g2.hashCode());
 	}
 	
 	@Test
@@ -59,6 +61,6 @@ public class GroupTest
 		set2.add(n3);set2.add(n4);
 		Group g1 = new Group(new Configuration(), n1,n2);
 		Group g2 = new Group(new Configuration(), n3,n4);
-		assert(g1.hashCode() != g2.hashCode());
+		Assert.assertTrue(g1.hashCode() != g2.hashCode());
 	}
 }
