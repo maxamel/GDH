@@ -1,7 +1,5 @@
-package main.test.gdh;
+package test.java.gdh;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,9 +7,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.WriterAppender;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,31 +20,27 @@ import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
 
 @RunWith(VertxUnitRunner.class)
-public class NoKeyOnWireTest 
+public class AsyncKeyExchangeTest 
 {
 
 	@Test
-	public void testExchangeNoKeyOnWire(TestContext context)
+	public void testDoubleKeyExchange(TestContext context)
 	{
 		int amount = 2;
-		testNegotiation(amount, context);
+		testAsyncNegotiation(amount, context);
 	}
 
 	// real deployment and communication between verticles on localhost
-	private void testNegotiation(int amount, TestContext context) {
+	private void testAsyncNegotiation(int amount, TestContext context) {
 		Async async = context.async();
 		Vertx vertx = Vertx.vertx(); 
 		GDHVertex[] verticles = new GDHVertex[amount];
 		Configuration[] confs = new Configuration[amount];
-		Writer writer = new StringWriter();
+
 		for (int i=0; i<amount; i++)
 		{
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
-			WriterAppender app = new WriterAppender(new PatternLayout(), writer);
-			app.setThreshold(Level.DEBUG);
-			app.activateOptions();
-			confs[i].addAppender(app);
 			int port = 1080 + i;
 			confs[i].setIP("localhost").setPort(String.valueOf(port));
 			verticles[i].setConfiguration(confs[i]);
@@ -77,14 +68,25 @@ public class NoKeyOnWireTest
 			      if (res.succeeded()) {
 			          	keys[1] = res.result();
 			          	async.countDown();
-			          	Assert.assertEquals(keys[1].intValue(),keys[0].intValue());
-			          	
+			          	try 
+			          	{
+							Assert.assertEquals(keys[1],verticles[0].getKey(g.getGroupId()).get());
+						} 
+			          	catch (InterruptedException e) 
+			          	{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} 
+			          	catch (ExecutionException e) 
+			          	{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 			      } else {
 			        	System.out.println("Negotiation failed! ");
 			      }
 			      
 			}).get();
-	  		Assert.assertFalse(writer.toString().contains(keys[1].toString()));
 	  	} 
 	  	catch (InterruptedException | ExecutionException e) 
 	  	{

@@ -1,4 +1,4 @@
-package main.test.gdh;
+package test.java.gdh;
 
 import java.security.SecureRandom;
 import java.util.Random;

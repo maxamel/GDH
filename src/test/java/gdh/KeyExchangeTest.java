@@ -1,4 +1,4 @@
-package main.test.gdh;
+package test.java.gdh;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -20,18 +20,39 @@ import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
 
 @RunWith(VertxUnitRunner.class)
-public class AsyncKeyExchangeTest 
+public class KeyExchangeTest
 {
-
+	
 	@Test
 	public void testDoubleKeyExchange(TestContext context)
 	{
 		int amount = 2;
-		testAsyncNegotiation(amount, context);
+		testNegotiation(amount, context);
 	}
-
+	
+	@Test
+	public void testTripleKeyExchange(TestContext context)
+	{
+		int amount = 3;
+		testNegotiation(amount, context);
+	}
+	
+	@Test
+	public void testQuadrupleKeyExchange(TestContext context)
+	{
+		int amount = 4;
+		testNegotiation(amount, context);
+	}
+	
+	@Test
+	public void testQuintupleKeyExchange(TestContext context)
+	{
+		int amount = 5;
+		testNegotiation(amount, context);
+	}
+	
 	// real deployment and communication between verticles on localhost
-	private void testAsyncNegotiation(int amount, TestContext context) {
+	private void testNegotiation(int amount, TestContext context) {
 		Async async = context.async();
 		Vertx vertx = Vertx.vertx(); 
 		GDHVertex[] verticles = new GDHVertex[amount];
@@ -61,32 +82,12 @@ public class AsyncKeyExchangeTest
 			});
 		async.awaitSuccess();
 		
-		BigInteger[] keys = new BigInteger[2];
+		BigInteger key = null;
 	  	try 
 	  	{
-	  		keys[0] = verticles[0].negotiate(g.getGroupId(), res -> {
-			      if (res.succeeded()) {
-			          	keys[1] = res.result();
-			          	async.countDown();
-			          	try 
-			          	{
-							Assert.assertEquals(keys[1],verticles[0].getKey(g.getGroupId()).get());
-						} 
-			          	catch (InterruptedException e) 
-			          	{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} 
-			          	catch (ExecutionException e) 
-			          	{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-			      } else {
-			        	System.out.println("Negotiation failed! ");
-			      }
-			      
-			}).get();
+	  		key = verticles[0].negotiate(g.getGroupId()).get();
+	  		for (int j=0; j<verticles.length; j++)
+	  			Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(),key);
 	  	} 
 	  	catch (InterruptedException | ExecutionException e) 
 	  	{

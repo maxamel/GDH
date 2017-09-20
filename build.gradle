@@ -34,11 +34,11 @@ test {
 }
 
 sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
-sourceSets {
+/*sourceSets {
   test {
     java.srcDir 'src/main/test/gdh/'
   }
-}
+}*/
 
 dependencies {
 	compile 'io.vertx:vertx-core:3.4.2'
