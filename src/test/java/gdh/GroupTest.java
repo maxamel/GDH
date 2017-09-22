@@ -17,7 +17,7 @@ public class GroupTest
 	private static final String port2 = "3001";
 	
 	@Test
-	public void testSameGroupHashCode()
+	public void testSameGroup()
 	{
 		Node n1 = new Node(ip1, port1);
 		Node n2 = new Node(ip1, port2);
@@ -25,11 +25,13 @@ public class GroupTest
 		
 		Group g1 = new Group(new Configuration(), n1,n2,n3);
 		Group g2 = new Group(new Configuration(), n1,n2,n3);
+		Assert.assertTrue(!n1.equals(n2));
 		Assert.assertTrue(g1.hashCode() == g2.hashCode());
+		Assert.assertTrue(g1.equals(g2));
 	}
 	
 	@Test
-	public void testSimilarGroupHashCode()
+	public void testSimilarGroup()
 	{
 		Node n1 = new Node(ip1, port1);
 		Node n2 = new Node(ip1, port2);
@@ -43,11 +45,13 @@ public class GroupTest
 		set2.add(n3);set2.add(n4);
 		Group g1 = new Group(new Configuration(), n1,n2,n3,n4);
 		Group g2 = new Group(new Configuration(), n1,n2,n3,n4);
+		Assert.assertTrue(n1.equals(n3));
 		Assert.assertTrue(g1.hashCode() == g2.hashCode());
+		Assert.assertTrue(g1.equals(g2));
 	}
 	
 	@Test
-	public void testDifferentGroupHashCode()
+	public void testDifferentGroup()
 	{
 		Node n1 = new Node(ip1, port1);
 		Node n2 = new Node(ip1, port2);
@@ -61,6 +65,8 @@ public class GroupTest
 		set2.add(n3);set2.add(n4);
 		Group g1 = new Group(new Configuration(), n1,n2);
 		Group g2 = new Group(new Configuration(), n3,n4);
+		Assert.assertTrue(n1.equals(n3));
 		Assert.assertTrue(g1.hashCode() != g2.hashCode());
+		Assert.assertTrue(!g1.equals(g2));
 	}
 }

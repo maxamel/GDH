@@ -7,7 +7,7 @@ import io.vertx.core.Vertx;
 
 public class PrimaryVertex
 {
-	Vertx vertx = Vertx.vertx();
+	private final Vertx vertx = Vertx.vertx();
 	
 	/**
 	 * @param gdh the GDHVertex to be deployed

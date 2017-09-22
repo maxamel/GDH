@@ -1,7 +1,9 @@
+[![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
+[![SonarQube Quality Gate Status](https://sonarcloud.io/api/badges/gate?key=maxamel-github:GDH:master)](https://sonarcloud.io/dashboard/index/maxamel-github:GDH:master)
+
 # GDH - Generalized Diffie-Hellman Key Exchange Platform
 
 A Diffie-Hellman key exchange library for multiple parties built on top of the Vert.x framework.
-
 
 # Overview
 

@@ -62,6 +62,12 @@ public class Group
 		return result;
 	}
 
+	/**
+	 *   Checks for the equality of this Group and the obj group.
+	 *   Two Groups are considered equal if they are the same object or
+	 *   if they consist of the same Nodes. This is done so the same Group 
+	 *   will not link to two different Nodes.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
