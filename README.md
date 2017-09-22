@@ -40,7 +40,7 @@ GDHVertex vertex = new GDHVertex();
 Define a Configuration for the vertex:
 ```java
 Configuration config = new Configuration();
-//	add parameters to the Configuration
+// add parameters to the Configuration
 config.setIP("localhost").setPort("5000").setRetries(5).setLogLevel(Level.OFF);
 // assign the configuration to the verticle
 vertex.setConfiguration(config);
@@ -87,7 +87,7 @@ pv.kill(vertex,undeployment -> {
 # Code Quality
 
 Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
-Contributions of more code analyzers are welcome. Each push to the Github repository triggers a cloud build via TravisCI which in turn pushes the code into another cloud code analyzer (SonarQube). If anything goes wrong during any of these steps the build fails.
+Contributions of more code analyzers are welcome. Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
 
 # Testing
 
