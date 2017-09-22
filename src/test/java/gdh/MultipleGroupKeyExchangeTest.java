@@ -9,13 +9,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import main.java.gdh.Configuration;
 import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
+import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
 public class MultipleGroupKeyExchangeTest 
@@ -44,7 +44,7 @@ public class MultipleGroupKeyExchangeTest
 	// real deployment and communication between verticles
 	private void testNegotiation(int amount, TestContext context) {
 		Async async = context.async();
-		Vertx vertx = Vertx.vertx(); 
+		PrimaryVertex pv = new PrimaryVertex();
 		GDHVertex[] verticles = new GDHVertex[amount];
 		Configuration[] confs = new Configuration[amount];
 
@@ -52,8 +52,8 @@ public class MultipleGroupKeyExchangeTest
 		{
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
-			int port = 1080 + i;
-			confs[i].setIP("localhost").setPort(String.valueOf(port));
+			String port = amount + "08" + i;
+			confs[i].setIP("localhost").setPort(port);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		
@@ -66,12 +66,12 @@ public class MultipleGroupKeyExchangeTest
 		}
 		
 		for (int i=0; i<amount; i++)
-			vertx.deployVerticle(verticles[i],res -> {
+			pv.run(verticles[i],res -> {
 			      if (res.succeeded()) {
-			          	System.out.println("Deployed verticle!");
+			          	System.out.println("Deployed verticle!" + res.result());
 			          	async.countDown();
 			      } else {
-			        	System.out.println("Deployment failed for verticle!");
+			        	System.out.println("Deployment failed for verticle!" + res.result());
 			      }
 		});
 		
@@ -104,8 +104,17 @@ public class MultipleGroupKeyExchangeTest
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		vertx.deploymentIDs().forEach(vertx::undeploy);
+		for (int i=0; i<amount; i++)
+			pv.kill(verticles[i],res -> {
+				      if (res.succeeded()) {
+				          	System.out.println("Undeployed verticle!" + res.result());
+				          	async.countDown();
+				      } else {
+				    	    res.cause().printStackTrace();
+				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
+				        			res.toString() + " Result " + res.result());
+				      }
+			});
 	}
 	
 }

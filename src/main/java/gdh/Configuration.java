@@ -1,8 +1,14 @@
 package main.java.gdh;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -25,6 +31,7 @@ public class Configuration
 						+ "D119529A45D6F834566E3025E316A330EFBB77A86F0C1AB15B051AE3D428C8F8ACB70A8137150B8EEB10E1"
 						+ "83EDD19963DDD9E263E4770589EF6AA21E7F5F2FF381B539CCE3409D13CD566AFBB48D6C019181E1BCFE94"
 						+ "B30269EDFE72FE9B6AA4BD7B5A0F1C71CFFF4C19C418E1F6EC017981BC087F2A7065B384B890D3191F2BFA";
+	
 	private final Logger log4jLogger = Logger.getRootLogger();
 	
 	public Configuration setIP(String IP)
@@ -65,6 +72,11 @@ public class Configuration
 	
 	public Configuration setLogLevel(Level level)
 	{
+		this.log4jLogger.removeAllAppenders();
+		ConsoleAppender appender = new ConsoleAppender();
+	    appender.setWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)));
+	    appender.setLayout(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
+		this.log4jLogger.addAppender(appender);
 		this.log4jLogger.setLevel(level);
 		return this;
 	}

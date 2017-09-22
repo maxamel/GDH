@@ -1,7 +1,6 @@
 package main.java.gdh;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -72,14 +71,15 @@ public class GDHVertex extends AbstractVerticle
         });  
         conf.getLogger().info(getNode().toString() + " started listening on: "+ conf.getPort());
 	}
-
-	public void run() 
-	{  
-        broadcastGroupMappings();
-	}
+	
+	/*private boolean isDeployed()
+	{
+		return vertx.deploymentIDs().contains(deploymentID());
+	}*/
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
+		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);
 		broadcast(g);
@@ -92,6 +92,7 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
 	{
+		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
@@ -107,6 +108,7 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
 	{
+		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
@@ -118,17 +120,6 @@ public class GDHVertex extends AbstractVerticle
 			future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
 		});
 		return future;
-	}
-
-	private void broadcastGroupMappings() 
-	{
-		Iterator<Group> iter = groupMappings.values().iterator();
-		while (iter.hasNext())
-		{
-			Group g = iter.next();
-			broadcast(g);
-			compute(g);
-		}
 	}
 
 	public void setConfiguration(Configuration conf)

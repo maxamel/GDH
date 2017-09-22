@@ -27,6 +27,13 @@ This scheme can be performed for any number of participants. The number of messa
 The basic usage of the library is spinning up verticles and initiating a key negotiation between them.
 Once you have the key you can start encrypting/decrypting messages safely between the verticles. 
 
+The basic object used for deploying and undeploying verticles is the PrimaryVertex. 
+
+```java
+PrimaryVertex pv = new PrimaryVertex();
+```
+
+The verticle object participating in the key exchange is the GDHVertex:
 ```java 
 GDHVertex vertex = new GDHVertex();
 ```
@@ -39,31 +46,42 @@ config.setIP("localhost").setPort("5000").setRetries(5).setLogLevel(Level.OFF);
 vertex.setConfiguration(config);
 ```
 
-Define the group of nodes which will participate in the negotiation of keys:
+Define the group of nodes which will participate in the negotiation of keys.
+Suppose we have another verticle running on IP 111.200.255.200:
 ```java
 Node a = new Node("localhost","5000");
-Node b = new Node("111.200.539.200","3356");
+Node b = new Node("111.200.255.200","3356");
 Group g = new Group(conf,a,b);
 ```
 
-Deploy the verticle and initiate a key negotiation:
+Run the verticle and initiate a key negotiation:
 ```java
-Vertx v = Vertex.vertx();
-v.deployVerticle(vertex,deployment -> {
-				      if (deployment.succeeded()) {
-				          	v.negotiate(g.getGroupId(), exchange -> {
-			      				if (exchange.succeeded()) {
-			      					System.out.println("Got new key: " + exchange.result());
-			      				}
-			      				else {
-			      					System.out.println("Error negotiating!");
-			      				}
-							}
-					  }
-					  else {
-					  		System.out.println("Error deploying!");
-					  }
-				}          	
+pv.run(vertex,deployment -> {
+	if (deployment.succeeded()) {
+		v.negotiate(g.getGroupId(), exchange -> {
+			if (exchange.succeeded()) {
+				System.out.println("Got new key: " + exchange.result());
+			}
+			else {
+				System.out.println("Error negotiating!");
+			}
+		}
+	}
+	else {
+		System.out.println("Error deploying!");
+	}
+}          	
+```
+Don't forget to kill the verticles when you're finished with them:
+```java
+pv.kill(vertex,undeployment -> {
+	if (undeployment.succeeded()) {
+		System.out.println("Undeployment successful!");
+	}
+	else {
+		System.out.println("Error undeploying!");
+	}
+}      
 ```
 
 # Code Quality

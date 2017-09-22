@@ -16,13 +16,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import main.java.gdh.Configuration;
 import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
+import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
 public class NoKeyOnWireTest 
@@ -38,7 +38,7 @@ public class NoKeyOnWireTest
 	// real deployment and communication between verticles on localhost
 	private void testNegotiation(int amount, TestContext context) {
 		Async async = context.async();
-		Vertx vertx = Vertx.vertx(); 
+		PrimaryVertex pv = new PrimaryVertex();
 		GDHVertex[] verticles = new GDHVertex[amount];
 		Configuration[] confs = new Configuration[amount];
 		Writer writer = new StringWriter();
@@ -50,8 +50,8 @@ public class NoKeyOnWireTest
 			app.setThreshold(Level.DEBUG);
 			app.activateOptions();
 			confs[i].addAppender(app);
-			int port = 1080 + i;
-			confs[i].setIP("localhost").setPort(String.valueOf(port));
+			String port = amount + "08" + i;
+			confs[i].setIP("localhost").setPort(port);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -60,7 +60,7 @@ public class NoKeyOnWireTest
 		verticles[0].addGroup(g);
 		
 		for (int i=0; i<amount; i++)
-			vertx.deployVerticle(verticles[i],res -> {
+			pv.run(verticles[i],res -> {
 				      if (res.succeeded()) {
 				          	System.out.println("Deployed verticle!");
 				          	async.countDown();
@@ -91,6 +91,16 @@ public class NoKeyOnWireTest
 	  		// TODO Auto-generated catch block
 	  		e.printStackTrace();
 	  	}
-	  	vertx.deploymentIDs().forEach(vertx::undeploy);
+	  	for (int i=0; i<amount; i++)
+			pv.kill(verticles[i],res -> {
+				      if (res.succeeded()) {
+				          	System.out.println("Undeployed verticle!" + res.result());
+				          	async.countDown();
+				      } else {
+				    	    res.cause().printStackTrace();
+				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
+				        			res.toString() + " Result " + res.result());
+				      }
+			});
 	}
 }
