@@ -1,5 +1,6 @@
 [![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=GDH)](https://sonarcloud.io/api/badges/gate?key=GDH)<br/>
+[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)<br/>
 
 # GDH - Generalized Diffie-Hellman Key Exchange Platform
 
@@ -53,14 +54,14 @@ Suppose we have another verticle running on IP 111.200.255.200:
 ```java
 Node a = new Node("localhost","5000");
 Node b = new Node("111.200.255.200","3356");
-Group g = new Group(conf,a,b);
+Group g = new Group(config,a,b);
 ```
 
 Run the verticle and initiate a key negotiation:
 ```java
 pv.run(vertex,deployment -> {
 	if (deployment.succeeded()) {
-		v.negotiate(g.getGroupId(), exchange -> {
+		vertex.negotiate(g.getGroupId(), exchange -> {
 			if (exchange.succeeded()) {
 				System.out.println("Got new key: " + exchange.result());
 			}
