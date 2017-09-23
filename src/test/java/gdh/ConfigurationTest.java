@@ -97,7 +97,7 @@ public class ConfigurationTest
 	}
 	
 	@Test
-	public void testHashCode()
+	public void testEquality()
 	{
 		Configuration conf1 = new Configuration();
 		Configuration conf2 = new Configuration();
@@ -105,9 +105,11 @@ public class ConfigurationTest
 		conf1 = conf1.setRetries(3);
 		conf2 = conf2.setRetries(4);
 		Assert.assertTrue(conf1.hashCode() == conf2.hashCode());
+		Assert.assertTrue(conf1.equals(conf2));
 		
 		conf1 = conf1.setIP("1.1.1.1");
 		conf2 = conf2.setIP("2.2.2.2");
 		Assert.assertFalse(conf1.hashCode() == conf2.hashCode());
+		Assert.assertFalse(conf1.equals(conf2));
 	}
 }

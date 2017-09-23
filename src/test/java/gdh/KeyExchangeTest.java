@@ -65,7 +65,7 @@ public class KeyExchangeTest
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
 			String port = amount + "08" + i;
-			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.ALL);
+			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -76,12 +76,10 @@ public class KeyExchangeTest
 		for (int i=0; i<amount; i++)
 			pv.run(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Deployed verticle!" + res.result());
 				          	async.countDown();
 				      } else {
 				    	    res.cause().printStackTrace();
-				        	System.out.println("Deployment failed for verticle!" + res.cause().getMessage() + " Error " +
-				        			res.toString() + " Result " + res.result());
+				        	return;
 				      }
 			});
 		async.awaitSuccess();
@@ -106,12 +104,9 @@ public class KeyExchangeTest
 	  	for (int i=0; i<amount; i++)
 			pv.kill(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Undeployed verticle!" + res.result());
 				          	async.countDown();
 				      } else {
 				    	    res.cause().printStackTrace();
-				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
-				        			res.toString() + " Result " + res.result());
 				      }
 			});
 	}

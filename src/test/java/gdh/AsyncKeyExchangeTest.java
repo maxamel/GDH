@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +42,8 @@ public class AsyncKeyExchangeTest
 		{
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
-			int port = 1080 + i;
-			confs[i].setIP("localhost").setPort(String.valueOf(port));
+			String port = (amount*2) + "08" + i;
+			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -53,10 +54,10 @@ public class AsyncKeyExchangeTest
 		for (int i=0; i<amount; i++)
 			pv.run(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Deployed verticle!");
 				          	async.countDown();
 				      } else {
-				        	System.out.println("Deployment failed for verticle!");
+				    	  	res.cause().printStackTrace();
+				        	return;
 				      }
 			});
 		async.awaitSuccess();
@@ -96,12 +97,9 @@ public class AsyncKeyExchangeTest
 	  	for (int i=0; i<amount; i++)
 			pv.kill(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Undeployed verticle!" + res.result());
 				          	async.countDown();
 				      } else {
 				    	    res.cause().printStackTrace();
-				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
-				        			res.toString() + " Result " + res.result());
 				      }
 			});
 	}

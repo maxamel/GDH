@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +54,7 @@ public class MultipleGroupKeyExchangeTest
 			verticles[i] = new GDHVertex();
 			confs[i] = new Configuration();
 			String port = amount + "08" + i;
-			confs[i].setIP("localhost").setPort(port);
+			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		
@@ -68,10 +69,10 @@ public class MultipleGroupKeyExchangeTest
 		for (int i=0; i<amount; i++)
 			pv.run(verticles[i],res -> {
 			      if (res.succeeded()) {
-			          	System.out.println("Deployed verticle!" + res.result());
 			          	async.countDown();
 			      } else {
-			        	System.out.println("Deployment failed for verticle!" + res.result());
+			    	  	res.cause().printStackTrace();
+			        	return;
 			      }
 		});
 		
@@ -107,12 +108,9 @@ public class MultipleGroupKeyExchangeTest
 		for (int i=0; i<amount; i++)
 			pv.kill(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Undeployed verticle!" + res.result());
 				          	async.countDown();
 				      } else {
 				    	    res.cause().printStackTrace();
-				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
-				        			res.toString() + " Result " + res.result());
 				      }
 			});
 	}

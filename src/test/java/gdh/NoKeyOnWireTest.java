@@ -51,7 +51,7 @@ public class NoKeyOnWireTest
 			app.activateOptions();
 			confs[i].addAppender(app);
 			String port = amount + "08" + i;
-			confs[i].setIP("localhost").setPort(port);
+			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
 			verticles[i].setConfiguration(confs[i]);
 		}
 		List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -73,18 +73,8 @@ public class NoKeyOnWireTest
 		BigInteger[] keys = new BigInteger[2];
 	  	try 
 	  	{
-	  		keys[0] = verticles[0].negotiate(g.getGroupId(), res -> {
-			      if (res.succeeded()) {
-			          	keys[1] = res.result();
-			          	async.countDown();
-			          	Assert.assertEquals(keys[1].intValue(),keys[0].intValue());
-			          	
-			      } else {
-			        	System.out.println("Negotiation failed! ");
-			      }
-			      
-			}).get();
-	  		Assert.assertFalse(writer.toString().contains(keys[1].toString()));
+	  		keys[0] = verticles[0].negotiate(g.getGroupId()).get();
+	  		Assert.assertFalse(writer.toString().contains(keys[0].toString()));
 	  	} 
 	  	catch (InterruptedException | ExecutionException e) 
 	  	{
@@ -94,12 +84,9 @@ public class NoKeyOnWireTest
 	  	for (int i=0; i<amount; i++)
 			pv.kill(verticles[i],res -> {
 				      if (res.succeeded()) {
-				          	System.out.println("Undeployed verticle!" + res.result());
 				          	async.countDown();
 				      } else {
 				    	    res.cause().printStackTrace();
-				        	System.out.println("Undeployment failed for verticle!" + res.cause().getMessage() + " Error " +
-				        			res.toString() + " Result " + res.result());
 				      }
 			});
 	}
