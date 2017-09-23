@@ -1,5 +1,8 @@
 [![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=GDH)](https://sonarcloud.io/api/badges/gate?key=GDH)<br/>
+[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)<br/>
+
+
 
 # GDH - Generalized Diffie-Hellman Key Exchange Platform
 
