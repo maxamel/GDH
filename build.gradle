@@ -35,11 +35,6 @@ test {
 }
 
 sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
-/*sourceSets {
-  test {
-    java.srcDir 'src/main/test/gdh/'
-  }
-}*/
 
 dependencies {
 	compile 'io.vertx:vertx-core:3.4.2'
@@ -54,7 +49,7 @@ clean {
 	delete "/libs"
 	delete "/build"
 	delete "/bin"
-	delete "GDH-1.0.jar"
+	delete "GDH-1.1.jar"
 }
 
 jar {

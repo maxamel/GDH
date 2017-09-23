@@ -1,5 +1,6 @@
 [![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
-[![SonarQube Quality Gate Status](https://sonarcloud.io/api/badges/gate?key=maxamel-github:GDH:master)](https://sonarcloud.io/dashboard/index/maxamel-github:GDH:master)
+[![SonarQube Quality Gate Status](https://sonarcloud.io/api/badges/gate?key=GDH)](https://sonarcloud.io/dashboard/index/GDH)
+[!SonarQube Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)
 
 # GDH - Generalized Diffie-Hellman Key Exchange Platform
 

@@ -25,7 +25,8 @@ public class JsonMessageParser implements MessageParser {
 	
 	@Override
 	public int parse(String msg) {
-		if (msg.contains(Constants.ROUND)) return extractRoundInfo(msg);
+		if (msg.contains(Constants.ROUND)) 
+			return extractRoundInfo(msg);
 		return extractGroupInfo(msg);	
 	}
 
@@ -59,10 +60,10 @@ public class JsonMessageParser implements MessageParser {
 		JsonObject obj = new JsonObject(msg);
 		String groupId = (String) obj.getString(Constants.GROUPID);
 		int ret = Integer.parseInt(groupId);
-		//String round = (String) obj.get(Constants.round);
 		String partial_key = (String) obj.getString(Constants.PARTIAL_KEY);
 		ExchangeState state = stateMappings.get(ret);
-		if (state==null) return -1;
+		if (state==null) 
+			return -1;
 		state.setPartial_key(new BigInteger(partial_key));
 		return ret;
 	}

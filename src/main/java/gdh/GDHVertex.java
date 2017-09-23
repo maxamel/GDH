@@ -40,10 +40,10 @@ public class GDHVertex extends AbstractVerticle
         server = vertx.createNetServer(options);
         Handler<NetSocket> handler = (NetSocket netSocket) -> {
                 netSocket.handler((Buffer buffer) -> {
-                        //System.out.println("incoming data: "+buffer.length());
                         // parsing message
                         String msg = buffer.getString(0,buffer.length());
-                        conf.getLogger().debug(getNode().toString() + " incoming data: "+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
+                        conf.getLogger().debug(getNode().toString() + " incoming data: "
+                        		+ netSocket.localAddress() +" " + buffer.length() + " " + msg);
                         
                         int groupId = parser.parse(msg);
                         if (groupId == -1) 
@@ -72,14 +72,8 @@ public class GDHVertex extends AbstractVerticle
         conf.getLogger().info(getNode().toString() + " started listening on: "+ conf.getPort());
 	}
 	
-	/*private boolean isDeployed()
-	{
-		return vertx.deploymentIDs().contains(deploymentID());
-	}*/
-	
 	public CompletableFuture<BigInteger> negotiate(int groupId)
 	{
-		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);
 		broadcast(g);
@@ -92,7 +86,6 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler)
 	{
-		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
@@ -108,7 +101,6 @@ public class GDHVertex extends AbstractVerticle
 	
 	public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler, int timeoutMillis)
 	{
-		//assert(isDeployed());
 		conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
 		Group g = groupMappings.get(groupId);	
 		ExchangeState state = stateMappings.get(groupId);
@@ -168,7 +160,8 @@ public class GDHVertex extends AbstractVerticle
 	{
 		for (Node n : group.getTreeNodes())
 		{
-			if (!n.equals(getNode())) sendMessage(n, MessageConstructor.groupInfo(group));
+			if (!n.equals(getNode())) 
+				sendMessage(n, MessageConstructor.groupInfo(group));
 		}
 	}
 	
@@ -189,10 +182,7 @@ public class GDHVertex extends AbstractVerticle
                 for (int t=0; t<timingAndRetries.length; t++) 
                 	timingAndRetries[t] = Long.valueOf("0");
                 
-                timingAndRetries[0] = vertx.setPeriodic(2000, new Handler<Long>() {
-
-                    @Override
-                    public void handle(Long aLong) {
+                timingAndRetries[0] = vertx.setPeriodic(2000, ((Long aLong) -> {
                     	socket.handler((Buffer buffer) -> {
                                 String reply = buffer.getString(0, buffer.length());
                                 if (reply.equals(Constants.ACK)) 
@@ -216,8 +206,8 @@ public class GDHVertex extends AbstractVerticle
                         	vertx.cancelTimer(timingAndRetries[1]);
                         	vertx.close();
                         }
-                    }
-                });
+                    
+                }));
             }
         });
 	}
