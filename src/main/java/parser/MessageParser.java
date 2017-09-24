@@ -1,6 +1,5 @@
 package main.java.parser;
 
-public interface MessageParser 
-{
-	public int parse(String msg);
+public interface MessageParser {
+    public int parse(String msg);
 }

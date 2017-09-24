@@ -11,26 +11,20 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-	GroupTest.class, 
-	ConfigurationTest.class, 
-	KeyExchangeTest.class, 
-	MultipleGroupKeyExchangeTest.class,
-	AsyncKeyExchangeTest.class,
-	NoKeyOnWireTest.class
-})
+@Suite.SuiteClasses({ GroupTest.class, ConfigurationTest.class, KeyExchangeTest.class,
+        MultipleGroupKeyExchangeTest.class, AsyncKeyExchangeTest.class, NoKeyOnWireTest.class })
 
-public class VertxTestSuite
-{
-	private Vertx vertx;
-	@Before
-	public void setUp(TestContext context) throws IOException {
-	   vertx = Vertx.vertx();
+public class VertxTestSuite {
+    private Vertx vertx;
 
-	}
-	  
-	@After
-	public void tearDown(TestContext context) {
-	   vertx.close(context.asyncAssertSuccess());
-	}
+    @Before
+    public void setUp(TestContext context) throws IOException {
+        vertx = Vertx.vertx();
+
+    }
+
+    @After
+    public void tearDown(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
 }

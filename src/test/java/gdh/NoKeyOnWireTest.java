@@ -25,69 +25,63 @@ import main.java.gdh.Group;
 import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class NoKeyOnWireTest 
-{
+public class NoKeyOnWireTest {
 
-	@Test
-	public void testExchangeNoKeyOnWire(TestContext context)
-	{
-		int amount = 2;
-		testNegotiation(amount, context);
-	}
+    @Test
+    public void testExchangeNoKeyOnWire(TestContext context) {
+        int amount = 2;
+        testNegotiation(amount, context);
+    }
 
-	// real deployment and communication between verticles on localhost
-	private void testNegotiation(int amount, TestContext context) {
-		Async async = context.async();
-		PrimaryVertex pv = new PrimaryVertex();
-		GDHVertex[] verticles = new GDHVertex[amount];
-		Configuration[] confs = new Configuration[amount];
-		Writer writer = new StringWriter();
-		for (int i=0; i<amount; i++)
-		{
-			verticles[i] = new GDHVertex();
-			confs[i] = new Configuration();
-			WriterAppender app = new WriterAppender(new PatternLayout(), writer);
-			app.setThreshold(Level.DEBUG);
-			app.activateOptions();
-			confs[i].addAppender(app);
-			String port = amount + "08" + i;
-			confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
-			verticles[i].setConfiguration(confs[i]);
-		}
-		List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
-		
-		Group g = new Group(confs[0], list.stream().map(y->y.getNode()).collect(Collectors.toList()));
-		verticles[0].addGroup(g);
-		
-		for (int i=0; i<amount; i++)
-			pv.run(verticles[i],res -> {
-				      if (res.succeeded()) {
-				          	System.out.println("Deployed verticle!");
-				          	async.countDown();
-				      } else {
-				        	System.out.println("Deployment failed for verticle!");
-				      }
-			});
-		async.awaitSuccess();
-		
-		BigInteger[] keys = new BigInteger[2];
-	  	try 
-	  	{
-	  		keys[0] = verticles[0].negotiate(g.getGroupId()).get();
-	  		Assert.assertFalse(writer.toString().contains(keys[0].toString()));
-	  	} 
-	  	catch (InterruptedException | ExecutionException e) 
-	  	{
-	  		// TODO Auto-generated catch block
-	  		e.printStackTrace();
-	  	}
-	  	for (int i=0; i<amount; i++)
-			pv.kill(verticles[i],res -> {
-				      if (res.succeeded()) {
-				          	async.countDown();
-				      } else {
-				    	    res.cause().printStackTrace();
-				      }
-			});
-	}
+    // real deployment and communication between verticles on localhost
+    private void testNegotiation(int amount, TestContext context) {
+        Async async = context.async();
+        PrimaryVertex pv = new PrimaryVertex();
+        GDHVertex[] verticles = new GDHVertex[amount];
+        Configuration[] confs = new Configuration[amount];
+        Writer writer = new StringWriter();
+        for (int i = 0; i < amount; i++) {
+            verticles[i] = new GDHVertex();
+            confs[i] = new Configuration();
+            WriterAppender app = new WriterAppender(new PatternLayout(), writer);
+            app.setThreshold(Level.DEBUG);
+            app.activateOptions();
+            confs[i].addAppender(app);
+            String port = amount + "08" + i;
+            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
+            verticles[i].setConfiguration(confs[i]);
+        }
+        List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
+
+        Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
+        verticles[0].addGroup(g);
+
+        for (int i = 0; i < amount; i++)
+            pv.run(verticles[i], res -> {
+                if (res.succeeded()) {
+                    System.out.println("Deployed verticle!");
+                    async.countDown();
+                } else {
+                    System.out.println("Deployment failed for verticle!");
+                }
+            });
+        async.awaitSuccess();
+
+        BigInteger[] keys = new BigInteger[2];
+        try {
+            keys[0] = verticles[0].negotiate(g.getGroupId()).get();
+            Assert.assertFalse(writer.toString().contains(keys[0].toString()));
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        for (int i = 0; i < amount; i++)
+            pv.kill(verticles[i], res -> {
+                if (res.succeeded()) {
+                    async.countDown();
+                } else {
+                    res.cause().printStackTrace();
+                }
+            });
+    }
 }
