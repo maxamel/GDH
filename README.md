@@ -35,7 +35,7 @@ PrimaryVertex pv = new PrimaryVertex();
 ```
 
 The verticle object participating in the key exchange is the GDHVertex. 
-Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates negotiations:
+Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key negotiations:
 ```java 
 GDHVertex activeVertex = new GDHVertex();
 ```
@@ -48,12 +48,13 @@ config.setIP("localhost").setPort("5000").setRetries(5).setLogLevel(Level.OFF);
 activeVertex.setConfiguration(config);
 ```
 
-Now let's define another verticle to participate in the key exchange. It will be called passiveVertex 
+Now let's define another verticle to participate in the key exchange. 
 ```java
 GDHVertex passiveVertex = new GDHVertex();
 Configuration config2 = new Configuration();
 config2.setIP("localhost").setPort("5001").setRetries(5).setLogLevel(Level.OFF);
 passiveVertex.setConfiguration(config2);
+```
 
 Once we have all participants defined, we can go ahead and form a group with the Configuration of one of the verticles:
 ```java
@@ -127,8 +128,8 @@ pv.kill(activeVertex,undeployment1 -> {
 # Code Quality
 
 Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
-Contributions of more code analyzers are welcome. Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
+Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
 
 # Testing
 
-The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing negotiations and checking the correctness and security of the transactions.
+The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing negotiations and checking the correctness and security of the transactions. Testing must cover 80% of the code, otherwise the quality gate of Sonarcloud fails.

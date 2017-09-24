@@ -23,6 +23,14 @@ import main.java.parser.MessageParser;
 
 import java.math.BigInteger;
 
+/**
+ * 
+ * @author Max Amelchenko
+ * 
+ * GDHVertex is an object which participates in a Generalized Diffie-Hellman Key exchange process.
+ * 
+ * As an AbstractVerticle, it must be deployed in order to be used.
+ */
 public class GDHVertex extends AbstractVerticle {
     private final Map<Integer, Group> groupMappings = new HashMap<>();
     private final Map<Integer, ExchangeState> stateMappings = new HashMap<>();
@@ -45,8 +53,8 @@ public class GDHVertex extends AbstractVerticle {
                         + buffer.length() + " " + msg);
 
                 int groupId = parser.parse(msg);
-                if (groupId == -1) {// This node is behind in its info. Come
-                                    // back later...
+                if (groupId == -1) {
+                // This node is behind in its info. Come back later...
                     conf.getLogger().debug(getNode().toString() + " Unkown group " + msg);
                     return;
                 }
@@ -71,6 +79,12 @@ public class GDHVertex extends AbstractVerticle {
         conf.getLogger().info(getNode().toString() + " started listening on: " + conf.getPort());
     }
 
+    /**
+     * 
+     * @param groupId 
+     *                  the id of the group for which a key exchange will be initiated
+     * @return A Future representation of the key
+     */
     public CompletableFuture<BigInteger> negotiate(int groupId) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);
@@ -83,6 +97,14 @@ public class GDHVertex extends AbstractVerticle {
         return future;
     }
 
+    /**
+     * 
+     * @param groupId 
+     *                  the id of the group for which a key exchange will be initiated
+     * @param aHandler 
+     *                  the handler which succeeds or fails in accordance to the key exchange outcome
+     * @return A Future representation of the key
+     */
     public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);
@@ -98,6 +120,16 @@ public class GDHVertex extends AbstractVerticle {
         return future;
     }
 
+    /**
+     * 
+     * @param groupId 
+     *                  the id of the group for which a key exchange will be initiated
+     * @param aHandler 
+     *                  the handler which succeeds or fails in accordance to the key exchange outcome
+     * @param timeoutMillis 
+     *                  the timeout on the key exchange process
+     * @return A Future representation of the key
+     */
     public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler,
             int timeoutMillis) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
@@ -108,7 +140,8 @@ public class GDHVertex extends AbstractVerticle {
         CompletableFuture<BigInteger> future = compute(g);
         vertx.setTimer(timeoutMillis, id -> {
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
-            future.completeExceptionally(new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
+            future.completeExceptionally(
+                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
         });
         return future;
     }
@@ -121,7 +154,11 @@ public class GDHVertex extends AbstractVerticle {
         groupMappings.put(g.getGroupId(), g);
         stateMappings.put(g.getGroupId(), new ExchangeState(g.getGroupId(), g.getGenerator()));
     }
-
+    
+    /**
+     * Get a Node object from this GDHVertex. The parameters of the Node depend on the Configuration of this GDHVertex.
+     * @return a Node object of this GDHVertex.
+     */
     public Node getNode() {
         return new Node(conf.getIP(), conf.getPort());
     }
@@ -143,6 +180,17 @@ public class GDHVertex extends AbstractVerticle {
         return state.getKey();
     }
 
+    /**
+     * Get the Diffie-Hellman key of a group. The actual value of the key may not be available right away, as it is 
+     * dependent on the key exchange process. Once this process finishes the key will be available. CompletableFuture
+     * has many methods to deal with the asynchronous nature of the result, such as blocking to wait for the result, 
+     * returning immediately with a default result, scheduling tasks for after the result is available and more.
+     * 
+     * @param groupId 
+     *                  the id of the group
+     * @return 
+     *                  a CompletableFuture representation of the key 
+     */
     public CompletableFuture<BigInteger> getKey(int groupId) {
         return stateMappings.get(groupId).getKey();
     }
@@ -160,16 +208,13 @@ public class GDHVertex extends AbstractVerticle {
 
         NetClient tcpClient = vertx.createNetClient(options);
 
-        tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(), new Handler<AsyncResult<NetSocket>>() {
-
-            @Override
-            public void handle(AsyncResult<NetSocket> result) {
+        tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),((AsyncResult<NetSocket> result) -> {
                 NetSocket socket = result.result();
                 Long[] timingAndRetries = new Long[2];
                 for (int t = 0; t < timingAndRetries.length; t++)
                     timingAndRetries[t] = Long.valueOf("0");
 
-                timingAndRetries[0] = vertx.setPeriodic(2000, ((Long aLong) -> {
+                timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY, ((Long aLong) -> {
                     socket.handler((Buffer buffer) -> {
                         String reply = buffer.getString(0, buffer.length());
                         if (reply.equals(Constants.ACK)) {
@@ -179,14 +224,11 @@ public class GDHVertex extends AbstractVerticle {
                         }
 
                     });
-                    conf.getLogger()
-                            .debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                    conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
                     socket.write(msg.toString());
                     timingAndRetries[1]++;
-                    if (timingAndRetries[1] == conf.getRetries()) { // No more
-                                                                    // retries
-                                                                    // left.
-                                                                    // Exit...
+                    if (timingAndRetries[1] == conf.getRetries()) { 
+                        // No more retries left. Exit...
                         conf.getLogger().error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
                         socket.close();
                         tcpClient.close();
@@ -196,8 +238,8 @@ public class GDHVertex extends AbstractVerticle {
                     }
 
                 }));
-            }
-        });
+            
+        }));
     }
 
     @Override
