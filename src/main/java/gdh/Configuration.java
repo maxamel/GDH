@@ -14,6 +14,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * 
+ * @author Max Amelchenko
+ * 
+ * Configuration is the object which holds all the configurable parameters of a GDHVertex.
+ * 
+ * Implements the Builder pattern. Has a prime and generator numbers built in.
+ */
 public class Configuration {
     private String IP = "localhost";
     private String port = "1080";
@@ -30,7 +38,7 @@ public class Configuration {
             + "D119529A45D6F834566E3025E316A330EFBB77A86F0C1AB15B051AE3D428C8F8ACB70A8137150B8EEB10E1"
             + "83EDD19963DDD9E263E4770589EF6AA21E7F5F2FF381B539CCE3409D13CD566AFBB48D6C019181E1BCFE94"
             + "B30269EDFE72FE9B6AA4BD7B5A0F1C71CFFF4C19C418E1F6EC017981BC087F2A7065B384B890D3191F2BFA";
-
+    
     private final Logger log4jLogger = Logger.getRootLogger();
 
     public Configuration() {

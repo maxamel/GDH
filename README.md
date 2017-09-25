@@ -4,7 +4,7 @@
 
 # GDH - Generalized Diffie-Hellman Key Exchange Platform
 
-A Diffie-Hellman key exchange library for multiple parties built on top of the asynchronous event-driven Vert.x framework.
+A Diffie-Hellman key exchange library for multiple parties built on top of the asynchronous, event-driven Vert.x framework.
 
 # Overview
 
@@ -25,7 +25,7 @@ This scheme can be performed for any number of participants. The number of messa
 
 # Usage
 
-The basic usage of the library is spinning up verticles and initiating a key negotiation between them.
+The basic usage of the library is spinning up verticles and initiating a key exchange between them.
 Once you have the key you can start encrypting/decrypting messages safely between the verticles. 
 
 The basic object used for deploying and undeploying verticles is the PrimaryVertex. 
@@ -35,7 +35,7 @@ PrimaryVertex pv = new PrimaryVertex();
 ```
 
 The verticle object participating in the key exchange is the GDHVertex. 
-Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key negotiations:
+Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key exchanges:
 ```java 
 GDHVertex activeVertex = new GDHVertex();
 ```
@@ -61,19 +61,19 @@ Once we have all participants defined, we can go ahead and form a group with the
 Group g = new Group(config,activeVertex.getNode(),passiveVertex.getNode());
 ```
 
-Run the verticles and initiate a key negotiation:
+Run the verticles and initiate a key exchange:
 ```java
 pv.run(passiveVertex,deployment1 -> {
     if (deployment1.succeeded()) {
         pv.run(activeVertex,deployment2 -> {
         	if (deployment2.succeeded()) {
-        		activeVertex.negotiate(g.getGroupId(), exchange -> {
+        		activeVertex.exchange(g.getGroupId(), exchange -> {
         			if (exchange.succeeded()) {
         			    // the key is available in this context and also later as a Future object
         				System.out.println("Got new key: " + exchange.result());
         			}
         			else {
-        				System.out.println("Error negotiating!");
+        				System.out.println("Error exchanging!");
         			}
         		}
         	}
@@ -88,21 +88,40 @@ pv.run(passiveVertex,deployment1 -> {
 }        	
 ```
 
+You also have the possibility to use blocking code for key exchange: 
+```java
+pv.run(passiveVertex,deployment1 -> {
+    if (deployment1.succeeded()) {
+        pv.run(activeVertex,deployment2 -> {
+            if (deployment2.succeeded()) {
+                BigInteger key = activeVertex.exchange(g.getGroupId()).get();
+            }
+            else {
+                System.out.println("Error deploying!");
+            }
+        }
+    }
+    else {
+        System.out.println("Error deploying!");
+    }
+}           
+```
+
 At any point we can access the exchanged key as a CompletableFuture object from any verticle.
 This object is a representation of the key. The actual key might not be available at this moment in time,
-but will be made available as soon as the negotiation finishes. Here are just a handful of options you have 
-with the completableFuture:
+but will be made available as soon as the exchange finishes. Here are just a handful of options you have 
+with the CompletableFuture:
 ```java
-CompletableFuture<BigInteger> key = passiveVertex.getKey(g.getGroupId()).getKey();
+CompletableFuture<BigInteger> key = passiveVertex.getKey(g.getGroupId());
 
 // Wait for the key exchange to complete and get the final key
-key.get();
+BigInteger fin = key.get();
 
 // Wait for the key for a bounded time and throw Exception if this time is exceeded
-key.get(1000, TimeUnit.MILLISECONDS);
+BigInteger fin = key.get(1000, TimeUnit.MILLISECONDS);
 
 // Get the key immediately. If it's not available return the default value given as a parameter (null)
-key.getNow(null);
+BigInteger fin = key.getNow(null);
 ```
 
 Don't forget to kill the verticles when you're finished with them:
@@ -111,12 +130,12 @@ pv.kill(activeVertex,undeployment1 -> {
 	if (undeployment1.succeeded()) {
 		System.out.println("First undeployment successful!");
 		pv.kill(passiveVertex,undeployment2 -> {
-            if (undeployment2.succeeded()) {
-                System.out.println("second undeployment successful!");
-            }
-            else {
-                System.out.println("Error undeploying!");
-            }
+                if (undeployment2.succeeded()) {
+                    System.out.println("second undeployment successful!");
+                }
+                else {
+                    System.out.println("Error undeploying!");
+                }
         }      
 	}
 	else {
@@ -132,4 +151,4 @@ Each push to the Github repository triggers a cloud build via TravisCI, which in
 
 # Testing
 
-The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing negotiations and checking the correctness and security of the transactions. Testing must cover 80% of the code, otherwise the quality gate of Sonarcloud fails.
+The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails.

@@ -85,7 +85,7 @@ public class GDHVertex extends AbstractVerticle {
      *                  the id of the group for which a key exchange will be initiated
      * @return A Future representation of the key
      */
-    public CompletableFuture<BigInteger> negotiate(int groupId) {
+    public CompletableFuture<BigInteger> exchange(int groupId) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);
         broadcast(g);
@@ -105,7 +105,7 @@ public class GDHVertex extends AbstractVerticle {
      *                  the handler which succeeds or fails in accordance to the key exchange outcome
      * @return A Future representation of the key
      */
-    public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler) {
+    public CompletableFuture<BigInteger> exchange(int groupId, Handler<AsyncResult<BigInteger>> aHandler) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);
         ExchangeState state = stateMappings.get(groupId);
@@ -130,7 +130,7 @@ public class GDHVertex extends AbstractVerticle {
      *                  the timeout on the key exchange process
      * @return A Future representation of the key
      */
-    public CompletableFuture<BigInteger> negotiate(int groupId, Handler<AsyncResult<BigInteger>> aHandler,
+    public CompletableFuture<BigInteger> exchange(int groupId, Handler<AsyncResult<BigInteger>> aHandler,
             int timeoutMillis) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);

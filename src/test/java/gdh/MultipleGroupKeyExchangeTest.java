@@ -74,7 +74,7 @@ public class MultipleGroupKeyExchangeTest {
 
         try {
             for (int i = 0; i < amount - 1; i++)
-                keys[i] = verticles[0].negotiate(groups[i].getGroupId()).get();
+                keys[i] = verticles[0].exchange(groups[i].getGroupId()).get();
 
             for (int i = 0; i < amount - 1; i++)
                 Assert.assertEquals(verticles[i + 1].getKey(groups[i].getGroupId()).get(),

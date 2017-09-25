@@ -61,7 +61,7 @@ public class AsyncKeyExchangeTest {
 
         BigInteger[] keys = new BigInteger[2];
         try {
-            keys[0] = verticles[0].negotiate(g.getGroupId(), res -> {
+            keys[0] = verticles[0].exchange(g.getGroupId(), res -> {
                 if (res.succeeded()) {
                     keys[1] = res.result();
                     async.countDown();
