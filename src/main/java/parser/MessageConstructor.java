@@ -7,11 +7,24 @@ import main.java.gdh.ExchangeState;
 import main.java.gdh.Group;
 import main.java.gdh.Node;
 
+/**
+ * 
+ * @author Max Amelchenko
+ * 
+ * MessageConstructor is a class for constructing json messages
+ *
+ */
 public final class MessageConstructor {
     private MessageConstructor() {
 
     }
 
+    /**
+     * Construct a json object from the group parameter
+     * @param g
+     *          the group which needs to be jsonized
+     * @return a json object representing the group
+     */
     public static JsonObject groupInfo(Group g) {
         JsonObject msg = new JsonObject();
         msg.put(Constants.PRIME, g.getPrime().toString());
@@ -28,6 +41,12 @@ public final class MessageConstructor {
         return msg;
     }
 
+    /**
+     * Construct a json object from the ExchangeState parameter
+     * @param state
+     *              the ExchangeState which needs to be jsonized
+     * @return a json object representing ExchangeState
+     */
     public static JsonObject roundInfo(ExchangeState state) {
         JsonObject msg = new JsonObject();
         msg.put(Constants.GROUPID, String.valueOf(state.getGroupId()));

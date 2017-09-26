@@ -46,7 +46,7 @@ public class NoKeyOnWireTest {
             WriterAppender app = new WriterAppender(new PatternLayout(), writer);
             app.setThreshold(Level.DEBUG);
             app.activateOptions();
-            confs[i].addAppender(app);
+            confs[i].setAppender(app);
             String port = amount + "08" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);

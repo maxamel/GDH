@@ -80,7 +80,7 @@ public class GDHVertex extends AbstractVerticle {
     }
 
     /**
-     * 
+     * Start a key exchange process
      * @param groupId 
      *                  the id of the group for which a key exchange will be initiated
      * @return A Future representation of the key
@@ -98,7 +98,7 @@ public class GDHVertex extends AbstractVerticle {
     }
 
     /**
-     * 
+     * Start a key exchange process
      * @param groupId 
      *                  the id of the group for which a key exchange will be initiated
      * @param aHandler 
@@ -121,7 +121,7 @@ public class GDHVertex extends AbstractVerticle {
     }
 
     /**
-     * 
+     * Start a key exchange process
      * @param groupId 
      *                  the id of the group for which a key exchange will be initiated
      * @param aHandler 
@@ -184,12 +184,11 @@ public class GDHVertex extends AbstractVerticle {
      * Get the Diffie-Hellman key of a group. The actual value of the key may not be available right away, as it is 
      * dependent on the key exchange process. Once this process finishes the key will be available. CompletableFuture
      * has many methods to deal with the asynchronous nature of the result, such as blocking to wait for the result, 
-     * returning immediately with a default result, scheduling tasks for after the result is available and more.
+     * returning immediately with a default result, scheduling tasks for after the result is available, and more.
      * 
      * @param groupId 
      *                  the id of the group
-     * @return 
-     *                  a CompletableFuture representation of the key 
+     * @return a Future representation of the key 
      */
     public CompletableFuture<BigInteger> getKey(int groupId) {
         return stateMappings.get(groupId).getKey();

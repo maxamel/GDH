@@ -10,7 +10,7 @@ import main.java.gdh.Group;
 import main.java.gdh.Node;
 
 @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-public class GroupTest {
+public class GroupNodeTest {
     private static final String ip1 = "1.1.1.1";
     private static final String port1 = "3000";
     private static final String port2 = "3001";
@@ -23,7 +23,8 @@ public class GroupTest {
 
         Group g1 = new Group(new Configuration(), n1, n2, n3);
         Group g2 = new Group(new Configuration(), n1, n2, n3);
-        Assert.assertTrue(!n1.equals(n2));
+        Assert.assertFalse(n1.equals(n2));
+        Assert.assertFalse(n1.equals(n3));
         Assert.assertTrue(g1.hashCode() == g2.hashCode());
         Assert.assertTrue(g1.equals(g2));
     }

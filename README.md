@@ -23,6 +23,12 @@ This scheme can be performed for any number of participants. The number of messa
   <img src="https://github.com/maxamel/GDH/blob/master/GDH.png" />
 </p>
 
+# Prerequisites
+
+Written in Java 8. 
+
+Built with Gradle.
+
 # Usage
 
 The basic usage of the library is spinning up verticles and initiating a key exchange between them.
@@ -56,9 +62,13 @@ config2.setIP("localhost").setPort("5001").setRetries(5).setLogLevel(Level.OFF);
 passiveVertex.setConfiguration(config2);
 ```
 
-Once we have all participants defined, we can go ahead and form a group with the Configuration of one of the verticles:
+Once we have all participants defined, we can go ahead and form a group with the Configuration of one of the verticles.
+The id of the group is determined by its nodes, so if you construct 2 groups with the same nodes it will essentially be the
+same group.
 ```java
-Group g = new Group(config,activeVertex.getNode(),passiveVertex.getNode());
+Group g = new Group(config,
+                    new Node("localhost","5000"),
+                    new Node("localhost","5001"));
 ```
 
 Run the verticles and initiate a key exchange:
@@ -151,4 +161,4 @@ Each push to the Github repository triggers a cloud build via TravisCI, which in
 
 # Testing
 
-The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails.
+The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails. The project has mostly been tested with Openjdk 8.

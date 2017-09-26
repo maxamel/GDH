@@ -18,9 +18,16 @@ import io.vertx.core.json.JsonObject;
  * 
  * @author Max Amelchenko
  * 
- * Configuration is the object which holds all the configurable parameters of a GDHVertex.
+ * Configuration is the object which holds all the configurable parameters of a GDHVertex. Implements the Builder pattern. 
  * 
- * Implements the Builder pattern. Has a prime and generator numbers built in.
+ * Diffie-Hellman requires a safe prime and a cyclic group generator, both publicly known to everyone.
+ * 
+ * The Configuration object has these two numbers built-in, taken from https://tools.ietf.org/html/rfc5114. 
+ * 
+ * Note these numbers must fulfill several rules in order to be safe. If you are not using the default numbers 
+ * 
+ * take extreme care when choosing new one's, as your key exchange might be vulnerable to all kinds of attacks. 
+ *
  */
 public class Configuration {
     private String IP = "localhost";
@@ -45,19 +52,36 @@ public class Configuration {
         this.log4jLogger.setLevel(Level.OFF);
     }
 
+    /**
+     * 
+     * @param IP 
+     *          the ip the GDHVertex will be listening on
+     * @return the updated configuration
+     */
     public Configuration setIP(String IP) {
         assert (IP.matches("(([0-1]?[0-9]{1,2}\\.)|" + "(2[0-4][0-9]\\.)|" + "(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|"
                 + "(2[0-4][0-9])|(25[0-5]))") || IP.contains("localhost"));
         this.IP = IP;
         return this;
     }
-
+    /**
+     * 
+     * @param port 
+     *              the port the GDHVertex will be listening on
+     * @return the updated configuration
+     */
     public Configuration setPort(String port) {
         assert port.matches("[1-9]\\d*");
         this.port = port;
         return this;
     }
-
+    /**
+     * 
+     * @param retries 
+     *                  the number of times a GDHVertex will attempt to send a message if delivery fails.
+     *                  In case the number of retries is reached without an ack received, the key exchange is aborted.
+     * @return the updated configuration
+     */
     public Configuration setRetries(int retries) {
         this.retries = retries;
         return this;
@@ -75,6 +99,12 @@ public class Configuration {
         return this;
     }
 
+    /**
+     * 
+     * @param level
+     *              the log level to set. Default value is OFF.
+     * @return the updated configuration
+     */
     public Configuration setLogLevel(Level level) {
         this.log4jLogger.removeAllAppenders();
         ConsoleAppender appender = new ConsoleAppender();
@@ -113,12 +143,22 @@ public class Configuration {
         return log4jLogger;
     }
 
-    // only one appender at a time allowed
-    public void addAppender(Appender app) {
+    /**
+     * Setting the appender of the logger. Only one appender at a time is allowed.
+     * @param app
+     *              the Appender to be set 
+     */             
+    public void setAppender(Appender app) {
         log4jLogger.removeAllAppenders();
         log4jLogger.addAppender(app);
     }
 
+    /**
+     * 
+     * @param path
+     *              the path to the configuration file
+     * @return the Configuration read from the file
+     */
     public static Configuration readConfigFile(String path) {
         Configuration conf = new Configuration();
         Vertx vertx = Vertx.vertx();

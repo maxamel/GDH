@@ -19,6 +19,19 @@ import javax.crypto.spec.IvParameterSpec;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import main.java.gdh.Constants;
 
+/**
+ * 
+ * @author Max Amelchenko
+ * 
+ * CipherAgentImpl is a utility class for encrypting and decrypting messages. The key used is symmetric, 
+ * 
+ * which means the same key is used for both encryption and decryption.
+ * 
+ * It is not part of the key exchange process. Once a key is obtained from GDHVertex this class can be used
+ * 
+ * as part of a protocol to exchange messages between the participating parties.
+ * 
+ */
 public class CipherAgentImpl implements CipherAgent {
     private final Cipher encryptCipher;
     private final Cipher decryptCipher;
@@ -28,8 +41,14 @@ public class CipherAgentImpl implements CipherAgent {
         decryptCipher = Cipher.getInstance(instance);
     }
 
-    // encryption method receiving a value to encrypt, the initial vector and a
-    // key
+    /**
+     *  @param value
+     *                  the String value to encrypt
+     *  @param iv
+     *                  the initial vector. Must be a random 128 bit value and the same one used in decryption
+     *  @param key
+     *                  the key for encryption
+     */
     public byte[] encrypt(String value, byte[] iv, SecretKey key)
             throws InvalidKeyException, InvalidAlgorithmParameterException, IOException {
         byte[] encryptedBytes = null;
@@ -45,8 +64,14 @@ public class CipherAgentImpl implements CipherAgent {
         return encryptedBytes;
     }
 
-    // decryption method receiving a value to decrypt, the initial vector and a
-    // key
+    /**
+     *  @param encryptedBytes
+     *                  the byte array to decrypt
+     *  @param iv
+     *                  the initial vector. Must be a random 128 bit value and the same one used in encryption
+     *  @param key
+     *                  the key for decryption
+     */
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key)
             throws InvalidKeyException, InvalidAlgorithmParameterException, UnsupportedEncodingException, IOException {
