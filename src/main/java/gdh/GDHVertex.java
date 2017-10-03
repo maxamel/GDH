@@ -112,7 +112,7 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         broadcast(g);
         CompletableFuture<BigInteger> future = compute(g);
-        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
+        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {System.out.println("LISTING....");
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
             future.completeExceptionally(
                     new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
@@ -166,6 +166,7 @@ public class GDHVertex extends AbstractVerticle {
     private CompletableFuture<BigInteger> compute(Group g) {
         ExchangeState state = stateMappings.get(g.getGroupId());
         if (g.getTreeNodes().size() == state.getRound() + 1) {
+            conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
             BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();

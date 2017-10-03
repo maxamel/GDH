@@ -9,6 +9,16 @@ public class PrimaryVertex {
     private final Vertx vertx = Vertx.vertx();
 
     /**
+     * Deploy a gdh verticle
+     * @param gdh
+     *            the GDHVertex to be deployed
+     */
+    public void run(GDHVertex gdh) {
+        vertx.deployVerticle(gdh);
+    }
+    
+    /**
+     * Deploy a gdh verticle and register a handler for the result
      * @param gdh
      *            the GDHVertex to be deployed
      * @param aHandler
@@ -26,7 +36,17 @@ public class PrimaryVertex {
 
     /**
      * 
+     * Undeploy a gdh verticle
+     * @param gdh
+     *            the GDHVertex to be undeployed
+     */
+    public void kill(GDHVertex gdh) {
+        vertx.undeploy(gdh.deploymentID());
+    }
+    
+    /**
      * 
+     * Undeploy a gdh verticle and register a handler for the result
      * @param gdh
      *            the GDHVertex to be undeployed
      * @param aHandler

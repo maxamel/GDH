@@ -32,7 +32,9 @@ Built with Gradle.
 # Usage
 
 The basic usage of the library is spinning up verticles and initiating a key exchange between them.
-Once you have the key you can start encrypting/decrypting messages safely between the verticles. 
+Once you have the key you can start encrypting/decrypting messages safely between the verticles. Note this library only
+provides a key exchange platform and utility methods for encryption/decryption. The network layer (e.g messaging protocol)
+must be implemented by the user.
 
 The basic object used for deploying and undeploying verticles is the PrimaryVertex. 
 
@@ -41,7 +43,8 @@ PrimaryVertex pv = new PrimaryVertex();
 ```
 
 The verticle object participating in the key exchange is the GDHVertex. 
-Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key exchanges:
+Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key exchanges. 
+All other verticles will be passive.
 ```java 
 GDHVertex activeVertex = new GDHVertex();
 ```
@@ -71,7 +74,7 @@ Group g = new Group(config,
                     new Node("localhost","5001"));
 ```
 
-Run the verticles and initiate a key exchange:
+Now it's all set up and you can run the verticles and initiate a key exchange. 
 ```java
 pv.run(passiveVertex,deployment1 -> {
     if (deployment1.succeeded()) {
@@ -98,7 +101,7 @@ pv.run(passiveVertex,deployment1 -> {
 }        	
 ```
 
-You also have the possibility to use blocking code for key exchange: 
+You can also use blocking code for key exchange: 
 ```java
 pv.run(passiveVertex,deployment1 -> {
     if (deployment1.succeeded()) {
@@ -116,8 +119,22 @@ pv.run(passiveVertex,deployment1 -> {
     }
 }           
 ```
+You can even use blocking code for the deployments. The verticle which initiates key exchanges should still be deployed
+using an asynchronous call (Otherwise you have to busy wait on it with a while loop!). All other nodes will participate in 
+the exchange once they are up and running. 
+```java
+pv.run(passiveVertex,deployment1 -> {
+    if (deployment1.succeeded()) {
+        pv.run(activeVertex);
+        BigInteger key = activeVertex.exchange(g.getGroupId()).get();
+    }
+    else {
+        System.out.println("Error deploying!");
+    }
+} 
+```
 
-At any point we can access the exchanged key as a CompletableFuture object from any verticle.
+At any point you can access the exchanged key as a CompletableFuture object from any verticle.
 This object is a representation of the key. The actual key might not be available at this moment in time,
 but will be made available as soon as the exchange finishes. Here are just a handful of options you have 
 with the CompletableFuture:
@@ -134,14 +151,15 @@ BigInteger fin = key.get(1000, TimeUnit.MILLISECONDS);
 BigInteger fin = key.getNow(null);
 ```
 
-Don't forget to kill the verticles when you're finished with them:
+Don't forget to kill the verticles when you're finished with them. As in the deployment, you can use either
+asynchronous calls or 
 ```java
 pv.kill(activeVertex,undeployment1 -> {
 	if (undeployment1.succeeded()) {
 		System.out.println("First undeployment successful!");
 		pv.kill(passiveVertex,undeployment2 -> {
                 if (undeployment2.succeeded()) {
-                    System.out.println("second undeployment successful!");
+                    System.out.println("Second undeployment successful!");
                 }
                 else {
                     System.out.println("Error undeploying!");

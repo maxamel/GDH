@@ -43,7 +43,7 @@ public class ExchangeState {
         return round;
     }
 
-    public void incRound() {
+    public void incRound() {System.out.println("LUCAS...");
         round++;
     }
 
@@ -51,7 +51,7 @@ public class ExchangeState {
         this.partial_key = partial_key;
     }
 
-    public void done() {
+    public void done() {System.out.println("READING...");
         isDone = true;
         key.complete(partial_key);
         if (aHandler != null)

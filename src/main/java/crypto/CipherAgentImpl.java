@@ -42,12 +42,15 @@ public class CipherAgentImpl implements CipherAgent {
     }
 
     /**
+     *  Encrypt a value with a key and initial vector
      *  @param value
      *                  the String value to encrypt
      *  @param iv
      *                  the initial vector. Must be a random 128 bit value and the same one used in decryption
      *  @param key
      *                  the key for encryption
+     *  
+     *  @return the encrypted bytes
      */
     public byte[] encrypt(String value, byte[] iv, SecretKey key)
             throws InvalidKeyException, InvalidAlgorithmParameterException, IOException {
@@ -65,12 +68,15 @@ public class CipherAgentImpl implements CipherAgent {
     }
 
     /**
+     *  Decrypt an encrypted byte array with a key and initial vector
      *  @param encryptedBytes
      *                  the byte array to decrypt
      *  @param iv
      *                  the initial vector. Must be a random 128 bit value and the same one used in encryption
      *  @param key
      *                  the key for decryption
+     *                  
+     *  @return the decrypted string
      */
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key)
