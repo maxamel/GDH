@@ -123,9 +123,9 @@ You can even use blocking code for the deployments. The verticle which initiates
 using an asynchronous call (Otherwise you have to busy wait on it with a while loop!). All other nodes will participate in 
 the exchange once they are up and running. 
 ```java
-pv.run(passiveVertex,deployment1 -> {
+pv.run(activeVertex,deployment1 -> {
     if (deployment1.succeeded()) {
-        pv.run(activeVertex);
+        pv.run(passiveVertex);
         BigInteger key = activeVertex.exchange(g.getGroupId()).get();
     }
     else {
@@ -152,7 +152,7 @@ BigInteger fin = key.getNow(null);
 ```
 
 Don't forget to kill the verticles when you're finished with them. As in the deployment, you can use either
-asynchronous calls or 
+asynchronous calls or blocking code:
 ```java
 pv.kill(activeVertex,undeployment1 -> {
 	if (undeployment1.succeeded()) {

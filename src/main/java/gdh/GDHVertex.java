@@ -112,7 +112,7 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         broadcast(g);
         CompletableFuture<BigInteger> future = compute(g);
-        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {System.out.println("LISTING....");
+        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
             future.completeExceptionally(
                     new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
@@ -138,6 +138,7 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         broadcast(g);
         CompletableFuture<BigInteger> future = compute(g);
+   
         vertx.setTimer(timeoutMillis, id -> {
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
             future.completeExceptionally(
@@ -163,16 +164,16 @@ public class GDHVertex extends AbstractVerticle {
         return new Node(conf.getIP(), conf.getPort());
     }
 
-    private CompletableFuture<BigInteger> compute(Group g) {
+    private CompletableFuture<BigInteger> compute(Group g)  {
         ExchangeState state = stateMappings.get(g.getGroupId());
         if (g.getTreeNodes().size() == state.getRound() + 1) {
             conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
-            BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(), g.getPrime());
+            BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();
         } else {
             Node n = g.getNext(conf.getNode());
-            BigInteger partial_key = state.getPartial_key().modPow(g.getSecret(), g.getPrime());
+            BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.incRound();
             state.setPartial_key(partial_key);
             conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
@@ -215,28 +216,31 @@ public class GDHVertex extends AbstractVerticle {
                     timingAndRetries[t] = Long.valueOf("0");
 
                 timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY, ((Long aLong) -> {
-                    socket.handler((Buffer buffer) -> {
-                        String reply = buffer.getString(0, buffer.length());
-                        if (reply.equals(Constants.ACK)) {
-                            conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
-                            socket.close();
-                            vertx.cancelTimer(timingAndRetries[0]);
-                        }
-
-                    });
-                    conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
-                    socket.write(msg.toString());
+                    if (socket != null)
+                    {
+                        socket.handler((Buffer buffer) -> {
+                            String reply = buffer.getString(0, buffer.length());
+                            if (reply.equals(Constants.ACK)) {
+                                conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
+                                socket.close();
+                                vertx.cancelTimer(timingAndRetries[0]);
+                            }
+    
+                        });
+                        conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                        socket.write(msg.toString());
+                    }
                     timingAndRetries[1]++;
                     if (timingAndRetries[1] == conf.getRetries()) { 
                         // No more retries left. Exit...
                         conf.getLogger().error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
-                        socket.close();
+                        if (socket != null) socket.close();
                         tcpClient.close();
                         server.close();
                         vertx.cancelTimer(timingAndRetries[1]);
                         vertx.close();
+                        //throw new RuntimeException("Timeout Exceeded for Node " + n.toString());
                     }
-
                 }));
             
         }));

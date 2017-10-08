@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
@@ -21,36 +22,12 @@ import main.java.gdh.Group;
 import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class KeyExchangeTest {
-
-    @Test
-    public void testDoubleKeyExchange(TestContext context) {
-        int amount = 2;
-        testNegotiation(amount, context);
-    }
-
-    @Test
-    public void testTripleKeyExchange(TestContext context) {
-        int amount = 3;
-        testNegotiation(amount, context);
-    }
-
-    @Test
-    public void testQuadrupleKeyExchange(TestContext context) {
-        int amount = 4;
-        testNegotiation(amount, context);
-    }
-
-    @Test
-    public void testQuintupleKeyExchange(TestContext context) {
-        int amount = 5;
-        testNegotiation(amount, context);
-    }
-
-    // real deployment and communication between verticles on localhost
-    private void testNegotiation(int amount, TestContext context) {
+public class ExceptionTest {
+   
+    @Test(expected = TimeoutException.class)
+    public void testVerticleDown(TestContext context) {
         Async async = context.async();
-        // Vertx vertx = Vertx.vertx();
+        int amount = 2;
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
@@ -67,7 +44,7 @@ public class KeyExchangeTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < amount-1; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
@@ -81,10 +58,6 @@ public class KeyExchangeTest {
         BigInteger key = null;
         try {
             key = verticles[0].exchange(g.getGroupId()).get();
-            
-            for (int j = 0; j < verticles.length; j++) {
-                System.out.println("CANDIDATE " + verticles[j].getKey(g.getGroupId()).get());
-            }
             for (int j = 0; j < verticles.length; j++) {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
             }

@@ -1,6 +1,8 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.AsyncResult;
@@ -11,6 +13,8 @@ public class ExchangeState {
     private final int groupId;
 
     private BigInteger partial_key;
+    
+    private BigInteger secret;
 
     private int round = 0;
 
@@ -23,14 +27,23 @@ public class ExchangeState {
     public ExchangeState(int groupId, BigInteger gen) {
         this.groupId = groupId;
         this.partial_key = gen;
+        initSecret();
     }
 
     public ExchangeState(int groupId, BigInteger partial_key, int round) {
         this.groupId = groupId;
         this.partial_key = partial_key;
         this.round = round;
+        initSecret();
     }
 
+    private void initSecret() {
+        byte[] sec = new byte[32];
+        Random random = new SecureRandom();
+        random.nextBytes(sec);
+        secret = (new BigInteger(sec)).abs();
+    }
+    
     public int getGroupId() {
         return groupId;
     }
@@ -42,8 +55,12 @@ public class ExchangeState {
     public int getRound() {
         return round;
     }
+    
+    public BigInteger getSecret() {
+        return secret;
+    }
 
-    public void incRound() {System.out.println("LUCAS...");
+    public void incRound() {
         round++;
     }
 
@@ -51,7 +68,7 @@ public class ExchangeState {
         this.partial_key = partial_key;
     }
 
-    public void done() {System.out.println("READING...");
+    public void done() {
         isDone = true;
         key.complete(partial_key);
         if (aHandler != null)

@@ -1,20 +1,27 @@
 package main.java.gdh;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * 
+ * @author Max Amelchenko
+ * 
+ * Group is an object which represents a group of participants(Nodes) in a Diffie-Hellman key exchange.
+ * 
+ * It is generally identified by its groupId which is generated from the hash code of its Nodes. 
+ * 
+ * The Nodes are organized in a TreeSet to create a total lexicographical order.
+ */
 public class Group {
     private int groupId;
     private TreeSet<Node> treeNodes; // keep order among nodes
     private BigInteger generator;
     private BigInteger prime;
-    private BigInteger secret;
 
     public Group(Configuration conf, Node... nodes) {
         initGroup(conf, Arrays.asList(nodes));
@@ -30,16 +37,20 @@ public class Group {
         initGroup(conf, nodes);
     }
 
+    /**
+     * Initiate a group with a Configuration and a collection of Nodes
+     * @param conf
+     *              The Configuration of this Group
+     * @param nodes
+     *              The participants of this Group
+     */
     private void initGroup(Configuration conf, Collection<Node> nodes) {
         treeNodes = new TreeSet<>();
         for (Node n : nodes)
             treeNodes.add(n);
-        byte[] sec = new byte[32];
-        Random random = new SecureRandom();
-        random.nextBytes(sec);
+
         generator = new BigInteger(conf.getGenerator(), 16);
         prime = new BigInteger(conf.getPrime(), 16);
-        secret = (new BigInteger(sec)).abs();
         groupId = hashCode();
     }
 
@@ -62,8 +73,7 @@ public class Group {
     /**
      * Checks for the equality of this Group and the obj group. Two Groups are
      * considered equal if they are the same object or if they consist of the
-     * same Nodes. This is done so the same Group will not link to two different
-     * Nodes.
+     * same Nodes. This is done because a Group is essentially the Nodes it represents.
      */
     @Override
     public boolean equals(Object obj) {
@@ -98,10 +108,13 @@ public class Group {
         return prime;
     }
 
-    public BigInteger getSecret() {
-        return secret;
-    }
-
+    /**
+     * Get the Node which succeeds the parameter Node. Node Beta succeeds Node Alpha if during the Diffie-Hellman
+     * key exchange Node Alpha sends messages to Node Beta. There can only be one successor per Node.
+     * @param curr
+     *              The Node for which a successor will be returned
+     * @return the Node succeeding the Node curr
+     */
     public Node getNext(Node curr) {
         Iterator<Node> iter = treeNodes.iterator();
         while (iter.hasNext()) {
