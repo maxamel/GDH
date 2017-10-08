@@ -54,8 +54,8 @@ public class GDHVertex extends AbstractVerticle {
 
                 int groupId = parser.parse(msg);
                 if (groupId == -1) {
-                // This node is behind in its info. Come back later...
-                    conf.getLogger().debug(getNode().toString() + " Unkown group " + msg);
+                // This node is behind in its info or receiving doubled messages. Come back later...
+                    conf.getLogger().debug(getNode().toString() + " Unkown group or double message " + msg);
                     return;
                 }
                 Group group = groupMappings.get(groupId);
@@ -168,12 +168,14 @@ public class GDHVertex extends AbstractVerticle {
         ExchangeState state = stateMappings.get(g.getGroupId());
         if (g.getTreeNodes().size() == state.getRound() + 1) {
             conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
+            System.out.println("DONE " + getNode().toString() + " " + state.getPartial_key());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();
         } else {
             Node n = g.getNext(conf.getNode());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
+            //System.out.println("INCREMENTING " + getNode().toString() + " " + state.getPartial_key());
             state.incRound();
             state.setPartial_key(partial_key);
             conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
