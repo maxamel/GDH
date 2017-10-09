@@ -33,6 +33,7 @@ public class Configuration {
     private String IP = "localhost";
     private String port = "1080";
     private int retries = 5;
+    private int exchangeTimeout = 60000;
     private String prime = "AD107E1E9123A9D0D660FAA79559C51FA20D64E5683B9FD1B54B1597B61D0A75E6FA141DF95A56DBAF9A3C"
             + "407BA1DF15EB3D688A309C180E1DE6B85A1274A0A66D3F8152AD6AC2129037C9EDEFDA4DF8D91E8FEF55B7"
             + "394B7AD5B7D0B6C12207C9F98D11ED34DBF6C6BA0B2C8BBC27BE6A00E0A0B9C49708B3BF8A317091883681"
@@ -84,6 +85,11 @@ public class Configuration {
      */
     public Configuration setRetries(int retries) {
         this.retries = retries;
+        return this;
+    }
+    
+    public Configuration setExchangeTimeout(int exchangeTimeout) {
+        this.exchangeTimeout = exchangeTimeout;
         return this;
     }
 
@@ -141,6 +147,10 @@ public class Configuration {
 
     public Logger getLogger() {
         return log4jLogger;
+    }
+    
+    public int getExchangeTimeout() {
+        return exchangeTimeout;
     }
 
     /**

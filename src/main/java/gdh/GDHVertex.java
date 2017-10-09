@@ -90,9 +90,9 @@ public class GDHVertex extends AbstractVerticle {
         Group g = groupMappings.get(groupId);
         broadcast(g);
         CompletableFuture<BigInteger> future = compute(g);
-        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
+        vertx.setTimer(conf.getExchangeTimeout(), id -> {
             future.completeExceptionally(
-                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
+                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
         });
         return future;
     }
@@ -112,37 +112,10 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         broadcast(g);
         CompletableFuture<BigInteger> future = compute(g);
-        vertx.setTimer(Constants.NEGO_TIMEOUT, id -> {
+        vertx.setTimer(conf.getExchangeTimeout(), id -> {
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
             future.completeExceptionally(
-                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
-        });
-        return future;
-    }
-
-    /**
-     * Start a key exchange process
-     * @param groupId 
-     *                  the id of the group for which a key exchange will be initiated
-     * @param aHandler 
-     *                  the handler which succeeds or fails in accordance to the key exchange outcome
-     * @param timeoutMillis 
-     *                  the timeout on the key exchange process
-     * @return A Future representation of the key
-     */
-    public CompletableFuture<BigInteger> exchange(int groupId, Handler<AsyncResult<BigInteger>> aHandler,
-            int timeoutMillis) {
-        conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
-        Group g = groupMappings.get(groupId);
-        ExchangeState state = stateMappings.get(groupId);
-        state.registerHandler(aHandler);
-        broadcast(g);
-        CompletableFuture<BigInteger> future = compute(g);
-   
-        vertx.setTimer(timeoutMillis, id -> {
-            aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
-            future.completeExceptionally(
-                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + timeoutMillis));
+                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
         });
         return future;
     }
@@ -168,14 +141,12 @@ public class GDHVertex extends AbstractVerticle {
         ExchangeState state = stateMappings.get(g.getGroupId());
         if (g.getTreeNodes().size() == state.getRound() + 1) {
             conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
-            System.out.println("DONE " + getNode().toString() + " " + state.getPartial_key());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();
         } else {
             Node n = g.getNext(conf.getNode());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
-            //System.out.println("INCREMENTING " + getNode().toString() + " " + state.getPartial_key());
             state.incRound();
             state.setPartial_key(partial_key);
             conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
@@ -241,7 +212,7 @@ public class GDHVertex extends AbstractVerticle {
                         server.close();
                         vertx.cancelTimer(timingAndRetries[1]);
                         vertx.close();
-                        //throw new RuntimeException("Timeout Exceeded for Node " + n.toString());
+                        throw new RuntimeException("Exceeded " + conf.getRetries() + " retries... " + n.toString());
                     }
                 }));
             

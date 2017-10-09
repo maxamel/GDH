@@ -24,8 +24,8 @@ import main.java.gdh.PrimaryVertex;
 @RunWith(VertxUnitRunner.class)
 public class ExceptionTest {
    
-    @Test(expected = TimeoutException.class)
-    public void testVerticleDown(TestContext context) {
+    @Test(expected = ExecutionException.class)
+    public void testVerticleDownTimeout(TestContext context) throws InterruptedException, ExecutionException {
         Async async = context.async();
         int amount = 2;
         PrimaryVertex pv = new PrimaryVertex();
@@ -36,7 +36,55 @@ public class ExceptionTest {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
             String port = amount + "08" + i;
-            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
+            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(5000);
+            verticles[i].setConfiguration(confs[i]);
+        }
+        List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
+
+        Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
+        verticles[0].addGroup(g);
+
+        for (int i = 0; i < amount-1; i++)
+            pv.run(verticles[i], res -> {
+                if (res.succeeded()) {
+                    async.countDown();
+                } else {
+                    res.cause().printStackTrace();
+                    return;
+                }
+            });
+        async.awaitSuccess();
+
+        BigInteger key = null;
+        key = verticles[0].exchange(g.getGroupId()).get();
+        for (int j = 0; j < verticles.length; j++) {
+            Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+        }
+        
+        // vertx.deploymentIDs().forEach(vertx::undeploy);
+        for (int i = 0; i < amount-1; i++)
+            pv.kill(verticles[i], res -> {
+                if (res.succeeded()) {
+                    async.countDown();
+                } else {
+                    res.cause().printStackTrace();
+                }
+            });
+    }
+    
+    //@Test(expected = RuntimeException.class)
+    public void testVerticleDownRetries(TestContext context) {
+        Async async = context.async();
+        int amount = 2;
+        PrimaryVertex pv = new PrimaryVertex();
+        GDHVertex[] verticles = new GDHVertex[amount];
+        Configuration[] confs = new Configuration[amount];
+
+        for (int i = 0; i < amount; i++) {
+            verticles[i] = new GDHVertex();
+            confs[i] = new Configuration();
+            String port = amount + "08" + i;
+            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(60000);
             verticles[i].setConfiguration(confs[i]);
         }
         List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -66,7 +114,7 @@ public class ExceptionTest {
             e.printStackTrace();
         }
         // vertx.deploymentIDs().forEach(vertx::undeploy);
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < amount-1; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
