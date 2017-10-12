@@ -19,6 +19,7 @@ public final class Constants {
     public static final String ACK = "ack";
 
     public static final String EXCEPTIONTIMEOUTEXCEEDED = "Timeout exceeded ";
+    public static final String EXCEPTIONRETRIESEXCEEDED = "Retries exceeded ";
 
     public static final int BUFFER_SIZE = 2500;
 

@@ -59,10 +59,10 @@ public class NoKeyOnWireTest {
         for (int i = 0; i < amount; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
-                    System.out.println("Deployed verticle!");
                     async.countDown();
                 } else {
-                    System.out.println("Deployment failed for verticle!");
+                	res.cause().printStackTrace();
+                    return;
                 }
             });
         async.awaitSuccess();

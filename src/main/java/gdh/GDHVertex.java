@@ -88,8 +88,8 @@ public class GDHVertex extends AbstractVerticle {
     public CompletableFuture<BigInteger> exchange(int groupId) {
         conf.getLogger().info(getNode().toString() + Constants.NEGO_CALL + groupId);
         Group g = groupMappings.get(groupId);
-        broadcast(g);
-        CompletableFuture<BigInteger> future = compute(g);
+        CompletableFuture<Void> res = broadcast(g);
+        CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
         vertx.setTimer(conf.getExchangeTimeout(), id -> {
             future.completeExceptionally(
                     new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
@@ -110,8 +110,8 @@ public class GDHVertex extends AbstractVerticle {
         Group g = groupMappings.get(groupId);
         ExchangeState state = stateMappings.get(groupId);
         state.registerHandler(aHandler);
-        broadcast(g);
-        CompletableFuture<BigInteger> future = compute(g);
+        CompletableFuture<Void> res = broadcast(g);
+        CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
         vertx.setTimer(conf.getExchangeTimeout(), id -> {
             aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
             future.completeExceptionally(
@@ -139,20 +139,22 @@ public class GDHVertex extends AbstractVerticle {
 
     private CompletableFuture<BigInteger> compute(Group g)  {
         ExchangeState state = stateMappings.get(g.getGroupId());
+        CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
         if (g.getTreeNodes().size() == state.getRound() + 1) {
             conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();
+            future.complete(true);
         } else {
             Node n = g.getNext(conf.getNode());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.incRound();
             state.setPartial_key(partial_key);
             conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
-            sendMessage(n, MessageConstructor.roundInfo(state));
+            future = sendMessage(n, MessageConstructor.roundInfo(state));
         }
-        return state.getKey();
+        return future.thenCompose(s->state.getKey());
     }
 
     /**
@@ -169,22 +171,30 @@ public class GDHVertex extends AbstractVerticle {
         return stateMappings.get(groupId).getKey();
     }
 
-    private void broadcast(Group group) {
+    private CompletableFuture<Void> broadcast(Group group) {
+    	CompletableFuture<Boolean> results[] = new CompletableFuture[group.getTreeNodes().size()-1];
+    	int i=0; 
         for (Node n : group.getTreeNodes()) {
             if (!n.equals(getNode()))
-                sendMessage(n, MessageConstructor.groupInfo(group));
+            {
+                results[i] = sendMessage(n, MessageConstructor.groupInfo(group) );
+                i++;
+            }
         }
+        return CompletableFuture.allOf(results);
     }
 
-    private void sendMessage(Node n, JsonObject msg) {
+    private CompletableFuture<Boolean> sendMessage(Node n, JsonObject msg) {
         NetClientOptions options = new NetClientOptions();
         options.setSendBufferSize(Constants.BUFFER_SIZE);
 
         NetClient tcpClient = vertx.createNetClient(options);
 
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),((AsyncResult<NetSocket> result) -> {
                 NetSocket socket = result.result();
-                Long[] timingAndRetries = new Long[2];
+                Long[]
+                		timingAndRetries = new Long[2];
                 for (int t = 0; t < timingAndRetries.length; t++)
                     timingAndRetries[t] = Long.valueOf("0");
 
@@ -195,7 +205,9 @@ public class GDHVertex extends AbstractVerticle {
                             String reply = buffer.getString(0, buffer.length());
                             if (reply.equals(Constants.ACK)) {
                                 conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
+                                future.complete(true);
                                 socket.close();
+                                tcpClient.close();
                                 vertx.cancelTimer(timingAndRetries[0]);
                             }
     
@@ -211,12 +223,12 @@ public class GDHVertex extends AbstractVerticle {
                         tcpClient.close();
                         server.close();
                         vertx.cancelTimer(timingAndRetries[1]);
-                        vertx.close();
-                        throw new RuntimeException("Exceeded " + conf.getRetries() + " retries... " + n.toString());
+                        future.completeExceptionally(
+                                new TimeoutException(Constants.EXCEPTIONRETRIESEXCEEDED + conf.getRetries()));
                     }
-                }));
-            
+                }));  
         }));
+        return future;
     }
 
     @Override
