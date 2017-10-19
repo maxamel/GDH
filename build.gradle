@@ -58,7 +58,9 @@ jar {
     manifest {
         attributes 'Main-Class': 'main.java.gdh.Main'
     }
-    exclude 'META_INF/*'
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
 }
 
 task testSuite(type: Test) {

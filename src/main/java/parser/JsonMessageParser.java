@@ -71,6 +71,8 @@ public class JsonMessageParser implements MessageParser {
      * @param msg
      *              the round details in json format to be parsed
      * @return the groupId of the group contained in the message
+     *          -1 if the state does not exist yet, which means the group info was not received yet
+     *          -2 if this message has already been received
      */
     private int extractRoundInfo(String msg) {
         JsonObject obj = new JsonObject(msg);
@@ -79,8 +81,10 @@ public class JsonMessageParser implements MessageParser {
         int ret = Integer.parseInt(groupId);
         String partial_key = obj.getString(Constants.PARTIAL_KEY);
         ExchangeState state = stateMappings.get(ret);
-        if (state == null || state.getRound() == Integer.parseInt(round) - 1)	// State does not exist or message received twice
+        if (state == null)	// State does not exist 
             return -1;
+        if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
+            return -2;
         state.setPartial_key(new BigInteger(partial_key));
         return ret;
     }

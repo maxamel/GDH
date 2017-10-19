@@ -54,9 +54,15 @@ public class GDHVertex extends AbstractVerticle {
 
                 int groupId = parser.parse(msg);
                 if (groupId == -1) {
-                // This node is behind in its info or receiving doubled messages. Come back later...
+                // This node is behind in its info. Come back later...
                     conf.getLogger().debug(getNode().toString() + " Unkown group or double message " + msg);
                     return;
+                }
+                else if (groupId == -2) {
+                // receiving doubled messages. Come back later...
+                    Buffer outBuffer = Buffer.buffer();
+                    outBuffer.appendString(Constants.ACK);
+                    netSocket.write(outBuffer);
                 }
                 Group group = groupMappings.get(groupId);
 
@@ -193,8 +199,7 @@ public class GDHVertex extends AbstractVerticle {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),((AsyncResult<NetSocket> result) -> {
                 NetSocket socket = result.result();
-                Long[]
-                		timingAndRetries = new Long[2];
+                Long[] timingAndRetries = new Long[2];
                 for (int t = 0; t < timingAndRetries.length; t++)
                     timingAndRetries[t] = Long.valueOf("0");
 

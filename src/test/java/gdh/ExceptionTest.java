@@ -23,7 +23,8 @@ import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
 public class ExceptionTest {
-   
+    private static final String localhost = "localhost";
+    
     @Test(expected = ExecutionException.class)
     public void testVerticleDownTimeout(TestContext context) throws InterruptedException, ExecutionException {
         Async async = context.async();
@@ -36,7 +37,7 @@ public class ExceptionTest {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
             String port = amount + "08" + i;
-            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(5000);
+            confs[i].setIP(localhost).setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(5000);
             verticles[i].setConfiguration(confs[i]);
         }
         List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -84,7 +85,7 @@ public class ExceptionTest {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
             String port = amount + "08" + i;
-            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(60000);
+            confs[i].setIP(localhost).setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(60000);
             verticles[i].setConfiguration(confs[i]);
         }
         List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -130,7 +131,7 @@ public class ExceptionTest {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
             String port = amount + "08" + i;
-            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(60000);
+            confs[i].setIP(localhost).setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(60000);
             verticles[i].setConfiguration(confs[i]);
         }
         List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
@@ -180,7 +181,7 @@ public class ExceptionTest {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
             String port = amount + "08" + i;
-            confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(5000);
+            confs[i].setIP(localhost).setPort(port).setLogLevel(Level.DEBUG).setExchangeTimeout(5000);
             verticles[i].setConfiguration(confs[i]);
         }
         List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));

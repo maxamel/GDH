@@ -21,28 +21,28 @@ import main.java.gdh.Group;
 import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class AsyncKeyExchangeTest {
+public class BlockingKeyExchangeTest {
 
     @Test
     public void testDoubleKeyExchange(TestContext context) {
         int amount = 2;
-        testAsyncNegotiation(amount, context);
+        testBlockingNegotiation(amount, context);
     }
     
     @Test
     public void testTripleKeyExchange(TestContext context) {
         int amount = 3;
-        testAsyncNegotiation(amount, context);
+        testBlockingNegotiation(amount, context);
     }
     
     @Test
     public void testQuadrupleKeyExchange(TestContext context) {
         int amount = 4;
-        testAsyncNegotiation(amount, context);
+        testBlockingNegotiation(amount, context);
     }
 
     // real deployment and communication between verticles on localhost
-    private void testAsyncNegotiation(int amount, TestContext context) {
+    private void testBlockingNegotiation(int amount, TestContext context) {
         Async async = context.async();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
@@ -60,42 +60,32 @@ public class AsyncKeyExchangeTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
-        for (int i = 0; i < amount; i++)
-            pv.run(verticles[i], res -> {
-                if (res.succeeded()) {
-                    async.countDown();
-                } else {
-                    res.cause().printStackTrace();
-                    return;
+        pv.run(verticles[0], res -> {
+            if (res.succeeded()) {
+                //async.countDown();
+                for (int j=1; j<verticles.length; j++)
+                {
+                    pv.run(verticles[j]);
                 }
-            });
+                try {
+                    BigInteger key = verticles[0].exchange(g.getGroupId()).get();
+                    for (GDHVertex v : verticles)
+                        Assert.assertTrue(v.getKey(g.getGroupId()).get().equals(key));
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                
+            } else {
+                res.cause().printStackTrace();
+                return;
+            }
+        });
         async.awaitSuccess();
 
-        try {
-            verticles[0].exchange(g.getGroupId(), res -> {
-                if (res.succeeded()) {
-                    for (int j=0; j<amount; j++)
-                    {
-                        try {
-                            System.out.println("CANDIDATE " + " " + verticles[j].getKey(g.getGroupId()).get());
-                            Assert.assertEquals(res.result(), verticles[j].getKey(g.getGroupId()).get());
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    System.out.println("Negotiation failed! ");
-                }
-
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
