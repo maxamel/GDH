@@ -63,6 +63,7 @@ public class GDHVertex extends AbstractVerticle {
                     Buffer outBuffer = Buffer.buffer();
                     outBuffer.appendString(Constants.ACK);
                     netSocket.write(outBuffer);
+                    return;
                 }
                 Group group = groupMappings.get(groupId);
 
@@ -144,6 +145,8 @@ public class GDHVertex extends AbstractVerticle {
     }
 
     private CompletableFuture<BigInteger> compute(Group g)  {
+        //System.out.println(g.getGroupId());
+        //System.out.println("state " + stateMappings.size());
         ExchangeState state = stateMappings.get(g.getGroupId());
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
         if (g.getTreeNodes().size() == state.getRound() + 1) {

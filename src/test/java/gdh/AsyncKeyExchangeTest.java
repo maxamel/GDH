@@ -1,6 +1,5 @@
 package test.java.gdh;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +42,6 @@ public class AsyncKeyExchangeTest {
 
     // real deployment and communication between verticles on localhost
     private void testAsyncNegotiation(int amount, TestContext context) {
-        Async async = context.async();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
@@ -60,49 +58,42 @@ public class AsyncKeyExchangeTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
+        Async async1 = context.async(amount);
         for (int i = 0; i < amount; i++)
+        {
             pv.run(verticles[i], res -> {
-                if (res.succeeded()) {
-                    async.countDown();
-                } else {
+                if (res.failed()) {
                     res.cause().printStackTrace();
                     return;
-                }
+                } 
+                else async1.countDown();
             });
-        async.awaitSuccess();
-
-        try {
-            verticles[0].exchange(g.getGroupId(), res -> {
-                if (res.succeeded()) {
-                    for (int j=0; j<amount; j++)
-                    {
-                        try {
-                            System.out.println("CANDIDATE " + " " + verticles[j].getKey(g.getGroupId()).get());
-                            Assert.assertEquals(res.result(), verticles[j].getKey(g.getGroupId()).get());
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    System.out.println("Negotiation failed! ");
-                }
-
-            }).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
+        async1.awaitSuccess();
+        
+        Async async2 = context.async();
+        verticles[0].exchange(g.getGroupId(), result -> {
+            Assert.assertTrue(result.succeeded());
+            async2.complete();
+        });  
+        async2.awaitSuccess();
+        
+        for (int j=0; j<amount-1; j++)
+            try {
+                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(verticles[j+1].getKey(g.getGroupId()).get()));
+            } catch (InterruptedException | ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+        
+        Async async3 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
-                if (res.succeeded()) {
-                    async.countDown();
-                } else {
+                if (res.failed()) {
                     res.cause().printStackTrace();
-                }
+                } 
+                else async3.countDown();
             });
+        async3.awaitSuccess();
     }
 }

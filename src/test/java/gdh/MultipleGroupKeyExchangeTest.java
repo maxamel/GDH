@@ -40,7 +40,6 @@ public class MultipleGroupKeyExchangeTest {
 
     // real deployment and communication between verticles
     private void testNegotiation(int amount, TestContext context) {
-        Async async = context.async();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
@@ -59,18 +58,17 @@ public class MultipleGroupKeyExchangeTest {
             groups[i] = new Group(confs[0], verticles[0].getNode(), verticles[i + 1].getNode());
             verticles[0].addGroup(groups[i]);
         }
-
+        Async async1 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
-                    async.countDown();
+                    async1.countDown();
                 } else {
                     res.cause().printStackTrace();
                     return;
                 }
             });
-
-        async.awaitSuccess();
+        async1.awaitSuccess();
 
         try {
             for (int i = 0; i < amount - 1; i++)
@@ -96,14 +94,16 @@ public class MultipleGroupKeyExchangeTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        Async async2 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
-                    async.countDown();
+                    async2.countDown();
                 } else {
                     res.cause().printStackTrace();
                 }
             });
+        async2.awaitSuccess();
     }
 
 }

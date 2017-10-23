@@ -75,6 +75,8 @@ Group g = new Group(config,
 ```
 
 Now it's all set up and you can run the verticles and initiate a key exchange. 
+The most important rule when developing with Vert.x (or any asynchronous platform) is DO NOT BLOCK THE EVENT LOOP!
+So remember not to perform blocking operations inside the asynchronous calls. 
 ```java
 pv.run(passiveVertex,deployment1 -> {
     if (deployment1.succeeded()) {
@@ -107,7 +109,8 @@ pv.run(passiveVertex,deployment1 -> {
     if (deployment1.succeeded()) {
         pv.run(activeVertex,deployment2 -> {
             if (deployment2.succeeded()) {
-                BigInteger key = activeVertex.exchange(g.getGroupId()).get();
+                // get the key as a Future. Do not block inside the asynchronous call
+                CompletableFuture<BigInteger> futureKey = activeVertex.exchange(g.getGroupId());
             }
             else {
                 System.out.println("Error deploying!");
@@ -126,7 +129,8 @@ the exchange once they are up and running.
 pv.run(activeVertex,deployment1 -> {
     if (deployment1.succeeded()) {
         pv.run(passiveVertex);
-        BigInteger key = activeVertex.exchange(g.getGroupId()).get();
+        // get the key as a Future. Do not block inside the asynchronous call
+        CompletableFuture<BigInteger> futureKey = activeVertex.exchange(g.getGroupId());
     }
     else {
         System.out.println("Error deploying!");

@@ -35,7 +35,6 @@ public class NoKeyOnWireTest {
 
     // real deployment and communication between verticles on localhost
     private void testNegotiation(int amount, TestContext context) {
-        Async async = context.async();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
@@ -56,16 +55,17 @@ public class NoKeyOnWireTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
+        Async async1 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
-                    async.countDown();
+                    async1.countDown();
                 } else {
                 	res.cause().printStackTrace();
                     return;
                 }
             });
-        async.awaitSuccess();
+        async1.awaitSuccess();
 
         BigInteger[] keys = new BigInteger[2];
         try {
@@ -75,13 +75,15 @@ public class NoKeyOnWireTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        Async async2 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
-                    async.countDown();
+                    async2.countDown();
                 } else {
                     res.cause().printStackTrace();
                 }
             });
+        async2.awaitSuccess();
     }
 }
