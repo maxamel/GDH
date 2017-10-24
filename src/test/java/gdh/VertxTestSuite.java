@@ -13,7 +13,7 @@ import io.vertx.ext.unit.TestContext;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ GroupNodeTest.class, ConfigurationTest.class, KeyExchangeTest.class,
         MultipleGroupKeyExchangeTest.class, AsyncKeyExchangeTest.class, NoKeyOnWireTest.class,
-        ExceptionTest.class})
+        ExceptionTest.class, BlockingKeyExchange.class})
 
 public class VertxTestSuite {
     private Vertx vertx;

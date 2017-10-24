@@ -20,7 +20,7 @@ import main.java.gdh.Group;
 import main.java.gdh.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class AsyncKeyExchangeTest {
+public class BlockingKeyExchange {
 
     @Test
     public void testDoubleKeyExchange(TestContext context) {
@@ -37,6 +37,12 @@ public class AsyncKeyExchangeTest {
     @Test
     public void testQuadrupleKeyExchange(TestContext context) {
         int amount = 4;
+        testAsyncNegotiation(amount, context);
+    }
+    
+    @Test
+    public void testQuintupleKeyExchange(TestContext context) {
+        int amount = 5;
         testAsyncNegotiation(amount, context);
     }
 
@@ -58,29 +64,18 @@ public class AsyncKeyExchangeTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
-        Async async1 = context.async(amount);
-        for (int i = 0; i < amount; i++)
-        {
-            pv.run(verticles[i], res -> {
-                if (res.failed()) {
-                    res.cause().printStackTrace();
-                    return;
-                } 
-                else async1.countDown();
-            });
-        }
-        async1.awaitSuccess();
-        
-        Async async2 = context.async();
-        verticles[0].exchange(g.getGroupId(), result -> {
-            if (result.failed())
-            {
-                System.out.println("FAIL! " + result.cause().getMessage() + " " + result.result());
+        Async async = context.async();
+        pv.run(verticles[0], res -> {
+            if (res.succeeded()) {
+                for (int i = 1; i < amount; i++)
+                {
+                    pv.run(verticles[i]);
+                }
+                verticles[0].exchange(g.getGroupId());
+                async.complete();
             }
-            Assert.assertTrue(result.succeeded());
-            async2.complete();
-        });  
-        async2.awaitSuccess();
+        });
+        async.awaitSuccess();
         
         for (int j=0; j<amount-1; j++)
             try {
@@ -99,5 +94,5 @@ public class AsyncKeyExchangeTest {
                 else async3.countDown();
             });
         async3.awaitSuccess();
-    }
+        }
 }
