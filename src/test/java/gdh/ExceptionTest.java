@@ -56,21 +56,22 @@ public class ExceptionTest {
             });
         async.awaitSuccess();
 
-        BigInteger key = null;
-        key = verticles[0].exchange(g.getGroupId()).get();
-        for (int j = 0; j < verticles.length; j++) {
-            Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+        try {
+            BigInteger key = verticles[0].exchange(g.getGroupId()).get();
+            for (int j = 0; j < verticles.length; j++) {
+                Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+            }
+        } catch (ExecutionException e) {
+            for (int i = 0; i < amount-1; i++)
+                pv.kill(verticles[i], res -> {
+                    if (res.succeeded()) {
+                        async.countDown();
+                    } else {
+                        res.cause().printStackTrace();
+                    }
+                });
+            throw e;
         }
-        
-        // vertx.deploymentIDs().forEach(vertx::undeploy);
-        for (int i = 0; i < amount-1; i++)
-            pv.kill(verticles[i], res -> {
-                if (res.succeeded()) {
-                    async.countDown();
-                } else {
-                    res.cause().printStackTrace();
-                }
-            });
     }
     
     @Test(expected = ExecutionException.class)
@@ -104,19 +105,22 @@ public class ExceptionTest {
             });
         async.awaitSuccess();
 
-        BigInteger key = verticles[0].exchange(g.getGroupId()).get();
-        for (int j = 0; j < verticles.length; j++) 
-            Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
-                
-        // vertx.deploymentIDs().forEach(vertx::undeploy);
-        for (int i = 0; i < amount-1; i++)
-            pv.kill(verticles[i], res -> {
-                if (res.succeeded()) {
-                    async.countDown();
-                } else {
-                    res.cause().printStackTrace();
-                }
-            });
+        try {
+            BigInteger key = verticles[0].exchange(g.getGroupId()).get();
+            for (int j = 0; j < verticles.length; j++) {
+                Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+            }
+        } catch (ExecutionException e) {
+            for (int i = 0; i < amount-1; i++)
+                pv.kill(verticles[i], res -> {
+                    if (res.succeeded()) {
+                        async.countDown();
+                    } else {
+                        res.cause().printStackTrace();
+                    }
+                });
+            throw e;
+        }
     }
     
     @Test
