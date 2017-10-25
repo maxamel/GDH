@@ -119,10 +119,19 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         CompletableFuture<Void> res = broadcast(g);
         CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
-        vertx.setTimer(conf.getExchangeTimeout(), id -> {
-            aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
-            future.completeExceptionally(
+        long timer[] = new long[1];
+        timer[0] = vertx.setTimer(conf.getExchangeTimeout(), id -> {
+            if (future.isDone()) 
+            {
+                aHandler.handle(Future.succeededFuture());
+                vertx.cancelTimer(timer[0]);
+            }
+            else
+            {
+                aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
+                future.completeExceptionally(
                     new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
+            }
         });
         return future;
     }

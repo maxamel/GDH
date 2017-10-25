@@ -1,8 +1,10 @@
 package test.java.gdh;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -71,20 +73,21 @@ public class AsyncKeyExchangeTest {
         }
         async1.awaitSuccess();
         
-        Async async2 = context.async();
-        verticles[0].exchange(g.getGroupId(), result -> {
+        Async async2 = context.async(1);
+        CompletableFuture<BigInteger> key = verticles[0].exchange(g.getGroupId(), result -> {
             if (result.failed())
             {
                 System.out.println("FAIL! " + result.cause().getMessage() + " " + result.result());
             }
             Assert.assertTrue(result.succeeded());
-            async2.complete();
+            async2.countDown();
         });  
         async2.awaitSuccess();
         
-        for (int j=0; j<amount-1; j++)
+        for (int j=0; j<amount; j++)
             try {
-                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(verticles[j+1].getKey(g.getGroupId()).get()));
+                System.out.println("CANDIDATE " + verticles[j].getKey(g.getGroupId()).get());
+                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(key.get()));
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
