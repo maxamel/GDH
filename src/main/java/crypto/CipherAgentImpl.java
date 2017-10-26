@@ -21,8 +21,6 @@ import main.java.gdh.Constants;
 
 /**
  * 
- * @author Max Amelchenko
- * 
  * CipherAgentImpl is a utility class for encrypting and decrypting messages. The key used is symmetric, 
  * 
  * which means the same key is used for both encryption and decryption.
@@ -30,6 +28,8 @@ import main.java.gdh.Constants;
  * It is not part of the key exchange process. Once a key is obtained from GDHVertex this class can be used
  * 
  * as part of a protocol to exchange messages between the participating parties.
+ * 
+ * @author Max Amelchenko
  * 
  */
 public class CipherAgentImpl implements CipherAgent {

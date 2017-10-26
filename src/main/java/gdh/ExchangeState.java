@@ -63,6 +63,10 @@ public class ExchangeState {
     public void incRound() {
         round++;
     }
+    
+    public void decRound() {
+        round--;
+    }
 
     public void setPartial_key(BigInteger partial_key) {
         this.partial_key = partial_key;

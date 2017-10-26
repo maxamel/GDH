@@ -16,7 +16,6 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * 
- * @author Max Amelchenko
  * 
  * Configuration is the object which holds all the configurable parameters of a GDHVertex. Implements the Builder pattern. 
  * 
@@ -28,6 +27,7 @@ import io.vertx.core.json.JsonObject;
  * 
  * take extreme care when choosing new one's, as your key exchange might be vulnerable to all kinds of attacks. 
  *
+ * @author Max Amelchenko
  */
 public class Configuration {
     private String IP = "localhost";

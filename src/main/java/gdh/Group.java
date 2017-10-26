@@ -9,13 +9,13 @@ import java.util.TreeSet;
 
 /**
  * 
- * @author Max Amelchenko
- * 
  * Group is an object which represents a group of participants(Nodes) in a Diffie-Hellman key exchange.
  * 
  * It is generally identified by its groupId which is generated from the hash code of its Nodes. 
  * 
  * The Nodes are organized in a TreeSet to create a total lexicographical order.
+ * 
+ * @author Max Amelchenko
  */
 public class Group {
     private int groupId;
