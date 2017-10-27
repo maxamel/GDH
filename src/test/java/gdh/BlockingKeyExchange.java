@@ -74,6 +74,10 @@ public class BlockingKeyExchange {
                 verticles[0].exchange(g.getGroupId());
                 async.complete();
             }
+            else {
+            	System.out.println("Cannot initiate startup and exchange!");
+            	Assert.fail();
+            }
         });
         async.awaitSuccess();
         

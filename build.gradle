@@ -4,7 +4,6 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
-
 apply plugin: 'pmd'
   pmd {
   		toolVersion='5.5.2'
@@ -38,7 +37,7 @@ sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
 
 dependencies {
 	compile 'io.vertx:vertx-core:3.4.2'
-	compile 'io.vertx:vertx-unit:3.4.2'
+	compile 'io.vertx:vertx-unit:3.5.0'
 	compile 'io.vertx:testtools:2.0.3-final'
 	compile 'io.reactivex:rxjava:1.3.0'
 	compile 'com.google.code.findbugs:annotations:3.0.1'
@@ -46,9 +45,9 @@ dependencies {
 }
 
 clean {
-	delete "/libs"
-	delete "/build"
-	delete "/bin"
+	delete "libs/"
+	delete "build/"
+	delete "bin/"
 	delete "GDH-1.1.jar"
 }
 

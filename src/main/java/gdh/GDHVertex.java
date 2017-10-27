@@ -61,14 +61,14 @@ public class GDHVertex extends AbstractVerticle {
                     //conf.getLogger().debug(getNode().toString() + " Unkown group or double message " + msg);
                     return;
                 }
-                /*else if (groupId == -2) {
+                else if (groupId == -2) {
                 // receiving doubled messages. Come back later...
                     Buffer outBuffer = Buffer.buffer();
                     outBuffer.appendString(Constants.ACK);
                     netSocket.write(outBuffer);
                     System.out.println("Double messages");
                     return;
-                }*/
+                }
                 Group group = groupMappings.get(groupId);
 
                 Buffer outBuffer = Buffer.buffer();
@@ -83,11 +83,13 @@ public class GDHVertex extends AbstractVerticle {
         server.listen(Integer.parseInt(conf.getPort()), res -> {
             if (res.succeeded()) {
                 future.complete();
+                conf.getLogger().info(getNode().toString() + " started listening on: " + conf.getPort());
             } else {
                 future.fail(res.cause());
+                conf.getLogger().info(getNode().toString() + " startup failure: " + conf.getPort());
             }
         });
-        conf.getLogger().info(getNode().toString() + " started listening on: " + conf.getPort());
+        
     }
 
     /**
@@ -212,15 +214,15 @@ public class GDHVertex extends AbstractVerticle {
         options.setSendBufferSize(Constants.BUFFER_SIZE);
 
         NetClient tcpClient = vertx.createNetClient(options);
-
+        
         CompletableFuture<Boolean> future = new CompletableFuture<>();
-        tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),((AsyncResult<NetSocket> result) -> {
+        Long[] timingAndRetries = new Long[2];
+        for (int t = 0; t < timingAndRetries.length; t++)
+            timingAndRetries[t] = Long.valueOf("0");
+        
+        timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY, ((Long myLong) -> {
+        	tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(),((AsyncResult<NetSocket> result) -> {
                 NetSocket socket = result.result();
-                Long[] timingAndRetries = new Long[2];
-                for (int t = 0; t < timingAndRetries.length; t++)
-                    timingAndRetries[t] = Long.valueOf("0");
-
-                timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY, ((Long aLong) -> {
                     if (socket != null)
                     {
                         socket.handler((Buffer buffer) -> {
@@ -229,9 +231,9 @@ public class GDHVertex extends AbstractVerticle {
                                 conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
                                 System.out.println(getNode().toString() + " Got an ack from " + n.toString());
                                 future.complete(true);
+                                vertx.cancelTimer(timingAndRetries[0]);
                                 socket.close();
                                 tcpClient.close();
-                                vertx.cancelTimer(timingAndRetries[0]);
                             }
     
                         });
@@ -244,13 +246,13 @@ public class GDHVertex extends AbstractVerticle {
                         // No more retries left. Exit...
                         conf.getLogger().error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
                         if (socket != null) socket.close();
+                        vertx.cancelTimer(timingAndRetries[0]);
                         tcpClient.close();
                         server.close();
-                        vertx.cancelTimer(timingAndRetries[1]);
                         future.completeExceptionally(
                                 new TimeoutException(Constants.EXCEPTIONRETRIESEXCEEDED + conf.getRetries()));
                     }
-                }));  
+                }));
         }));
         return future;
     }
@@ -260,10 +262,11 @@ public class GDHVertex extends AbstractVerticle {
         server.close(res -> {
             if (res.succeeded()) {
                 future.complete();
+                conf.getLogger().info(getNode().toString() + " stopped listening on: " + conf.getPort());
             } else {
                 future.fail(res.cause());
+                conf.getLogger().info(getNode().toString() + " stoppage failure: " + conf.getPort());
             }
         });
-        conf.getLogger().info(getNode().toString() + " stopped listening on: " + conf.getPort());
     }
 }

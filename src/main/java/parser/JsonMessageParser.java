@@ -57,6 +57,8 @@ public class JsonMessageParser implements MessageParser {
             set.add(n);
         }
         group = new Group(generator, prime, set);
+        if (stateMappings.containsKey(group.getGroupId()) && !stateMappings.get(group.getGroupId()).isDone())
+        	return -2;
         group.setGenerator(new BigInteger(generator));
         group.setPrime(new BigInteger(prime));
         groupMappings.put(group.getGroupId(), group);
@@ -82,9 +84,11 @@ public class JsonMessageParser implements MessageParser {
         ExchangeState state = stateMappings.get(ret);
         if (state == null)	// State does not exist 
             return -1;
+        //if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
+        //    return -2;
         state.setPartial_key(new BigInteger(partial_key));
         if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
-                state.decRound();
+            state.decRound();
         return ret;
     }
 }
