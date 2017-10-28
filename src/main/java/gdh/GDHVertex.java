@@ -51,8 +51,8 @@ public class GDHVertex extends AbstractVerticle {
                 String msg = buffer.getString(0, buffer.length());
                 System.out.println(getNode().toString() + " incoming data: " + netSocket.localAddress() + " "
                         + buffer.length() + " " + msg);
-                conf.getLogger().debug(getNode().toString() + " incoming data: " + netSocket.localAddress() + " "
-                        + buffer.length() + " " + msg);
+                //conf.getLogger().debug(getNode().toString() + " incoming data: " + netSocket.localAddress() + " "
+                //        + buffer.length() + " " + msg);
 
                 int groupId = parser.parse(msg);
                 if (groupId == -1) {
@@ -66,7 +66,7 @@ public class GDHVertex extends AbstractVerticle {
                     Buffer outBuffer = Buffer.buffer();
                     outBuffer.appendString(Constants.ACK);
                     netSocket.write(outBuffer);
-                    System.out.println("Double messages");
+                    //System.out.println("Double messages");
                     return;
                 }
                 Group group = groupMappings.get(groupId);
@@ -125,9 +125,13 @@ public class GDHVertex extends AbstractVerticle {
         state.registerHandler(aHandler);
         CompletableFuture<Void> res = broadcast(g);
         CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
+        future.exceptionally(e -> { 
+        	aHandler.handle(Future.failedFuture(e.getMessage()));
+        	return future.join();
+        });
         long timer[] = new long[1];
         timer[0] = vertx.setTimer(conf.getExchangeTimeout(), id -> {
-            if (future.isDone()) 
+        	if (future.isDone() && !future.isCompletedExceptionally()) 
             {
                 aHandler.handle(Future.succeededFuture());
                 vertx.cancelTimer(timer[0]);
@@ -175,8 +179,8 @@ public class GDHVertex extends AbstractVerticle {
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.incRound();
             state.setPartial_key(partial_key);
-            conf.getLogger().debug(getNode().toString() + " got key: " + partial_key);
-            System.out.println(getNode().toString() + " got key: " + partial_key + " round " + state.getRound());
+            conf.getLogger().debug(getNode().toString() + " computing: " + partial_key);
+            System.out.println(getNode().toString() + " computing: " + partial_key + " round " + state.getRound());
             future = sendMessage(n, MessageConstructor.roundInfo(state));
         }
         return future.thenCompose(s->state.getKey());
@@ -228,7 +232,7 @@ public class GDHVertex extends AbstractVerticle {
                         socket.handler((Buffer buffer) -> {
                             String reply = buffer.getString(0, buffer.length());
                             if (reply.equals(Constants.ACK)) {
-                                conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
+                                //conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
                                 System.out.println(getNode().toString() + " Got an ack from " + n.toString());
                                 future.complete(true);
                                 vertx.cancelTimer(timingAndRetries[0]);
@@ -237,8 +241,8 @@ public class GDHVertex extends AbstractVerticle {
                             }
     
                         });
-                        conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
-                        System.out.println(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                        //conf.getLogger().debug(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString());
+                        System.out.println(getNode().toString() + " Sending data to: " + n.toString() + " " + msg.toString() + " count: " + timingAndRetries[1].intValue());
                         socket.write(msg.toString());
                     }
                     timingAndRetries[1]++;

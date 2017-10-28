@@ -157,10 +157,13 @@ public class ExceptionTest {
             });
         async.awaitSuccess();
 
+        Async async3 = context.async();
         verticles[0].exchange(g.getGroupId(),res -> {
         	Assert.assertTrue(res.failed());
         	Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONRETRIESEXCEEDED));
+        	async3.complete();
         });
+        async3.awaitSuccess();
         
         Async async2 = context.async();
         for (int i = 0; i < amount-1; i++)
@@ -203,10 +206,13 @@ public class ExceptionTest {
             });
         async.awaitSuccess();
 
+        Async async3 = context.async();
         verticles[0].exchange(g.getGroupId(),res -> {
         	Assert.assertTrue(res.failed());
         	Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONTIMEOUTEXCEEDED));
+        	async3.complete();
         });
+        async3.awaitSuccess();
         
         Async async2 = context.async(amount-1);
         for (int i = 0; i < amount-1; i++)
@@ -220,7 +226,6 @@ public class ExceptionTest {
     
     @Test(expected = ExecutionException.class)
     public void testVerticleCrash(TestContext context) throws InterruptedException, ExecutionException {
-        Async async = context.async();
         int amount = 2;
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
@@ -238,6 +243,7 @@ public class ExceptionTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
+        Async async = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
@@ -255,9 +261,9 @@ public class ExceptionTest {
             bigint.get();
         } catch (ExecutionException e) {
             for (int i = 0; i < amount-1; i++)
-                pv.kill(verticles[0], res -> {
+                pv.kill(verticles[i], res -> {
                     if (res.succeeded()) {
-                        async2.countDown();
+                    	async2.countDown();
                     } 
                 });
             async2.awaitSuccess();

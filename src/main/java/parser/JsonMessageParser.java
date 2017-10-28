@@ -84,11 +84,11 @@ public class JsonMessageParser implements MessageParser {
         ExchangeState state = stateMappings.get(ret);
         if (state == null)	// State does not exist 
             return -1;
-        //if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
-        //    return -2;
-        state.setPartial_key(new BigInteger(partial_key));
         if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
-            state.decRound();
+            return -2;
+        state.setPartial_key(new BigInteger(partial_key));
+        //if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
+        //    state.decRound();
         return ret;
     }
 }
