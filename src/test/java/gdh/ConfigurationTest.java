@@ -91,7 +91,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testEquality() {
+    public void testEquality1() {
         Configuration conf1 = new Configuration();
         Configuration conf2 = new Configuration();
 
@@ -102,6 +102,38 @@ public class ConfigurationTest {
 
         conf1 = conf1.setIP("1.1.1.1");
         conf2 = conf2.setIP("2.2.2.2");
+        Assert.assertFalse(conf1.hashCode() == conf2.hashCode());
+        Assert.assertFalse(conf1.equals(conf2));
+    }
+    
+    @Test
+    public void testEquality2() {
+        Configuration conf1 = new Configuration();
+        Configuration conf2 = new Configuration();
+
+        conf1 = conf1.setExchangeTimeout(3000);
+        conf2 = conf2.setExchangeTimeout(4000);
+        Assert.assertTrue(conf1.hashCode() == conf2.hashCode());
+        Assert.assertTrue(conf1.equals(conf2));
+        
+        conf1 = conf1.setPort("1111");
+        conf2 = conf2.setPort("2222");
+        Assert.assertFalse(conf1.hashCode() == conf2.hashCode());
+        Assert.assertFalse(conf1.equals(conf2));
+    }
+    
+    @Test
+    public void testEquality3() {
+        Configuration conf1 = new Configuration();
+        Configuration conf2 = new Configuration();
+
+        conf1 = conf1.setExchangeTimeout(3000);
+        conf2 = conf2.setRetries(7);
+        Assert.assertTrue(conf1.hashCode() == conf2.hashCode());
+        Assert.assertTrue(conf1.equals(conf2));
+        
+        conf1 = conf1.setGenerator("111111");
+        conf2 = conf2.setGenerator("222222");
         Assert.assertFalse(conf1.hashCode() == conf2.hashCode());
         Assert.assertFalse(conf1.equals(conf2));
     }

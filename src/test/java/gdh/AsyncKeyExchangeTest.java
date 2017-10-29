@@ -75,10 +75,6 @@ public class AsyncKeyExchangeTest {
         
         Async async2 = context.async(1);
         CompletableFuture<BigInteger> key = verticles[0].exchange(g.getGroupId(), result -> {
-            if (result.failed())
-            {
-                System.out.println("FAIL! " + result.cause().getMessage() + " " + result.result());
-            }
             Assert.assertTrue(result.succeeded());
             async2.countDown();
         });  

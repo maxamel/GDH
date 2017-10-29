@@ -19,7 +19,7 @@ import io.vertx.ext.unit.TestContext;
     NoKeyOnWireTest.class,
     ExceptionTest.class, 
     KeyExchangeTest.class, 
-    BlockingKeyExchange.class
+    NonSyncDeploymentKeyExchange.class
     })
 
 public class VertxTestSuite {

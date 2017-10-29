@@ -15,6 +15,8 @@ import main.java.gdh.Node;
 /**
  * 
  * JsonMessageParser is a class for parsing json messages
+ * 
+ * Parses two types of messages. Messages about
  *
  * @author Max Amelchenko
  */
@@ -28,6 +30,11 @@ public class JsonMessageParser implements MessageParser {
         this.stateMappings = stateMappings;
     }
 
+    /**
+     *  @param msg
+     *              the information to be parsed
+     *  @return the group id of the group contained in the message or error code
+     */
     @Override
     public int parse(String msg) {
         if (msg.contains(Constants.ROUND))
@@ -39,7 +46,7 @@ public class JsonMessageParser implements MessageParser {
      * 
      * @param msg
      *              the group details in json format to be parsed
-     * @return the groupId of the group contained in the message
+     * @return the group id of the group contained in the message
      */
     private int extractGroupInfo(String msg) {
         TreeSet<Node> set = new TreeSet<>();
@@ -68,10 +75,11 @@ public class JsonMessageParser implements MessageParser {
 
     /**
      * Get the info about the current round of the key exchange. These include the id of the group exchanging keys and
-     * the partial key computed by this Node's counterpart. This partial key will be used by this Node for further computation.
+     * the partial key computed by this Node's counterpart. 
+     * This partial key will be used by this Node for further computation.
      * @param msg
      *              the round details in json format to be parsed
-     * @return the groupId of the group contained in the message
+     * @return the group id of the group contained in the message
      *          -1 if the state does not exist yet, which means the group info was not received yet
      *          -2 if this message has already been received
      */
@@ -87,8 +95,6 @@ public class JsonMessageParser implements MessageParser {
         if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
             return -2;
         state.setPartial_key(new BigInteger(partial_key));
-        //if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
-        //    state.decRound();
         return ret;
     }
 }
