@@ -25,7 +25,7 @@ import main.java.gdh.PrimaryVertex;
 @RunWith(VertxUnitRunner.class)
 public class ExceptionTest {
     private static final String localhost = "localhost";
-    
+
     @Test(expected = ExecutionException.class)
     public void testVerticleDownTimeout(TestContext context) throws InterruptedException, ExecutionException {
         int amount = 2;
@@ -45,7 +45,7 @@ public class ExceptionTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
         Async async = context.async();
-        for (int i = 0; i < amount-1; i++)
+        for (int i = 0; i < amount - 1; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
@@ -62,20 +62,20 @@ public class ExceptionTest {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
             }
         } catch (ExecutionException e) {
-            Async async2 = context.async(amount-1);
-            for (int i = 0; i < amount-1; i++)
+            Async async2 = context.async(amount - 1);
+            for (int i = 0; i < amount - 1; i++)
                 pv.kill(verticles[i], res -> {
                     if (res.succeeded()) {
                         async2.countDown();
-                    } 
+                    }
                 });
             async2.awaitSuccess();
             throw e;
         }
     }
-    
+
     @Test(expected = ExecutionException.class)
-    public void testVerticleDownRetries(TestContext context) throws InterruptedException, ExecutionException{
+    public void testVerticleDownRetries(TestContext context) throws InterruptedException, ExecutionException {
         int amount = 2;
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
@@ -93,8 +93,8 @@ public class ExceptionTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
-        Async async = context.async(amount-1);
-        for (int i = 0; i < amount-1; i++)
+        Async async = context.async(amount - 1);
+        for (int i = 0; i < amount - 1; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
@@ -111,8 +111,8 @@ public class ExceptionTest {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
             }
         } catch (ExecutionException e) {
-            Async async2 = context.async(amount-1);
-            for (int i = 0; i < amount-1; i++)
+            Async async2 = context.async(amount - 1);
+            for (int i = 0; i < amount - 1; i++)
                 pv.kill(verticles[i], res -> {
                     if (res.succeeded()) {
                         async2.countDown();
@@ -125,9 +125,9 @@ public class ExceptionTest {
             throw e;
         }
     }
-    
+
     @Test
-    public void testVerticleDownRetriesAsync(TestContext context) throws InterruptedException, ExecutionException{
+    public void testVerticleDownRetriesAsync(TestContext context) throws InterruptedException, ExecutionException {
         int amount = 2;
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
@@ -146,7 +146,7 @@ public class ExceptionTest {
         verticles[0].addGroup(g);
 
         Async async = context.async();
-        for (int i = 0; i < amount-1; i++)
+        for (int i = 0; i < amount - 1; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
@@ -158,23 +158,23 @@ public class ExceptionTest {
         async.awaitSuccess();
 
         Async async3 = context.async();
-        verticles[0].exchange(g.getGroupId(),res -> {
-        	Assert.assertTrue(res.failed());
-        	Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONRETRIESEXCEEDED));
-        	async3.complete();
+        verticles[0].exchange(g.getGroupId(), res -> {
+            Assert.assertTrue(res.failed());
+            Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONRETRIESEXCEEDED));
+            async3.complete();
         });
         async3.awaitSuccess();
-        
+
         Async async2 = context.async();
-        for (int i = 0; i < amount-1; i++)
+        for (int i = 0; i < amount - 1; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
                     async2.countDown();
-                } 
+                }
             });
         async2.awaitSuccess();
     }
-    
+
     @Test
     public void testVerticleDownTimeoutAsync(TestContext context) throws InterruptedException, ExecutionException {
         Async async = context.async();
@@ -195,7 +195,7 @@ public class ExceptionTest {
         Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
         verticles[0].addGroup(g);
 
-        for (int i = 0; i < amount-1; i++)
+        for (int i = 0; i < amount - 1; i++)
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
@@ -207,23 +207,23 @@ public class ExceptionTest {
         async.awaitSuccess();
 
         Async async3 = context.async();
-        verticles[0].exchange(g.getGroupId(),res -> {
-        	Assert.assertTrue(res.failed());
-        	Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONTIMEOUTEXCEEDED));
-        	async3.complete();
+        verticles[0].exchange(g.getGroupId(), res -> {
+            Assert.assertTrue(res.failed());
+            Assert.assertTrue(res.cause().getMessage().contains(Constants.EXCEPTIONTIMEOUTEXCEEDED));
+            async3.complete();
         });
         async3.awaitSuccess();
-        
-        Async async2 = context.async(amount-1);
-        for (int i = 0; i < amount-1; i++)
+
+        Async async2 = context.async(amount - 1);
+        for (int i = 0; i < amount - 1; i++)
             pv.kill(verticles[i], res -> {
                 if (res.succeeded()) {
                     async2.countDown();
-                } 
+                }
             });
         async2.awaitSuccess();
     }
-    
+
     @Test(expected = ExecutionException.class)
     public void testVerticleCrash(TestContext context) throws InterruptedException, ExecutionException {
         int amount = 2;
@@ -248,23 +248,23 @@ public class ExceptionTest {
             pv.run(verticles[i], res -> {
                 if (res.succeeded()) {
                     async.countDown();
-                } 
+                }
             });
         async.awaitSuccess();
 
         CompletableFuture<BigInteger> bigint = verticles[0].exchange(g.getGroupId());
         Thread.sleep(1000);
-        pv.kill(verticles[amount-1]);
-        
-        Async async2 = context.async(amount-1);
+        pv.kill(verticles[amount - 1]);
+
+        Async async2 = context.async(amount - 1);
         try {
             bigint.get();
         } catch (ExecutionException e) {
-            for (int i = 0; i < amount-1; i++)
+            for (int i = 0; i < amount - 1; i++)
                 pv.kill(verticles[i], res -> {
                     if (res.succeeded()) {
-                    	async2.countDown();
-                    } 
+                        async2.countDown();
+                    }
                 });
             async2.awaitSuccess();
             throw e;

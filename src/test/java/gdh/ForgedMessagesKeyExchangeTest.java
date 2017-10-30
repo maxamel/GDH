@@ -1,52 +1,70 @@
 package test.java.gdh;
 
-import java.io.StringWriter;
-import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.WriterAppender;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import main.java.gdh.Configuration;
+import main.java.gdh.ExchangeState;
 import main.java.gdh.GDHVertex;
 import main.java.gdh.Group;
+import main.java.gdh.Node;
 import main.java.gdh.PrimaryVertex;
+import main.java.parser.MessageConstructor;
 
 @RunWith(VertxUnitRunner.class)
-public class NoKeyOnWireTest {
+public class ForgedMessagesKeyExchangeTest {
 
     @Test
-    public void testExchangeNoKeyOnWire(TestContext context) {
+    public void testDoubleKeyExchange(TestContext context) {
         int amount = 2;
+        testNegotiation(amount, context);
+    }
+
+    @Test
+    public void testTripleKeyExchange(TestContext context) {
+        int amount = 3;
+        testNegotiation(amount, context);
+    }
+
+    @Test
+    public void testQuadrupleKeyExchange(TestContext context) {
+        int amount = 4;
+        testNegotiation(amount, context);
+    }
+
+    @Test
+    public void testQuintupleKeyExchange(TestContext context) {
+        int amount = 5;
         testNegotiation(amount, context);
     }
 
     // real deployment and communication between verticles on localhost
     private void testNegotiation(int amount, TestContext context) {
+        // Vertx vertx = Vertx.vertx();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
-        Writer writer = new StringWriter();
+
         for (int i = 0; i < amount; i++) {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
-            WriterAppender app = new WriterAppender(new PatternLayout(), writer);
-            app.setThreshold(Level.DEBUG);
-            app.activateOptions();
-            confs[i].setAppender(app);
-            String port = amount + "08" + i;
+            String port = amount + "07" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);
         }
@@ -67,11 +85,29 @@ public class NoKeyOnWireTest {
             });
         async1.awaitSuccess();
 
-        BigInteger[] keys = new BigInteger[2];
+        BigInteger key = null;
         try {
-            keys[0] = verticles[0].exchange(g.getGroupId()).get();
-            Assert.assertFalse(writer.toString().contains(keys[0].toString()));
-        } catch (InterruptedException | ExecutionException e) {
+            CompletableFuture<BigInteger> bigint = verticles[0].exchange(g.getGroupId());
+            // double messages check
+            Method method1 = verticles[0].getClass().getDeclaredMethod("broadcast", Group.class);
+            method1.setAccessible(true);
+            method1.invoke(verticles[0],g);     
+            
+            // sending message of unknown group
+            Method method2 = verticles[0].getClass().getDeclaredMethod("sendMessage", Node.class, JsonObject.class);
+            method2.setAccessible(true);
+            method2.invoke(verticles[0],verticles[1].getNode(), MessageConstructor.roundInfo(new ExchangeState(45622, BigInteger.TEN)));
+            
+            key = bigint.get();
+            for (int j = 0; j < verticles.length; j++) {
+                System.out.println("CANDIDATE " + " " + verticles[j].getKey(g.getGroupId()).get());
+            }
+            for (int j = 0; j < verticles.length; j++) {
+                Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+            }
+        } catch (InterruptedException | ExecutionException | SecurityException | 
+                IllegalArgumentException | NoSuchMethodException | IllegalAccessException |
+                InvocationTargetException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -85,5 +121,6 @@ public class NoKeyOnWireTest {
                 }
             });
         async2.awaitSuccess();
+
     }
 }

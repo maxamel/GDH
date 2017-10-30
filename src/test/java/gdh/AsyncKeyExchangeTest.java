@@ -29,13 +29,13 @@ public class AsyncKeyExchangeTest {
         int amount = 2;
         testAsyncNegotiation(amount, context);
     }
-    
+
     @Test
     public void testTripleKeyExchange(TestContext context) {
         int amount = 3;
         testAsyncNegotiation(amount, context);
     }
-    
+
     @Test
     public void testQuadrupleKeyExchange(TestContext context) {
         int amount = 4;
@@ -61,41 +61,40 @@ public class AsyncKeyExchangeTest {
         verticles[0].addGroup(g);
 
         Async async1 = context.async(amount);
-        for (int i = 0; i < amount; i++)
-        {
+        for (int i = 0; i < amount; i++) {
             pv.run(verticles[i], res -> {
                 if (res.failed()) {
                     res.cause().printStackTrace();
                     return;
-                } 
-                else async1.countDown();
+                } else
+                    async1.countDown();
             });
         }
         async1.awaitSuccess();
-        
+
         Async async2 = context.async(1);
         CompletableFuture<BigInteger> key = verticles[0].exchange(g.getGroupId(), result -> {
             Assert.assertTrue(result.succeeded());
             async2.countDown();
-        });  
+        });
         async2.awaitSuccess();
-        
-        for (int j=0; j<amount; j++)
+
+        for (int j = 0; j < amount; j++)
             try {
                 System.out.println("CANDIDATE " + verticles[j].getKey(g.getGroupId()).get());
                 Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(key.get()));
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } 
-        
+            }
+
         Async async3 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.failed()) {
                     res.cause().printStackTrace();
-                } 
-                else async3.countDown();
+                } else
+                    async3.countDown();
             });
         async3.awaitSuccess();
     }

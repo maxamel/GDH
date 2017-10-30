@@ -21,11 +21,13 @@ import main.java.gdh.Constants;
 
 /**
  * 
- * CipherAgentImpl is a utility class for encrypting and decrypting messages. The key used is symmetric, 
+ * CipherAgentImpl is a utility class for encrypting and decrypting messages.
+ * The key used is symmetric,
  * 
  * which means the same key is used for both encryption and decryption.
  * 
- * It is not part of the key exchange process. Once a key is obtained from GDHVertex this class can be used
+ * It is not part of the key exchange process. Once a key is obtained from
+ * GDHVertex this class can be used
  * 
  * as part of a protocol to exchange messages between the participating parties.
  * 
@@ -42,15 +44,17 @@ public class CipherAgentImpl implements CipherAgent {
     }
 
     /**
-     *  Encrypt a value with a key and initial vector
-     *  @param value
-     *                  the String value to encrypt
-     *  @param iv
-     *                  the initial vector. Must be a random 128 bit value and the same one used in decryption
-     *  @param key
-     *                  the key for encryption
-     *  
-     *  @return the encrypted bytes
+     * Encrypt a value with a key and initial vector
+     * 
+     * @param value
+     *            the String value to encrypt
+     * @param iv
+     *            the initial vector. Must be a random 128 bit value and the
+     *            same one used in decryption
+     * @param key
+     *            the key for encryption
+     * 
+     * @return the encrypted bytes
      */
     public byte[] encrypt(String value, byte[] iv, SecretKey key)
             throws InvalidKeyException, InvalidAlgorithmParameterException, IOException {
@@ -68,15 +72,17 @@ public class CipherAgentImpl implements CipherAgent {
     }
 
     /**
-     *  Decrypt an encrypted byte array with a key and initial vector
-     *  @param encryptedBytes
-     *                  the byte array to decrypt
-     *  @param iv
-     *                  the initial vector. Must be a random 128 bit value and the same one used in encryption
-     *  @param key
-     *                  the key for decryption
-     *                  
-     *  @return the decrypted string
+     * Decrypt an encrypted byte array with a key and initial vector
+     * 
+     * @param encryptedBytes
+     *            the byte array to decrypt
+     * @param iv
+     *            the initial vector. Must be a random 128 bit value and the
+     *            same one used in encryption
+     * @param key
+     *            the key for decryption
+     * 
+     * @return the decrypted string
      */
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key)

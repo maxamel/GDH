@@ -46,6 +46,18 @@ public class KeyExchangeTest {
         int amount = 5;
         testNegotiation(amount, context);
     }
+    
+    @Test
+    public void testSextupleKeyExchange(TestContext context) {
+        int amount = 5;
+        testNegotiation(amount, context);
+    }
+    
+    @Test
+    public void testSeptupleKeyExchange(TestContext context) {
+        int amount = 5;
+        testNegotiation(amount, context);
+    }
 
     // real deployment and communication between verticles on localhost
     private void testNegotiation(int amount, TestContext context) {
@@ -81,7 +93,7 @@ public class KeyExchangeTest {
         BigInteger key = null;
         try {
             key = verticles[0].exchange(g.getGroupId()).get();
-            
+
             for (int j = 0; j < verticles.length; j++) {
                 System.out.println("CANDIDATE " + " " + verticles[j].getKey(g.getGroupId()).get());
             }
@@ -102,6 +114,6 @@ public class KeyExchangeTest {
                 }
             });
         async2.awaitSuccess();
-     
+
     }
 }

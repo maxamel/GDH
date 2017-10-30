@@ -12,14 +12,15 @@ import io.vertx.ext.unit.TestContext;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
-	GroupNodeTest.class, 
-	ConfigurationTest.class, 
-    MultipleGroupKeyExchangeTest.class, 
+    GroupNodeTest.class, 
+    ConfigurationTest.class, 
+    MultipleGroupKeyExchangeTest.class,
     AsyncKeyExchangeTest.class, 
-    NoKeyOnWireTest.class,
+    NoKeyOnWireTest.class, 
     ExceptionTest.class, 
-    KeyExchangeTest.class, 
-    NonSyncDeploymentKeyExchange.class
+    KeyExchangeTest.class,
+    ForgedMessagesKeyExchangeTest.class,
+    NonSyncDeploymentKeyExchange.class 
     })
 
 public class VertxTestSuite {

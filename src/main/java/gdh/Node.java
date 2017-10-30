@@ -2,13 +2,14 @@ package main.java.gdh;
 
 /**
  *
- *  Node is an object which represents the network layer of a GDHVertex.
+ * Node is an object which represents the network layer of a GDHVertex.
  * 
- *  It has an IP and port which must be unique in any verticle layout. No two verticle instances can listen on 
- *  
- *  the same IP and port.
- *  
- *  @author Max Amelchenko
+ * It has an IP and port which must be unique in any verticle layout. No two
+ * verticle instances can listen on
+ * 
+ * the same IP and port.
+ * 
+ * @author Max Amelchenko
  */
 public class Node implements Comparable<Node> {
     private final String IP;

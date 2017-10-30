@@ -178,9 +178,14 @@ pv.kill(activeVertex,undeployment1 -> {
 
 # Code Quality
 
-Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
+[This project is analyzed on Sonarcloud](https://sonarcloud.io/dashboard?id=GDH). Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
 Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
 
 # Testing
 
-The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails. The project has mostly been tested with Openjdk 8.
+The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails. 
+
+# License
+
+Published under the MIT License. This basically means the software is free and anyone can use it however they wish.
+No liability or warranty.

@@ -13,7 +13,7 @@ public class ExchangeState {
     private final int groupId;
 
     private BigInteger partial_key;
-    
+
     private BigInteger secret;
 
     private int round = 0;
@@ -43,7 +43,7 @@ public class ExchangeState {
         random.nextBytes(sec);
         secret = (new BigInteger(sec)).abs();
     }
-    
+
     public int getGroupId() {
         return groupId;
     }
@@ -55,7 +55,7 @@ public class ExchangeState {
     public int getRound() {
         return round;
     }
-    
+
     public BigInteger getSecret() {
         return secret;
     }
@@ -63,7 +63,7 @@ public class ExchangeState {
     public void incRound() {
         round++;
     }
-    
+
     public void decRound() {
         round--;
     }

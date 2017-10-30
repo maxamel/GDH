@@ -16,7 +16,11 @@ import main.java.gdh.Node;
  * 
  * JsonMessageParser is a class for parsing json messages
  * 
- * Parses two types of messages. Messages about
+ * Parses two types of messages:
+ * 
+ * Messages relaying the public parameters of the group, e.g. large prime (N) and cyclic generator (g)
+ * 
+ * and messages relaying the partial keys computed during the key exchange.
  *
  * @author Max Amelchenko
  */
@@ -31,9 +35,9 @@ public class JsonMessageParser implements MessageParser {
     }
 
     /**
-     *  @param msg
-     *              the information to be parsed
-     *  @return the group id of the group contained in the message or error code
+     * @param msg
+     *            the information to be parsed
+     * @return the group id of the group contained in the message or error code
      */
     @Override
     public int parse(String msg) {
@@ -45,8 +49,9 @@ public class JsonMessageParser implements MessageParser {
     /**
      * 
      * @param msg
-     *              the group details in json format to be parsed
+     *            the group details in json format to be parsed
      * @return the group id of the group contained in the message
+     *         -2 if this message has already been received
      */
     private int extractGroupInfo(String msg) {
         TreeSet<Node> set = new TreeSet<>();
@@ -65,7 +70,7 @@ public class JsonMessageParser implements MessageParser {
         }
         group = new Group(generator, prime, set);
         if (stateMappings.containsKey(group.getGroupId()) && !stateMappings.get(group.getGroupId()).isDone())
-        	return -2;
+            return -2; // message received twice
         group.setGenerator(new BigInteger(generator));
         group.setPrime(new BigInteger(prime));
         groupMappings.put(group.getGroupId(), group);
@@ -74,14 +79,16 @@ public class JsonMessageParser implements MessageParser {
     }
 
     /**
-     * Get the info about the current round of the key exchange. These include the id of the group exchanging keys and
-     * the partial key computed by this Node's counterpart. 
-     * This partial key will be used by this Node for further computation.
+     * Get the info about the current round of the key exchange. These include
+     * the id of the group exchanging keys and the partial key computed by this
+     * Node's counterpart. This partial key will be used by this Node for
+     * further computation.
+     * 
      * @param msg
-     *              the round details in json format to be parsed
-     * @return the group id of the group contained in the message
-     *          -1 if the state does not exist yet, which means the group info was not received yet
-     *          -2 if this message has already been received
+     *            the round details in json format to be parsed
+     * @return the group id of the group contained in the message 
+     *         -1 if the state does not exist yet, which means the group info was not received yet 
+     *         -2 if this message has already been received
      */
     private int extractRoundInfo(String msg) {
         JsonObject obj = new JsonObject(msg);
@@ -90,7 +97,7 @@ public class JsonMessageParser implements MessageParser {
         int ret = Integer.parseInt(groupId);
         String partial_key = obj.getString(Constants.PARTIAL_KEY);
         ExchangeState state = stateMappings.get(ret);
-        if (state == null)	// State does not exist 
+        if (state == null) // State does not exist
             return -1;
         if (state.getRound() == Integer.parseInt(round) - 1) // message received twice
             return -2;

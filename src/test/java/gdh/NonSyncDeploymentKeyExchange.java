@@ -27,43 +27,43 @@ public class NonSyncDeploymentKeyExchange {
         int amount = 2;
         testUnfinishedDeployment(amount, context);
     }
-    
+
     @Test
     public void testTripleKeyExchangeUnfinished(TestContext context) {
         int amount = 3;
         testUnfinishedDeployment(amount, context);
     }
-    
+
     @Test
     public void testQuadrupleKeyExchangeUnfinished(TestContext context) {
         int amount = 4;
         testUnfinishedDeployment(amount, context);
     }
-    
+
     @Test
     public void testQuintupleKeyExchangeUnfinished(TestContext context) {
         int amount = 5;
         testUnfinishedDeployment(amount, context);
     }
-    
+
     @Test
     public void testDoubleKeyExchangeDelayed(TestContext context) {
         int amount = 2;
         testDelayedDeployment(amount, context);
     }
-    
+
     @Test
     public void testTripleKeyExchangeDelayed(TestContext context) {
         int amount = 3;
         testDelayedDeployment(amount, context);
     }
-    
+
     @Test
     public void testQuadrupleKeyExchangeDelayed(TestContext context) {
         int amount = 4;
         testDelayedDeployment(amount, context);
     }
-    
+
     @Test
     public void testQuintupleKeyExchangeDelayed(TestContext context) {
         int amount = 5;
@@ -91,40 +91,39 @@ public class NonSyncDeploymentKeyExchange {
         Async async = context.async();
         pv.run(verticles[0], res -> {
             if (res.succeeded()) {
-                for (int i = 1; i < amount; i++)
-                {
+                for (int i = 1; i < amount; i++) {
                     pv.run(verticles[i]);
                 }
                 verticles[0].exchange(g.getGroupId());
                 async.complete();
-            }
-            else {
-            	System.out.println("Cannot initiate startup and exchange!");
-            	Assert.fail();
+            } else {
+                System.out.println("Cannot initiate startup and exchange!");
+                Assert.fail();
             }
         });
         async.awaitSuccess();
-        
-        for (int j=0; j<amount-1; j++)
+
+        for (int j = 0; j < amount - 1; j++)
             try {
-                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(verticles[j+1].getKey(g.getGroupId()).get()));
+                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get()
+                        .equals(verticles[j + 1].getKey(g.getGroupId()).get()));
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } 
-        
+            }
+
         Async async3 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.failed()) {
                     res.cause().printStackTrace();
-                } 
-                else async3.countDown();
+                } else
+                    async3.countDown();
             });
         async3.awaitSuccess();
-        }
-    
- // real deployment and communication between verticles on localhost
+    }
+
+    // real deployment and communication between verticles on localhost
     private void testDelayedDeployment(int amount, TestContext context) {
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
@@ -152,35 +151,34 @@ public class NonSyncDeploymentKeyExchange {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                for (int i = 1; i < amount; i++)
-                {
+                for (int i = 1; i < amount; i++) {
                     pv.run(verticles[i]);
                 }
                 async.complete();
-            }
-            else {
+            } else {
                 System.out.println("Cannot initiate startup and exchange!");
                 Assert.fail();
             }
         });
         async.awaitSuccess();
-        
-        for (int j=0; j<amount-1; j++)
+
+        for (int j = 0; j < amount - 1; j++)
             try {
-                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(verticles[j+1].getKey(g.getGroupId()).get()));
+                Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get()
+                        .equals(verticles[j + 1].getKey(g.getGroupId()).get()));
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } 
-        
+            }
+
         Async async3 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.kill(verticles[i], res -> {
                 if (res.failed()) {
                     res.cause().printStackTrace();
-                } 
-                else async3.countDown();
+                } else
+                    async3.countDown();
             });
         async3.awaitSuccess();
-        }
+    }
 }

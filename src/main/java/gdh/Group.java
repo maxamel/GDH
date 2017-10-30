@@ -9,9 +9,11 @@ import java.util.TreeSet;
 
 /**
  * 
- * Group is an object which represents a group of participants(Nodes) in a Diffie-Hellman key exchange.
+ * Group is an object which represents a group of participants(Nodes) in a
+ * Diffie-Hellman key exchange.
  * 
- * It is generally identified by its groupId which is generated from the hash code of its Nodes. 
+ * It is generally identified by its groupId which is generated from the hash
+ * code of its Nodes.
  * 
  * The Nodes are organized in a TreeSet to create a total lexicographical order.
  * 
@@ -39,10 +41,11 @@ public class Group {
 
     /**
      * Initiate a group with a Configuration and a collection of Nodes
+     * 
      * @param conf
-     *              The Configuration of this Group
+     *            The Configuration of this Group
      * @param nodes
-     *              The participants of this Group
+     *            The participants of this Group
      */
     private void initGroup(Configuration conf, Collection<Node> nodes) {
         treeNodes = new TreeSet<>();
@@ -73,7 +76,8 @@ public class Group {
     /**
      * Checks for the equality of this Group and the obj group. Two Groups are
      * considered equal if they are the same object or if they consist of the
-     * same Nodes. This is done because a Group is essentially the Nodes it represents.
+     * same Nodes. This is done because a Group is essentially the Nodes it
+     * represents.
      */
     @Override
     public boolean equals(Object obj) {
@@ -109,10 +113,12 @@ public class Group {
     }
 
     /**
-     * Get the Node which succeeds the parameter Node. Node Beta succeeds Node Alpha if during the Diffie-Hellman
-     * key exchange Node Alpha sends messages to Node Beta. There can only be one successor per Node.
+     * Get the Node which succeeds the parameter Node. Node Beta succeeds Node
+     * Alpha if during the Diffie-Hellman key exchange Node Alpha sends messages
+     * to Node Beta. There can only be one successor per Node.
+     * 
      * @param curr
-     *              The Node for which a successor will be returned
+     *            The Node for which a successor will be returned
      * @return the Node succeeding the Node curr
      */
     public Node getNext(Node curr) {

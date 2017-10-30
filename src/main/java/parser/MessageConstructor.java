@@ -11,7 +11,7 @@ import main.java.gdh.Node;
  * 
  * @author Max Amelchenko
  * 
- * MessageConstructor is a class for constructing json messages
+ *         MessageConstructor is a class for constructing json messages
  *
  */
 public final class MessageConstructor {
@@ -21,8 +21,9 @@ public final class MessageConstructor {
 
     /**
      * Construct a json object from the group parameter
+     * 
      * @param g
-     *          the group which needs to be jsonized
+     *            the group which needs to be jsonized
      * @return a json object representing the group
      */
     public static JsonObject groupInfo(Group g) {
@@ -43,8 +44,9 @@ public final class MessageConstructor {
 
     /**
      * Construct a json object from the ExchangeState parameter
+     * 
      * @param state
-     *              the ExchangeState which needs to be jsonized
+     *            the ExchangeState which needs to be jsonized
      * @return a json object representing ExchangeState
      */
     public static JsonObject roundInfo(ExchangeState state) {
