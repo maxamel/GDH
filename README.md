@@ -2,7 +2,10 @@
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=GDH)](https://sonarcloud.io/api/badges/gate?key=GDH)<br/>
 [![Code Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)<br/>
 
-# GDH - Generalized Diffie-Hellman Key Exchange Platform
+<img src="https://github.com/maxamel/GDH/blob/master/logo.png" align="right" />
+
+
+# GDH : Generalized Diffie-Hellman Key Exchange Platform
 
 A Diffie-Hellman key exchange library for multiple parties built on top of the asynchronous, event-driven Vert.x framework.
 
