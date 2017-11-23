@@ -58,6 +58,13 @@ public class Configuration {
     public Configuration() {
         SecureRandom random = new SecureRandom();
         this.log4jLogger = Logger.getLogger("Logger"+ random.nextInt());
+        
+        //this.log4jLogger.removeAllAppenders();
+        ConsoleAppender appender = new ConsoleAppender();
+        appender.setWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)));
+        appender.setLayout(new PatternLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN));
+        this.log4jLogger.addAppender(appender);
+        
         this.log4jLogger.setLevel(Level.OFF);
     }
 
@@ -123,11 +130,6 @@ public class Configuration {
      * @return the updated configuration
      */
     public Configuration setLogLevel(Level level) {
-        this.log4jLogger.removeAllAppenders();
-        ConsoleAppender appender = new ConsoleAppender();
-        appender.setWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)));
-        appender.setLayout(new PatternLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN));
-        this.log4jLogger.addAppender(appender);
         this.log4jLogger.setLevel(level);
         return this;
     }

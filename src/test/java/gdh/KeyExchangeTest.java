@@ -69,7 +69,7 @@ public class KeyExchangeTest {
         for (int i = 0; i < amount; i++) {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
-            String port = amount + "08" + i;
+            String port = amount + "07" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);
         }

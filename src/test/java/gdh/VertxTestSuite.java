@@ -20,7 +20,8 @@ import io.vertx.ext.unit.TestContext;
     ExceptionTest.class, 
     KeyExchangeTest.class,
     ForgedMessagesKeyExchangeTest.class,
-    NonSyncDeploymentKeyExchange.class 
+    NonSyncDeploymentKeyExchange.class,
+    LoggerTest.class
     })
 
 public class VertxTestSuite {

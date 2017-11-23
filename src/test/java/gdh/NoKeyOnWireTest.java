@@ -70,7 +70,7 @@ public class NoKeyOnWireTest {
         BigInteger[] keys = new BigInteger[2];
         try {
             keys[0] = verticles[0].exchange(g.getGroupId()).get();
-            Assert.assertFalse(writer.toString().contains(keys[0].toString()));
+            Assert.assertFalse(!writer.toString().isEmpty() && writer.toString().contains(keys[0].toString()));
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

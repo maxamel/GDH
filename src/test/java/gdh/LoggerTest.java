@@ -29,13 +29,13 @@ import main.java.gdh.PrimaryVertex;
 @RunWith(VertxUnitRunner.class)
 public class LoggerTest {
 
-    //@Test
+    @Test
     public void testExchangeNoKeyOnWire1(TestContext context) {
         int amount = 2;
         testNegotiation(amount, context);
     }
     
-    //@Test
+    @Test
     public void testExchangeNoKeyOnWire2(TestContext context) {
         int amount = 3;
         testNegotiation(amount, context);
@@ -75,11 +75,14 @@ public class LoggerTest {
             });
         async1.awaitSuccess();
 
-        BigInteger[] keys = new BigInteger[2];
+        BigInteger[] keys = new BigInteger[1];
         try {
             keys[0] = verticles[0].exchange(g.getGroupId()).get();
-            System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_IN));
-            System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_OUT));
+            for (int j = 0; j < verticles.length; j++) {
+                Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), keys[0]);
+            }
+            //System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_IN));
+            //System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_OUT));
             Assert.assertTrue(StringUtils.countMatches(writer.toString(), Constants.LOG_IN) >= amount*amount-1);
             Assert.assertTrue(StringUtils.countMatches(writer.toString(), Constants.LOG_OUT) >= amount*amount-1);
         } catch (InterruptedException | ExecutionException e) {
