@@ -3,6 +3,7 @@ package main.java.gdh;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
@@ -52,9 +53,11 @@ public class Configuration {
             + "83EDD19963DDD9E263E4770589EF6AA21E7F5F2FF381B539CCE3409D13CD566AFBB48D6C019181E1BCFE94"
             + "B30269EDFE72FE9B6AA4BD7B5A0F1C71CFFF4C19C418E1F6EC017981BC087F2A7065B384B890D3191F2BFA";
 
-    private final Logger log4jLogger = Logger.getRootLogger();
+    private final Logger log4jLogger;
 
     public Configuration() {
+        SecureRandom random = new SecureRandom();
+        this.log4jLogger = Logger.getLogger("Logger"+ random.nextInt());
         this.log4jLogger.setLevel(Level.OFF);
     }
 

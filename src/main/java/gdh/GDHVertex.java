@@ -50,7 +50,7 @@ public class GDHVertex extends AbstractVerticle {
             netSocket.handler((Buffer buffer) -> {
                 // parsing message
                 String msg = buffer.getString(0, buffer.length());
-                conf.getLogger().debug(getNode().toString() + " incoming data: " + netSocket.localAddress() + " "
+                conf.getLogger().debug(getNode().toString() + " " + Constants.LOG_IN + " from: " + netSocket.remoteAddress() + " "
                  + buffer.length() + " " + msg);
 
                 int groupId = parser.parse(msg);
@@ -172,7 +172,7 @@ public class GDHVertex extends AbstractVerticle {
         ExchangeState state = stateMappings.get(g.getGroupId());
         CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
         if (g.getTreeNodes().size() == state.getRound() + 1) {
-            conf.getLogger().debug(getNode().toString() + " Finishing: " + state.getRound());
+            conf.getLogger().debug(getNode().toString() + " Finishing Round: " + state.getRound());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.setPartial_key(partial_key);
             state.done();
@@ -182,7 +182,7 @@ public class GDHVertex extends AbstractVerticle {
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
             state.incRound();
             state.setPartial_key(partial_key);
-            conf.getLogger().debug(getNode().toString() + " computing: " + partial_key);
+            conf.getLogger().debug(getNode().toString() + " Computing key: " + partial_key);
             future = sendMessage(n, MessageConstructor.roundInfo(state));
         }
         return future.thenCompose(s -> state.getKey());
@@ -235,7 +235,7 @@ public class GDHVertex extends AbstractVerticle {
                     socket.handler((Buffer buffer) -> {
                         String reply = buffer.getString(0, buffer.length());
                         if (reply.equals(Constants.ACK)) {
-                            conf.getLogger().debug(getNode().toString() + "Got an ack from " + n.toString());
+                            conf.getLogger().debug(getNode().toString() + " Got an ack from " + n.toString());
                             future.complete(true);
                             vertx.cancelTimer(timingAndRetries[0]);
                             socket.close();
@@ -243,7 +243,7 @@ public class GDHVertex extends AbstractVerticle {
                         }
 
                     });
-                    conf.getLogger().debug(getNode().toString() + " Sending data to: " + 
+                    conf.getLogger().debug(getNode().toString() + " " + Constants.LOG_OUT + " to: " + 
                     n.toString() + " " + msg.toString());
                     socket.write(msg.toString());
                 }

@@ -188,6 +188,10 @@ Each push to the Github repository triggers a cloud build via TravisCI, which in
 
 The code is tested by both unit tests and integration tests. The integration testing involves actual spinning up of verticles, performing exchanges and checking the correctness and security of the transactions. Testing must cover at least 80% of the code, otherwise the quality gate of Sonarcloud fails. 
 
+# Logging 
+
+GDH logs messages at different points during the exchange. This allows easy debugging and also lets users follow the exchange and helps understand the protocol. Logs are also used in tests. For example, verifying the final key after the exchange is NOT transmitted over the wire, or counting the number of messages required to complete a key exchange. So if you change the logging messages, make sure this hasn't affected any tests.
+
 # License
 
 Published under the MIT License. This basically means the software is free and anyone can use it however they wish.

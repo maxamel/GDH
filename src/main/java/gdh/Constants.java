@@ -30,6 +30,10 @@ public final class Constants {
     public static final int SEND_RETRY = 2000;
 
     public static final String NEGO_CALL = " called negotiation for group ";
+    
+    public static final String LOG_OUT = "Outgoing";
+    
+    public static final String LOG_IN = "Incoming";
 
     private Constants() {
 
