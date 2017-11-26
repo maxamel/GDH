@@ -47,7 +47,8 @@ PrimaryVertex pv = new PrimaryVertex();
 
 The verticle object participating in the key exchange is the GDHVertex. 
 Let's define our first GDHVertex and call it activeVertex as it will be the one who initiates key exchanges. 
-All other verticles will be passive.
+All other verticles will be passive. The following example will be run between two verticles on localhost, 
+but can be run with multiple participants in a distributed environment.
 ```java 
 GDHVertex activeVertex = new GDHVertex();
 ```

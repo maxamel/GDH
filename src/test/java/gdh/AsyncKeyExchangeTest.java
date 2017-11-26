@@ -81,7 +81,6 @@ public class AsyncKeyExchangeTest {
 
         for (int j = 0; j < amount; j++)
             try {
-                System.out.println("CANDIDATE " + verticles[j].getKey(g.getGroupId()).get());
                 Assert.assertTrue(verticles[j].getKey(g.getGroupId()).get().equals(key.get()));
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block

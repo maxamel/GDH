@@ -100,9 +100,6 @@ public class ForgedMessagesKeyExchangeTest {
             
             key = bigint.get();
             for (int j = 0; j < verticles.length; j++) {
-                System.out.println("CANDIDATE " + " " + verticles[j].getKey(g.getGroupId()).get());
-            }
-            for (int j = 0; j < verticles.length; j++) {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
             }
         } catch (InterruptedException | ExecutionException | SecurityException | 
