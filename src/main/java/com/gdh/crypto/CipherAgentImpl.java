@@ -1,4 +1,4 @@
-package main.java.crypto;
+package com.gdh.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +17,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import main.java.gdh.Constants;
+import com.gdh.main.Constants;
 
 /**
  * 

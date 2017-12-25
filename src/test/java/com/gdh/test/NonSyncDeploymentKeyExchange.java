@@ -1,4 +1,4 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +14,10 @@ import org.junit.runner.RunWith;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import main.java.gdh.Configuration;
-import main.java.gdh.GDHVertex;
-import main.java.gdh.Group;
-import main.java.gdh.PrimaryVertex;
+import com.gdh.main.Configuration;
+import com.gdh.main.GDHVertex;
+import com.gdh.main.Group;
+import com.gdh.main.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
 public class NonSyncDeploymentKeyExchange {
@@ -79,7 +79,7 @@ public class NonSyncDeploymentKeyExchange {
         for (int i = 0; i < amount; i++) {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
-            String port = (amount * 2) + "08" + i;
+            String port = (amount * 2) + "09" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);
         }
@@ -132,7 +132,7 @@ public class NonSyncDeploymentKeyExchange {
         for (int i = 0; i < amount; i++) {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
-            String port = (amount * 2) + "08" + i;
+            String port = (amount * 2) + "09" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);
         }

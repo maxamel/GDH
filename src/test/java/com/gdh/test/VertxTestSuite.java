@@ -1,4 +1,4 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.io.IOException;
 

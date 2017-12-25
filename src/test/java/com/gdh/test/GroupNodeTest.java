@@ -1,13 +1,13 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import main.java.gdh.Configuration;
-import main.java.gdh.Group;
-import main.java.gdh.Node;
+import com.gdh.main.Configuration;
+import com.gdh.main.Group;
+import com.gdh.main.Node;
 
 @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 public class GroupNodeTest {

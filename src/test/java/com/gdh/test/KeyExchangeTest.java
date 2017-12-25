@@ -1,12 +1,9 @@
-package test.java.gdh;
+package com.gdh.test;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -15,20 +12,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import main.java.gdh.Configuration;
-import main.java.gdh.ExchangeState;
-import main.java.gdh.GDHVertex;
-import main.java.gdh.Group;
-import main.java.gdh.Node;
-import main.java.gdh.PrimaryVertex;
-import main.java.parser.MessageConstructor;
+import com.gdh.main.Configuration;
+import com.gdh.main.GDHVertex;
+import com.gdh.main.Group;
+import com.gdh.main.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class ForgedMessagesKeyExchangeTest {
+public class KeyExchangeTest {
 
     @Test
     public void testDoubleKeyExchange(TestContext context) {
@@ -50,6 +43,18 @@ public class ForgedMessagesKeyExchangeTest {
 
     @Test
     public void testQuintupleKeyExchange(TestContext context) {
+        int amount = 5;
+        testNegotiation(amount, context);
+    }
+    
+    @Test
+    public void testSextupleKeyExchange(TestContext context) {
+        int amount = 5;
+        testNegotiation(amount, context);
+    }
+    
+    @Test
+    public void testSeptupleKeyExchange(TestContext context) {
         int amount = 5;
         testNegotiation(amount, context);
     }
@@ -87,24 +92,12 @@ public class ForgedMessagesKeyExchangeTest {
 
         BigInteger key = null;
         try {
-            CompletableFuture<BigInteger> bigint = verticles[0].exchange(g.getGroupId());
-            // double messages check
-            Method method1 = verticles[0].getClass().getDeclaredMethod("broadcast", Group.class);
-            method1.setAccessible(true);
-            method1.invoke(verticles[0],g);     
-            
-            // sending message of unknown group
-            Method method2 = verticles[0].getClass().getDeclaredMethod("sendMessage", Node.class, JsonObject.class);
-            method2.setAccessible(true);
-            method2.invoke(verticles[0],verticles[1].getNode(), MessageConstructor.roundInfo(new ExchangeState(45622, BigInteger.TEN)));
-            
-            key = bigint.get();
+            key = verticles[0].exchange(g.getGroupId()).get();
+
             for (int j = 0; j < verticles.length; j++) {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
             }
-        } catch (InterruptedException | ExecutionException | SecurityException | 
-                IllegalArgumentException | NoSuchMethodException | IllegalAccessException |
-                InvocationTargetException e) {
+        } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

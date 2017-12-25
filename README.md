@@ -32,6 +32,18 @@ Written in Java 8.
 
 Built with Gradle.
 
+# Installation
+
+Get the code and build:
+
+```
+git clone https://github.com/maxmale/GDH.git
+cd GDH
+gradle clean build    
+```
+
+Get the generated Jar from the root of the project. Add it to the build path of your project and start using it.
+
 # Usage
 
 The basic usage of the library is spinning up verticles and initiating a key exchange between them.

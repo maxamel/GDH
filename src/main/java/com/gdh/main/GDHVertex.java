@@ -1,4 +1,4 @@
-package main.java.gdh;
+package com.gdh.main;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +17,9 @@ import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
-import main.java.parser.JsonMessageParser;
-import main.java.parser.MessageConstructor;
-import main.java.parser.MessageParser;
+import com.gdh.parser.JsonMessageParser;
+import com.gdh.parser.MessageConstructor;
+import com.gdh.parser.MessageParser;
 
 import java.math.BigInteger;
 
@@ -86,7 +86,7 @@ public class GDHVertex extends AbstractVerticle {
                 conf.getLogger().info(getNode().toString() + " started listening on: " + conf.getPort());
             } else {
                 future.fail(res.cause());
-                conf.getLogger().info(getNode().toString() + " startup failure: " + conf.getPort());
+                conf.getLogger().info(getNode().toString() + " startup failure: " + conf.getPort() + " " + res.cause().getMessage());
             }
         });
 
@@ -251,13 +251,13 @@ public class GDHVertex extends AbstractVerticle {
                 if (timingAndRetries[1] == conf.getRetries()) {
                     // No more retries left. Exit...
                     conf.getLogger().error(getNode().toString() + " Retry parameter exceeded " + conf.getRetries());
+                    future.completeExceptionally(
+                            new TimeoutException(Constants.EXCEPTIONRETRIESEXCEEDED + conf.getRetries()));
                     if (socket != null)
                         socket.close();
                     vertx.cancelTimer(timingAndRetries[0]);
                     tcpClient.close();
                     server.close();
-                    future.completeExceptionally(
-                            new TimeoutException(Constants.EXCEPTIONRETRIESEXCEEDED + conf.getRetries()));
                 }
             }));
         }));
@@ -272,7 +272,7 @@ public class GDHVertex extends AbstractVerticle {
                 conf.getLogger().info(getNode().toString() + " stopped listening on: " + conf.getPort());
             } else {
                 future.fail(res.cause());
-                conf.getLogger().info(getNode().toString() + " stoppage failure: " + conf.getPort());
+                conf.getLogger().info(getNode().toString() + " stoppage failure: " + conf.getPort() + res.cause().getMessage());
             }
         });
     }

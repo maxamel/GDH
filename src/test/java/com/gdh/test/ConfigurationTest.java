@@ -1,10 +1,10 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import org.apache.log4j.ConsoleAppender;
 import org.junit.Assert;
 import org.junit.Test;
 
-import main.java.gdh.Configuration;
+import com.gdh.main.Configuration;
 
 @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 public class ConfigurationTest {

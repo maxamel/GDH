@@ -16,7 +16,7 @@ apply plugin: 'findbugs'
 }
 
 libsDirName = '../'
-version = '0.91'
+version = '0.92'
 archivesBaseName = 'GDH'
 
 repositories {
@@ -48,14 +48,15 @@ clean {
 	delete "libs/"
 	delete "build/"
 	delete "bin/"
-	delete "GDH-1.1.jar"
+	delete project.name+"-"+project.version+".jar"
 }
 
 jar {
 	dependsOn configurations.runtime
 	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest {
-        attributes 'Main-Class': 'main.java.gdh.Main'
+        attributes 'Implementation-Title': project.name,
+                   'Implementation-Version': project.version
     }
     exclude "META-INF/*.SF"
     exclude "META-INF/*.DSA"
@@ -65,14 +66,10 @@ jar {
 task testSuite(type: Test) {
 	include '**VertxTestSuite.class'
 }
-task copyDeps(type: Copy) {
-	into 'libs'
-  	from configurations.testRuntime
-}
+
 task deleteBuild(type: Delete) {
 	delete "build/"
 	delete "bin/"
  }
-copyDeps.dependsOn(testSuite)
+
 build.dependsOn(deleteBuild)
-deleteBuild.dependsOn(copyDeps)

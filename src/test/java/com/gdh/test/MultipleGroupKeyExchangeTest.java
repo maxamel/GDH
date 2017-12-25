@@ -1,11 +1,9 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Level;
 import org.junit.Assert;
@@ -15,53 +13,33 @@ import org.junit.runner.RunWith;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import main.java.gdh.Configuration;
-import main.java.gdh.GDHVertex;
-import main.java.gdh.Group;
-import main.java.gdh.PrimaryVertex;
+import com.gdh.main.Configuration;
+import com.gdh.main.GDHVertex;
+import com.gdh.main.Group;
+import com.gdh.main.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
-public class KeyExchangeTest {
-
+public class MultipleGroupKeyExchangeTest {
     @Test
-    public void testDoubleKeyExchange(TestContext context) {
-        int amount = 2;
-        testNegotiation(amount, context);
-    }
-
-    @Test
-    public void testTripleKeyExchange(TestContext context) {
+    public void testDoubleGroupKeyExchange(TestContext context) {
         int amount = 3;
         testNegotiation(amount, context);
     }
 
     @Test
-    public void testQuadrupleKeyExchange(TestContext context) {
+    public void testTripleGroupKeyExchange(TestContext context) {
         int amount = 4;
         testNegotiation(amount, context);
     }
 
     @Test
-    public void testQuintupleKeyExchange(TestContext context) {
-        int amount = 5;
-        testNegotiation(amount, context);
-    }
-    
-    @Test
-    public void testSextupleKeyExchange(TestContext context) {
-        int amount = 5;
-        testNegotiation(amount, context);
-    }
-    
-    @Test
-    public void testSeptupleKeyExchange(TestContext context) {
+    public void testQuadrupleGroupKeyExchange(TestContext context) {
         int amount = 5;
         testNegotiation(amount, context);
     }
 
-    // real deployment and communication between verticles on localhost
+    // real deployment and communication between verticles
     private void testNegotiation(int amount, TestContext context) {
-        // Vertx vertx = Vertx.vertx();
         PrimaryVertex pv = new PrimaryVertex();
         GDHVertex[] verticles = new GDHVertex[amount];
         Configuration[] confs = new Configuration[amount];
@@ -69,15 +47,17 @@ public class KeyExchangeTest {
         for (int i = 0; i < amount; i++) {
             verticles[i] = new GDHVertex();
             confs[i] = new Configuration();
-            String port = amount + "07" + i;
+            String port = amount + "09" + i;
             confs[i].setIP("localhost").setPort(port).setLogLevel(Level.DEBUG);
             verticles[i].setConfiguration(confs[i]);
         }
-        List<GDHVertex> list = new ArrayList<>(Arrays.asList(verticles));
 
-        Group g = new Group(confs[0], list.stream().map(y -> y.getNode()).collect(Collectors.toList()));
-        verticles[0].addGroup(g);
-
+        Group[] groups = new Group[amount - 1];
+        BigInteger[] keys = new BigInteger[amount - 1];
+        for (int i = 0; i < amount - 1; i++) {
+            groups[i] = new Group(confs[0], verticles[0].getNode(), verticles[i + 1].getNode());
+            verticles[0].addGroup(groups[i]);
+        }
         Async async1 = context.async(amount);
         for (int i = 0; i < amount; i++)
             pv.run(verticles[i], res -> {
@@ -90,13 +70,26 @@ public class KeyExchangeTest {
             });
         async1.awaitSuccess();
 
-        BigInteger key = null;
         try {
-            key = verticles[0].exchange(g.getGroupId()).get();
+            for (int i = 0; i < amount - 1; i++)
+                keys[i] = verticles[0].exchange(groups[i].getGroupId()).get();
 
-            for (int j = 0; j < verticles.length; j++) {
-                Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), key);
+            for (int i = 0; i < amount - 1; i++)
+                Assert.assertEquals(verticles[i + 1].getKey(groups[i].getGroupId()).get(),
+                        verticles[0].getKey(groups[i].getGroupId()).get());
+
+            Map<BigInteger, Integer> mapOfKeys = new HashMap<>();
+            for (int i = 0; i < amount - 1; i++) {
+                BigInteger key = verticles[i + 1].getKey(groups[i].getGroupId()).get();
+                if (mapOfKeys.containsKey(key))
+                    mapOfKeys.put(key, mapOfKeys.get(key) + 1);
+                else
+                    mapOfKeys.put(key, 1);
             }
+
+            for (Integer count : mapOfKeys.values())
+                Assert.assertTrue(count == 1);
+
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -111,6 +104,6 @@ public class KeyExchangeTest {
                 }
             });
         async2.awaitSuccess();
-
     }
+
 }

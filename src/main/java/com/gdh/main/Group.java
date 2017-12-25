@@ -1,4 +1,4 @@
-package main.java.gdh;
+package com.gdh.main;
 
 import java.math.BigInteger;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package main.java.crypto;
+package com.gdh.crypto;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

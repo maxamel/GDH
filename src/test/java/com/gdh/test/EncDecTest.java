@@ -1,4 +1,4 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.security.SecureRandom;
 import java.util.Random;
@@ -9,10 +9,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
 import org.junit.Test;
 
-import main.java.crypto.CipherAgent;
-import main.java.crypto.CipherAgentImpl;
+import com.gdh.crypto.CipherAgent;
+import com.gdh.crypto.CipherAgentImpl;
 
-@SuppressWarnings("PMD.AvoidUsingHardCodedIP")
 public class EncDecTest {
     @Test
     public void testEncryption1() {

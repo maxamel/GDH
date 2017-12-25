@@ -1,4 +1,4 @@
-package test.java.gdh;
+package com.gdh.test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,11 +16,11 @@ import org.junit.runner.RunWith;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import main.java.gdh.Configuration;
-import main.java.gdh.Constants;
-import main.java.gdh.GDHVertex;
-import main.java.gdh.Group;
-import main.java.gdh.PrimaryVertex;
+import com.gdh.main.Configuration;
+import com.gdh.main.Constants;
+import com.gdh.main.GDHVertex;
+import com.gdh.main.Group;
+import com.gdh.main.PrimaryVertex;
 
 @RunWith(VertxUnitRunner.class)
 public class ExceptionTest {

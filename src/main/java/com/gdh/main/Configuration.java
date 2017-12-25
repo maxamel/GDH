@@ -1,4 +1,4 @@
-package main.java.gdh;
+package com.gdh.main;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -37,7 +37,7 @@ import io.vertx.core.json.JsonObject;
  */
 public class Configuration {
     private String IP = "localhost";
-    private String port = "1080";
+    private String port = "1090";
     private int retries = 5;
     private int exchangeTimeout = 60000;
     private String prime = "AD107E1E9123A9D0D660FAA79559C51FA20D64E5683B9FD1B54B1597B61D0A75E6FA141DF95A56DBAF9A3C"
