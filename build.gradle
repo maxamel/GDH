@@ -15,8 +15,8 @@ apply plugin: 'findbugs'
   		toolVersion = "3.0.1"
 }
 
-libsDirName = '../'
-version = '0.92'
+libsDirName = 'build/'
+version = '0.9.2.1'
 archivesBaseName = 'GDH'
 
 repositories {
@@ -51,6 +51,18 @@ clean {
 	delete project.name+"-"+project.version+".jar"
 }
 
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+task packageSources(type: Jar, dependsOn: 'classes') {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+artifacts {
+    archives packageJavadoc
+    archives packageSources
+}
 jar {
 	dependsOn configurations.runtime
 	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
