@@ -7,11 +7,11 @@
 
 # GDH : Generalized Diffie-Hellman Key Exchange Platform
 
-A Diffie-Hellman key exchange library for multiple parties built on top of the asynchronous, event-driven Vert.x framework.
+A Diffie-Hellman key exchange library for multiple parties built on top of the asynchronous, event-driven [Vert.x](http://vertx.io/) framework.
 
 # Overview
 
-Diffie-Hellman has been the de-facto standard for key exchange for many years. Two parties who want to communicate on an insecure channel, can use it to generate symmetric keys, and encrypt the messages between them. 
+[Diffie-Hellman](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) has been the de-facto standard for key exchange for many years. Two parties who want to communicate on an insecure channel, can use it to generate symmetric keys, and encrypt the messages between them. 
 Diffie-Hellman (or derivatives of it, e.g. Elliptic Curve Diffie-Hellman) is commonly used in many authentication protocols and confidential tunneling schemes such as SSL/TLS, SSHv2, SNMPv3, and many more. 
 The most common and general scenario for the use of Diffie-Hellman is two parties that want to exchange messages over an insecure network. 
 Common use-cases are client to web-server or peer-to-peer file-sharing communication. 
@@ -25,6 +25,8 @@ This scheme can be performed for any number of participants. The number of messa
 <p align="center">
   <img src="https://github.com/maxamel/GDH/blob/master/GDH.png" />
 </p>
+
+Due to the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, it is impossible for any third party listening in on the communication to compute the final key shared by all participants.
 
 # Prerequisites
 
@@ -194,7 +196,7 @@ pv.kill(activeVertex,undeployment1 -> {
 
 # Code Quality
 
-[This project is analyzed on Sonarcloud](https://sonarcloud.io/dashboard?id=GDH). Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
+This project is analyzed on [Sonarcloud](https://sonarcloud.io/dashboard?id=GDH). Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
 Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
 
 # Testing
