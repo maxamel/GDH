@@ -26,7 +26,7 @@ This scheme can be performed for any number of participants. The number of messa
   <img src="https://github.com/maxamel/GDH/blob/master/GDH.png" />
 </p>
 
-Due to the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, it is impossible for any third party listening in on the communication to compute the final key shared by all participants.
+Due to the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, it is impossible for any third party listening in on the communication to compute the final key.
 
 # Prerequisites
 
