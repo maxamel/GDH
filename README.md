@@ -1,6 +1,7 @@
 [![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
-[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=GDH)](https://sonarcloud.io/api/badges/gate?key=GDH)<br/>
 [![Code Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)<br/>
+
+[![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)<br/>
 
 <img src="https://github.com/maxamel/GDH/blob/master/logo.png" align="right" />
 
