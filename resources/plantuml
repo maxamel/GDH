@@ -1,0 +1,28 @@
+@startuml
+!pragma teoz true
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+skinparam monochrome reverse
+
+legend top center
+Public variables:
+Large generator g 
+Large prime N
+end legend
+
+actor Alice
+actor Bob
+actor Carol
+Alice ->o Alice: a
+& Bob ->o Bob: b
+& Carol ->o Carol: c
+Alice -> Bob: g^a mod N
+Bob -> Carol: g^b mod N
+Carol -> Alice: g^c mod N
+Alice -> Bob: g^(ac) mod N
+Bob -> Carol: g^(ab) mod N
+Carol -> Alice: g^(bc) mod N
+Alice ->o Alice: g^(abc) mod N
+& Bob ->o Bob: g^(abc) mod N
+& Carol ->o Carol: g^(abc) mod N
+@enduml

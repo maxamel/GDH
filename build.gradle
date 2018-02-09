@@ -33,7 +33,7 @@ test {
   	}
 }
 
-sourceSets.main.resources.srcDirs = [ "src/main/java/resources/" ]
+sourceSets.main.resources.srcDirs = [ "resources/" ]
 
 dependencies {
 	compile 'io.vertx:vertx-core:3.5.0'
