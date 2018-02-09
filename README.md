@@ -3,7 +3,7 @@
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)<br/>
 
-<img src="https://github.com/maxamel/GDH/blob/master/logo.png" align="right" />
+<img src="https://github.com/maxamel/GDH/blob/master/resources/logo.png" align="right" />
 
 
 # GDH : Generalized Diffie-Hellman Key Exchange Platform
@@ -24,7 +24,7 @@ The following sequence diagram illustrates how the key exchange is performed. At
 This scheme can be performed for any number of participants. The number of messages needed for N participants to complete a key exchange is N(N-1).  
 
 <p align="center">
-  <img src="https://github.com/maxamel/GDH/blob/master/GDH.png" />
+  <img src="https://github.com/maxamel/GDH/blob/master/resources/GDH.png" />
 </p>
 
 Due to the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, it is impossible for any third party listening in on the communication to compute the final key.
