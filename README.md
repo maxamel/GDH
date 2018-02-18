@@ -1,5 +1,6 @@
-[![Travis CI](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)<br/>
-[![Code Coverage](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)<br/>
+[![Build Status](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)
+[![Coverage Status](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)
+[![Mentioned in Awesome Vert.x](https://awesome.re/mentioned-badge.svg)](https://github.com/vert-x3/vertx-awesome)
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)<br/>
 
@@ -20,7 +21,7 @@ However, the case where multiple parties need to share a secret key is rarely ad
 systems where participants are located on different machines, and need to communicate with each other directly, rather than through one 
 central entity. Instead of generating a secret key for each pair of participants, it is possible to generate a single secret key shared  by all participants, in a manner which is resistable to eavesdropping and Man-In-The-Middle attacks. This is where Generalized Diffie-Hellman comes in.
 
-The following sequence diagram illustrates how the key exchange is performed. At first, two large numbers are distributed among the participants in plaintext. These numbers are the cyclic group generator (g) and a large prime(N). Then the participants come up with their secret numbers (a,b,c) which they do not reveal to anyone. They then begin a series transactions at the end of which, they can each calculate the same secret key, without it ever being transmitted on the wire. In old-style Diffie-Hellman we would have 3 different keys produced, one per each couple of participants. 
+The following sequence diagram illustrates how the key exchange is performed. At first, two large numbers are distributed among the participants in plaintext. These numbers are the cyclic group generator (g) and a large prime(N). Then the participants come up with their secret numbers (a,b,c) which they do not reveal to anyone. They then begin a series of transactions at the end of which, they can each calculate the same secret key, without it ever being transmitted on the wire. In old-style Diffie-Hellman we would have 3 different keys produced, one per each couple of participants. 
 This scheme can be performed for any number of participants. The number of messages needed for N participants to complete a key exchange is N(N-1).  
 
 <p align="center">
