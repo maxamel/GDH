@@ -19,7 +19,7 @@ public class PrimaryVertex {
     }
 
     /**
-     * Deploy a com.gdh.main verticle and register a handler for the result
+     * Deploy a gdh verticle and register a handler for the result
      * 
      * @param gdh
      *            the GDHVertex to be deployed

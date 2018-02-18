@@ -78,10 +78,3 @@ jar {
 task testSuite(type: Test) {
 	include '**VertxTestSuite.class'
 }
-
-task deleteBuild(type: Delete) {
-	delete "build/"
-	delete "bin/"
- }
-
-build.dependsOn(deleteBuild)
