@@ -16,11 +16,11 @@ public class ExchangeState {
 
     private BigInteger secret;
 
-    private int round = 0;
+    private int round;
 
-    private boolean isDone = false;
+    private boolean isDone;
 
-    private final CompletableFuture<BigInteger> key = new CompletableFuture<BigInteger>();
+    private final CompletableFuture<BigInteger> key = new CompletableFuture<>();
 
     private Handler<AsyncResult<BigInteger>> aHandler;
 
@@ -38,7 +38,7 @@ public class ExchangeState {
     }
 
     private void initSecret() {
-        byte[] sec = new byte[32];
+        byte[] sec = new byte[Constants.BITS_256];
         Random random = new SecureRandom();
         random.nextBytes(sec);
         secret = (new BigInteger(sec)).abs();

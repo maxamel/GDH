@@ -93,10 +93,10 @@ public class JsonMessageParser implements MessageParser {
     private int extractRoundInfo(String msg) {
         JsonObject obj = new JsonObject(msg);
         String groupId = obj.getString(Constants.GROUPID);
-        String round = obj.getString(Constants.ROUND);
         int ret = Integer.parseInt(groupId);
         String partial_key = obj.getString(Constants.PARTIAL_KEY);
         ExchangeState state = stateMappings.get(ret);
+        String round = obj.getString(Constants.ROUND);
         if (state == null) // State does not exist
             return -1;
         if (state.getRound() == Integer.parseInt(round) - 1) // message received twice

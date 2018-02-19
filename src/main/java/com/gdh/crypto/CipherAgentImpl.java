@@ -3,7 +3,6 @@ package com.gdh.crypto;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -86,7 +85,7 @@ public class CipherAgentImpl implements CipherAgent {
      */
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key)
-            throws InvalidKeyException, InvalidAlgorithmParameterException, UnsupportedEncodingException, IOException {
+            throws InvalidKeyException, InvalidAlgorithmParameterException, IOException {
         byte[] buf = new byte[Constants.CIPHER_SIZE];
         ByteArrayOutputStream outputStream = null;
         IvParameterSpec ivspec = new IvParameterSpec(iv);

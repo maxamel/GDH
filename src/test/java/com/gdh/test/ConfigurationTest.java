@@ -112,8 +112,8 @@ public class ConfigurationTest {
         Configuration conf1 = new Configuration();
         Configuration conf2 = new Configuration();
 
-        conf1 = conf1.setExchangeTimeout(3000);
-        conf2 = conf2.setExchangeTimeout(4000);
+        conf1 = conf1.setExchangeTimeoutMillis(3000);
+        conf2 = conf2.setExchangeTimeoutMillis(4000);
         Assert.assertTrue(conf1.hashCode() == conf2.hashCode());
         Assert.assertTrue(conf1.equals(conf2));
 
@@ -128,7 +128,7 @@ public class ConfigurationTest {
         Configuration conf1 = new Configuration();
         Configuration conf2 = new Configuration();
 
-        conf1 = conf1.setExchangeTimeout(3000);
+        conf1 = conf1.setExchangeTimeoutMillis(3000);
         conf2 = conf2.setRetries(7);
         Assert.assertTrue(conf1.hashCode() == conf2.hashCode());
         Assert.assertTrue(conf1.equals(conf2));
@@ -152,6 +152,17 @@ public class ConfigurationTest {
         conf1 = conf1.setPrime("111111");
         conf2 = conf2.setPrime("222222");
         Assert.assertFalse(conf1.hashCode() == conf2.hashCode());
+        Assert.assertFalse(conf1.equals(conf2));
+    }
+    
+    @Test
+    public void testEquality5() {
+        Configuration conf1 = new Configuration();
+        Configuration conf2 = conf1;
+
+        Assert.assertTrue(conf1.equals(conf2));
+
+        conf2 = null;
         Assert.assertFalse(conf1.equals(conf2));
     }
 }

@@ -16,7 +16,7 @@ apply plugin: 'findbugs'
 }
 
 libsDirName = 'build/'
-version = '0.9.2.1'
+version = '0.9.2.2'
 archivesBaseName = 'GDH'
 
 repositories {

@@ -25,9 +25,13 @@ public final class Constants {
 
     public static final int CIPHER_SIZE = 1024;
 
-    public static final int NEGO_TIMEOUT = 60000;
+    public static final int EXCHANGE_TIMEOUT = 60000;
 
-    public static final int SEND_RETRY = 2000;
+    public static final int SEND_RETRY_TIMEOUT = 2000;
+    
+    public static final int DEFAULT_RETRY = 5; 
+    
+    public static final int BITS_256 = 32;
 
     public static final String NEGO_CALL = " called negotiation for group ";
     

@@ -1,7 +1,6 @@
 package com.gdh.crypto;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 
@@ -17,5 +16,5 @@ public interface CipherAgent {
     // decryption method receiving a value to decrypt, the initial vector and a
     // key
     public String decrypt(byte[] encryptedBytes, byte[] iv, SecretKey key)
-            throws UnsupportedEncodingException, IOException, InvalidKeyException, InvalidAlgorithmParameterException;
+            throws InvalidKeyException, InvalidAlgorithmParameterException, IOException;
 }

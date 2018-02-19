@@ -50,8 +50,8 @@ public class GDHVertex extends AbstractVerticle {
             netSocket.handler((Buffer buffer) -> {
                 // parsing message
                 String msg = buffer.getString(0, buffer.length());
-                conf.getLogger().debug(getNode().toString() + " " + Constants.LOG_IN + " from: " + netSocket.remoteAddress() + " "
-                 + buffer.length() + " " + msg);
+                conf.getLogger().debug(getNode().toString() + " " + Constants.LOG_IN + " from: " 
+                + netSocket.remoteAddress() + " " + buffer.length() + " " + msg);
 
                 int groupId = parser.parse(msg);
                 if (groupId == -1) {
@@ -86,7 +86,8 @@ public class GDHVertex extends AbstractVerticle {
                 conf.getLogger().info(getNode().toString() + " started listening on: " + conf.getPort());
             } else {
                 future.fail(res.cause());
-                conf.getLogger().info(getNode().toString() + " startup failure: " + conf.getPort() + " " + res.cause().getMessage());
+                conf.getLogger().info(getNode().toString() + " startup failure: " + 
+                conf.getPort() + " " + res.cause().getMessage());
             }
         });
 
@@ -104,9 +105,9 @@ public class GDHVertex extends AbstractVerticle {
         Group g = groupMappings.get(groupId);
         CompletableFuture<Void> res = broadcast(g);
         CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
-        vertx.setTimer(conf.getExchangeTimeout(), id -> {
+        vertx.setTimer(conf.getExchangeTimeoutMillis(), id -> {
             future.completeExceptionally(
-                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
+                    new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeoutMillis()));
         });
         return future;
     }
@@ -129,14 +130,14 @@ public class GDHVertex extends AbstractVerticle {
         CompletableFuture<Void> res = broadcast(g);
         CompletableFuture<BigInteger> future = res.thenCompose(s -> compute(g));
         long timer[] = new long[1];
-        timer[0] = vertx.setTimer(conf.getExchangeTimeout(), id -> {
+        timer[0] = vertx.setTimer(conf.getExchangeTimeoutMillis(), id -> {
             if (future.isDone() && !future.isCompletedExceptionally()) {
                 aHandler.handle(Future.succeededFuture());
                 vertx.cancelTimer(timer[0]);
             } else {
-                aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.NEGO_TIMEOUT));
+                aHandler.handle(Future.failedFuture(Constants.EXCEPTIONTIMEOUTEXCEEDED + Constants.EXCHANGE_TIMEOUT));
                 future.completeExceptionally(
-                        new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeout()));
+                        new TimeoutException(Constants.EXCEPTIONTIMEOUTEXCEEDED + conf.getExchangeTimeoutMillis()));
                 vertx.cancelTimer(timer[0]);
             }
         });
@@ -170,7 +171,7 @@ public class GDHVertex extends AbstractVerticle {
 
     private CompletableFuture<BigInteger> compute(Group g) {
         ExchangeState state = stateMappings.get(g.getGroupId());
-        CompletableFuture<Boolean> future = new CompletableFuture<Boolean>();
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         if (g.getTreeNodes().size() == state.getRound() + 1) {
             conf.getLogger().debug(getNode().toString() + " Finishing Round: " + state.getRound());
             BigInteger partial_key = state.getPartial_key().modPow(state.getSecret(), g.getPrime());
@@ -228,7 +229,7 @@ public class GDHVertex extends AbstractVerticle {
         for (int t = 0; t < timingAndRetries.length; t++)
             timingAndRetries[t] = Long.valueOf("0");
 
-        timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY, ((Long myLong) -> {
+        timingAndRetries[0] = vertx.setPeriodic(Constants.SEND_RETRY_TIMEOUT, ((Long myLong) -> {
             tcpClient.connect(Integer.parseInt(n.getPort()), n.getIP(), ((AsyncResult<NetSocket> result) -> {
                 NetSocket socket = result.result();
                 if (socket != null) {

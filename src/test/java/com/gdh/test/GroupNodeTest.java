@@ -16,6 +16,23 @@ public class GroupNodeTest {
     private static final String port2 = "3001";
 
     @Test
+    public void testNodeGroupEquality() {
+        Node n1 = new Node(ip1, port1);
+        Node n2 = new Node(null, port1);
+        Node n3 = new Node(ip1, null);
+
+        Assert.assertFalse(n1.equals(n2));
+        Assert.assertFalse(n1.equals(n3));
+        
+        Group g1 = new Group(new Configuration(), n1);
+        Group g2 = g1;
+        Group g3 = null;
+        
+        Assert.assertTrue(g1.equals(g2));
+        Assert.assertFalse(g1.equals(g3));
+    }
+    
+    @Test
     public void testSameGroup() {
         Node n1 = new Node(ip1, port1);
         Node n2 = new Node(ip1, port2);

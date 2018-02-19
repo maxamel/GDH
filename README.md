@@ -46,7 +46,7 @@ cd GDH
 gradle clean build    
 ```
 
-Get the generated Jar from the root of the project. Add it to the build path of your project and that's it.
+Get the generated Jar from the build directory of the project. Add it to the build path of your project and that's it.
 
 # Usage
 

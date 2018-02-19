@@ -28,9 +28,7 @@ import io.vertx.core.json.JsonObject;
  * https://tools.ietf.org/html/rfc5114.
  * 
  * Note these numbers must fulfill several rules in order to be safe. If you are
- * not using the default numbers
- * 
- * take extreme care when choosing new one's, as your key exchange might be
+ * not using the default numbers take extreme care when choosing new ones', as your key exchange might be
  * vulnerable to all kinds of attacks.
  *
  * @author Max Amelchenko
@@ -38,8 +36,8 @@ import io.vertx.core.json.JsonObject;
 public class Configuration {
     private String IP = "localhost";
     private String port = "1090";
-    private int retries = 5;
-    private int exchangeTimeout = 60000;
+    private int retries = Constants.DEFAULT_RETRY;
+    private int exchangeTimeoutMillis = Constants.EXCHANGE_TIMEOUT;
     private String prime = "AD107E1E9123A9D0D660FAA79559C51FA20D64E5683B9FD1B54B1597B61D0A75E6FA141DF95A56DBAF9A3C"
             + "407BA1DF15EB3D688A309C180E1DE6B85A1274A0A66D3F8152AD6AC2129037C9EDEFDA4DF8D91E8FEF55B7"
             + "394B7AD5B7D0B6C12207C9F98D11ED34DBF6C6BA0B2C8BBC27BE6A00E0A0B9C49708B3BF8A317091883681"
@@ -59,7 +57,6 @@ public class Configuration {
         SecureRandom random = new SecureRandom();
         this.log4jLogger = Logger.getLogger("Logger"+ random.nextInt());
         
-        //this.log4jLogger.removeAllAppenders();
         ConsoleAppender appender = new ConsoleAppender();
         appender.setWriter(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)));
         appender.setLayout(new PatternLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN));
@@ -106,17 +103,36 @@ public class Configuration {
         return this;
     }
 
-    public Configuration setExchangeTimeout(int exchangeTimeout) {
-        this.exchangeTimeout = exchangeTimeout;
+    /**
+     * 
+     * @param exchangeTimeoutMillis
+     *            the time limit of the Diffie-Hellman key exchange.
+     *            If the exchange takes longer than that an exception is thrown.
+     * @return the updated configuration
+     */
+    public Configuration setExchangeTimeoutMillis(int exchangeTimeoutMillis) {
+        this.exchangeTimeoutMillis = exchangeTimeoutMillis;
         return this;
     }
 
+    /**
+     * @param generator
+     *              the cyclic group generator of this Configuration.
+     *              Needs to be large enough (2048 bits is considered safe)
+     * @return the updated configuration
+     */
     public Configuration setGenerator(String generator) {
         assert generator.matches("[0-9A-F]*");
         this.generator = generator;
         return this;
     }
 
+    /**
+     * @param prime
+     *              the prime number of this Configuration 
+     *              Needs to be large enough (2048 bits is considered safe)
+     * @return the updated configuration
+     */
     public Configuration setPrime(String prime) {
         assert prime.matches("[0-9A-F]*");
         this.prime = prime;
@@ -162,8 +178,8 @@ public class Configuration {
         return log4jLogger;
     }
 
-    public int getExchangeTimeout() {
-        return exchangeTimeout;
+    public int getExchangeTimeoutMillis() {
+        return exchangeTimeoutMillis;
     }
 
     /**
@@ -185,7 +201,7 @@ public class Configuration {
      * 
      * @param path
      *            the path to the configuration file
-     * @return the Configuration read from the file
+     * @return the Configuration object read from the file
      */
     public static Configuration readConfigFile(String path) {
         Configuration conf = new Configuration();
