@@ -19,7 +19,7 @@ The most common and general scenario for the use of Diffie-Hellman is two partie
 Common use-cases are client to web-server or peer-to-peer file-sharing communication. 
 However, the case where multiple parties need to share a secret key is rarely addressed. Such cases may arise in complex distributed 
 systems where participants are located on different machines, and need to communicate with each other directly, rather than through one 
-central entity. Instead of generating a secret key for each pair of participants, it is possible to generate a single secret key shared  by all participants, in a manner which is resistable to eavesdropping and Man-In-The-Middle attacks. This is where Generalized Diffie-Hellman comes in.
+central entity. Instead of generating a secret key for each pair of participants, it is possible to generate a single secret key shared  by all participants, in a manner which is resistable to eavesdropping attacks. This is where Generalized Diffie-Hellman comes in.
 
 The following sequence diagram illustrates how the key exchange is performed. At first, two large numbers are distributed among the participants in plaintext. These numbers are the cyclic group generator (g) and a large prime(N). Then the participants come up with their secret numbers (a,b,c) which they do not reveal to anyone. They then begin a series of transactions at the end of which, they can each calculate the same secret key, without it ever being transmitted on the wire. In old-style Diffie-Hellman we would have 3 different keys produced, one per each couple of participants. 
 This scheme can be performed for any number of participants. The number of messages needed for N participants to complete a key exchange is N(N-1).  
@@ -196,6 +196,31 @@ pv.kill(activeVertex,undeployment1 -> {
 }      
 ```
 
+Let's say you have a distributed system, where each machine is running GDH, and you have no way of choosing or enforcing the GDHVertex which initiates the key exchange, i.e. every machine runs the same code.
+Hese's a sample code which can run in such an environment and enforce only one key exchange initiator.
+
+```
+GDHVertex vertex = new GDHVertex();
+        
+Configuration config = new Configuration();
+config.setIP("localhost").setPort("5000").setRetries(8).setLogLevel(Level.DEBUG);
+vertex.setConfiguration(config);
+        
+// Example IPs and ports used
+Group g = new Group(config,
+          new Node("172.52.44.120","5000"),
+          new Node("172.52.44.121","5000"),
+          new Node("172.52.44.122","5000"));
+        
+vertex.addGroup(g);
+        
+PrimaryVertex pv = new PrimaryVertex();
+pv.run(vertex);
+        
+if (vertex.getNode().equals(g.getActiveNode())) vertex.exchange(g.getGroupId());
+CompletableFuture<BigInteger> key = vertex.getKey(g.getGroupId());      // <---- key here
+```
+
 # Code Quality
 
 This project is analyzed on [Sonarcloud](https://sonarcloud.io/dashboard?id=GDH). Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
@@ -208,6 +233,10 @@ The code is tested by both unit tests and integration tests. The integration tes
 # Logging 
 
 GDH logs messages at different points during the exchange. This allows easy debugging and also lets users follow the exchange and helps understand the protocol. Logs are also used in tests. For example, verifying the final key after the exchange is NOT transmitted over the wire, or counting the number of messages required to complete a key exchange. So if you change the logging messages, make sure this hasn't affected any tests.
+
+# Security
+
+Strong public variables and 
 
 # License
 

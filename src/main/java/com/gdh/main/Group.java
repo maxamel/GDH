@@ -60,6 +60,16 @@ public class Group {
     public int getGroupId() {
         return groupId;
     }
+    
+    /**
+     * Get a node that represents a GDHVertex which will serve as a key exchange initiator.
+     * Due to the total order imposed on the group, it will always return the same node, regardless of the calling instance.
+     * 
+     * @return the smallest lexicographical node in the group
+     */
+    public Node getActiveNode() {
+        return treeNodes.first();
+    }
 
     public SortedSet<Node> getTreeNodes() {
         return new TreeSet<>(treeNodes);

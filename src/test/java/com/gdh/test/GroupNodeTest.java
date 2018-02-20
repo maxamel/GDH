@@ -39,11 +39,12 @@ public class GroupNodeTest {
         Node n3 = new Node("2.2.2.2", port1);
 
         Group g1 = new Group(new Configuration(), n1, n2, n3);
-        Group g2 = new Group(new Configuration(), n1, n2, n3);
+        Group g2 = new Group(new Configuration(), n2, n3, n1);
         Assert.assertFalse(n1.equals(n2));
         Assert.assertFalse(n1.equals(n3));
         Assert.assertTrue(g1.hashCode() == g2.hashCode());
         Assert.assertTrue(g1.equals(g2));
+        Assert.assertTrue(g1.getActiveNode().equals(g2.getActiveNode()));
     }
 
     @Test
