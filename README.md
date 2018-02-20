@@ -199,14 +199,13 @@ pv.kill(activeVertex,undeployment1 -> {
 Let's say you have a distributed system, where each machine is running GDH, and you have no way of choosing or enforcing the GDHVertex which initiates the key exchange, i.e. every machine runs the same code.
 Hese's a sample code which can run in such an environment and enforce only one key exchange initiator.
 
-```
+```java
 GDHVertex vertex = new GDHVertex();
         
 Configuration config = new Configuration();
 config.setIP("localhost").setPort("5000").setRetries(8).setLogLevel(Level.DEBUG);
 vertex.setConfiguration(config);
         
-// Example IPs and ports used
 Group g = new Group(config,
           new Node("172.52.44.120","5000"),
           new Node("172.52.44.121","5000"),
@@ -233,10 +232,6 @@ The code is tested by both unit tests and integration tests. The integration tes
 # Logging 
 
 GDH logs messages at different points during the exchange. This allows easy debugging and also lets users follow the exchange and helps understand the protocol. Logs are also used in tests. For example, verifying the final key after the exchange is NOT transmitted over the wire, or counting the number of messages required to complete a key exchange. So if you change the logging messages, make sure this hasn't affected any tests.
-
-# Security
-
-Strong public variables and 
 
 # License
 
