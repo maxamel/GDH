@@ -30,6 +30,11 @@ This scheme can be performed for any number of participants. The number of messa
 
 Due to the [discrete logarithm](https://en.wikipedia.org/wiki/Discrete_logarithm) problem, it is impossible for any third party listening in on the communication to compute the final key.
 
+# Security
+
+It has been the known for a few years now that the NSA has the ability to [break](https://arstechnica.com/information-technology/2015/10/how-the-nsa-can-break-trillions-of-encrypted-web-and-vpn-connections/) Diffie-Hellman encrypted traffic which uses 1024 bit primes. Because these primes need to be carefully picked out, only a handful of such primes is used in practice, so it's beneficial for the NSA to invest in breaking those primes since it allows them to decrypt a big percentage of the world's traffic. This is why GDH uses 2048 bit primes and generates 256 bit symmetric keys, which are considered safe for now.
+
+
 # Prerequisites
 
 Written in Java 8. 
