@@ -3,6 +3,7 @@
 [![Mentioned in Awesome Vert.x](https://awesome.re/mentioned-badge.svg)](https://github.com/vert-x3/vertx-awesome)
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)<br/>
+[![Known Vulnerabilities](https://snyk.io/test/github/maxamel/GDH/badge.svg)](https://snyk.io/test/github/maxamel/GDH)
 
 <img src="https://github.com/maxamel/GDH/blob/master/resources/logo.png" align="right" />
 
@@ -226,8 +227,9 @@ CompletableFuture<BigInteger> key = vertex.getKey(g.getGroupId());      // <----
 
 # Code Quality
 
-This project is analyzed on [Sonarcloud](https://sonarcloud.io/dashboard?id=GDH). Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
-Each push to the Github repository triggers a cloud build via TravisCI, which in turn pushes the code into another cloud code analyzer (Sonarcloud). If anything goes wrong during any of these steps the build fails.
+This project is analyzed on [Sonarcloud](https://sonarcloud.io/dashboard?id=GDH) and on [Snyk](https://snyk.io/org/maxamel/project/fe48906b-d65e-4e19-97af-b1fe986d536f). 
+Every build the code runs through a couple of static code analyzers (PMD and findbugs) to ensure code quality is maintained.
+Each push to the repository triggers a cloud build via TravisCI, which in turn pushes the code into Sonarcloud to find coding bugs and into Snyk to find security vulnerabilities in the dependencies. If anything goes wrong during any of these steps the build fails.
 
 # Testing
 

@@ -36,9 +36,9 @@ test {
 sourceSets.main.resources.srcDirs = [ "resources/" ]
 
 dependencies {
-	compile 'io.vertx:vertx-core:3.5.0'
-	compile 'io.vertx:vertx-unit:3.5.0'
-	compile 'io.vertx:testtools:2.0.3-final'
+	compile 'io.vertx:vertx-core:3.5.1'
+	testCompile 'io.vertx:vertx-unit:3.5.1'
+	testCompile 'junit:junit:4.12'
 	compile 'io.reactivex:rxjava:1.3.0'
 	compile 'com.google.code.findbugs:annotations:3.0.1'
 	compile 'log4j:log4j:1.2.17'

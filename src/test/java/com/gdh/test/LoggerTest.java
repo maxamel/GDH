@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
@@ -81,10 +80,11 @@ public class LoggerTest {
             for (int j = 0; j < verticles.length; j++) {
                 Assert.assertEquals(verticles[j].getKey(g.getGroupId()).get(), keys[0]);
             }
-            //System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_IN));
-            //System.out.println(StringUtils.countMatches(writer.toString(), Constants.LOG_OUT));
-            Assert.assertTrue(StringUtils.countMatches(writer.toString(), Constants.LOG_IN) >= amount*amount-1);
-            Assert.assertTrue(StringUtils.countMatches(writer.toString(), Constants.LOG_OUT) >= amount*amount-1);
+            String write = writer.toString();
+            int count1 = write.length() - write.replace(Constants.LOG_IN, "0000000").length();
+            int count2 = write.length() - write.replace(Constants.LOG_OUT, "0000000").length();
+            Assert.assertTrue(count1 >= amount*amount-1);
+            Assert.assertTrue(count2 >= amount*amount-1);
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
