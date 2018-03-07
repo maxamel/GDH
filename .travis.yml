@@ -1,7 +1,6 @@
 language: java
 sudo: false
 install: 
-    - bundle install --path vendor/bundle
     - snyk test
 
 addons:
