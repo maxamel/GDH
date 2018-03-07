@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)
 [![Coverage Status](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)
 [![Mentioned in Awesome Vert.x](https://awesome.re/mentioned-badge.svg)](https://github.com/vert-x3/vertx-awesome)
+[![Known Vulnerabilities](https://snyk.io/test/github/maxamel/GDH/badge.svg)](https://snyk.io/test/github/maxamel/GDH)
 
 [![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)](https://sonarcloud.io/api/project_badges/quality_gate?project=GDH)<br/>
-[![Known Vulnerabilities](https://snyk.io/test/github/maxamel/GDH/badge.svg)](https://snyk.io/test/github/maxamel/GDH)
 
 <img src="https://github.com/maxamel/GDH/blob/master/resources/logo.png" align="right" />
 
