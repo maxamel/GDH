@@ -2,7 +2,6 @@ language: java
 sudo: false
 install:
   - npm install
-  - snyk test
 
 addons:
     sonarcloud:
@@ -15,6 +14,7 @@ jdk:
   
 script:
   - ./gradlew sonarqube
+  - snyk test
 
 cache:
 directories:
