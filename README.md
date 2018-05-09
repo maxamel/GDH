@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/maxamel/GDH.svg)](https://travis-ci.org/maxamel/GDH)
-[![Coverage Status](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)](https://sonarcloud.io/api/badges/measure?key=GDH&metric=coverage)
+[![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=GDH&metric=coverage)](https://sonarcloud.io/api/project_badges/measure?project=GDH&metric=coverage)
 [![Mentioned in Awesome Vert.x](https://awesome.re/mentioned-badge.svg)](https://github.com/vert-x3/vertx-awesome)
 [![Known Vulnerabilities](https://snyk.io/test/github/maxamel/GDH/badge.svg)](https://snyk.io/test/github/maxamel/GDH)
 
