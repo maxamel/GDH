@@ -1,0 +1,22 @@
+language: java
+sudo: false
+install: true
+
+addons:
+    sonarcloud:
+        organization: "maxamel-github"
+        token: $SONAR_TOKEN
+
+jdk:
+  - oraclejdk8
+  - openjdk8
+  
+script:
+  - ./gradlew sonarqube
+
+cache:
+directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
+    - '$HOME/.gradle'
+    - '.gradle'
